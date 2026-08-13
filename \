@@ -1,0 +1,15 @@
+#pragma once
+
+#include <cstdint>
+
+class Bus {
+	public:
+		Bus();
+		~Bus();
+
+		uint32_t read(uint32_t address);
+		uint32_t write(uint32_t address, uint32_t value);		
+
+	private:
+		
+};
