@@ -20,6 +20,14 @@ class Cop0 {
 
 		int decodeInstruction(uint32_t instruction);
 
+		void setCauseRegister(uint32_t value);
+		void setCauseRegisterExCode(uint8_t value);
+
+		void setSRRegisterIEc(uint8_t value);
+		void setSRRegisterKUc(uint8_t value);
+
+		void setEPCRegister(uint32_t value);
+
 	private:
         uint32_t GPR[32]; // General purpose registers
         uint32_t EntryHi; // R/W in TLB

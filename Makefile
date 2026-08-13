@@ -1,13 +1,14 @@
-CXX = g++
-CXXFLAGS = -Wall -Wextra -std=c++20 -Iinclude
+CXX := g++
+TARGET := program
 
-TARGET = program
+CXXFLAGS := -Wall -Wextra -std=c++20 -Iinclude -g -fsanitize=address
+LDFLAGS := -fsanitize=address
 
-SRC = $(shell find src -name "*.cpp")
-OBJ = $(SRC:.cpp=.o)
+SRC := $(shell find src -type f -name '*.cpp')
+OBJ := $(SRC:.cpp=.o)
 
 $(TARGET): $(OBJ)
-	$(CXX) $(OBJ) -o $(TARGET)
+	$(CXX) $(OBJ) $(LDFLAGS) -o $@
 
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
@@ -15,6 +16,7 @@ $(TARGET): $(OBJ)
 clean:
 	rm -f $(OBJ) $(TARGET)
 
-re: clean $(TARGET)
+re: clean
+	$(MAKE) $(TARGET)
 
 .PHONY: clean re
