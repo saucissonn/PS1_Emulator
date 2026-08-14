@@ -44,6 +44,10 @@ class Cpu {
 
         int run();
 
+		// Utils
+
+		uint64_t getInstructionCounter();
+
 	private:
 		Bus *bus;
 
@@ -53,8 +57,12 @@ class Cpu {
         uint32_t LO;        // Low
 
         Operand *operand; // Current operands
+		uint32_t prevPC;
 		uint32_t instructionPC;
 		uint32_t nextPC;
+		bool inDelaySlot;
+
+		uint64_t instructionCounter;
 
 		uint8_t DCacheSize;
 		uint8_t ICacheSize;
@@ -73,7 +81,35 @@ class Cpu {
 		int raiseException(Exception exception);
 
 		int ADD();
+		int ADDI();
+		int ADDIU();
+		int ADDU();
+		int AND();
+		int ANDI();
 		int BEQ();
+		int BNE();
+		int J();
+		int JAL();
+		int JALR();
+		int JR();
+		int LUI();
+		int NOP();
+		int NOR();
+		int OR();
+		int ORI();
+		int SLL();
+        int SLLV();
+		int SLT();
+		int SLTI();
+        int SLTIU();
+		int SLTU();
+		int SRA();
+		int SRAV();
+		int SRL();
+		int SRLV();
+		int SUBU();
+		int XOR();
+		int XORI();
 
 		// Utils
 

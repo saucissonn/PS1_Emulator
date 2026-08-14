@@ -8,3 +8,7 @@ int32_t Cpu::signExtend(uint32_t value, int bits) {
 
     return (int32_t)(value);
 }
+
+uint64_t Cpu::getInstructionCounter() {
+	return instructionCounter;
+}

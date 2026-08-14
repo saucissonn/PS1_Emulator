@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <cstdlib>
 
+#include "utils/error.hpp"
+
 CacheLine *createCacheLine() {
 	CacheLine *cacheLine = (CacheLine *)malloc(sizeof(CacheLine));
 
@@ -46,14 +48,19 @@ Cpu::Cpu(Bus *bus_)
 		GPR[i] = 0;
 	}
 
-	PC = 0;
+	uint32_t startPC = 0xBFC00000;
+
+	PC = startPC;
 	HI = 0;
 	LO = 0;
 
 	operand = operandCreate();
 
-	instructionPC = 0;
-	nextPC = 0;
+	prevPC = startPC - 4;
+	instructionPC = startPC;
+	nextPC = startPC + 4;
+
+	instructionCounter = 0;
 
 	DCacheSize = 100;
 	ICacheSize = 100;
@@ -73,23 +80,32 @@ Cpu::~Cpu() {
     return;
 }
 
-uint32_t Cpu::convertAddress(uint32_t address) {
-	printf("Convert address\n");
-	return address;
-}
-
 int Cpu::run() {
-	convertAddress(0);
-
+	prevPC = instructionPC; // before
 	instructionPC = PC; // now (to modify if exception)
 	PC = nextPC; // next
 	nextPC = PC + 4; // after next (to modify if branch / jump)
 
-	// uint32_t instruction = fetchPC(instructionPC);
+	uint32_t instruction = fetchPC();
 	// decodeInstruction(instruction);
 
-	decodeInstruction(0x20);
-	decodeInstruction(0x10000020);
+	bool modifyDelaySlot = 0;
 
-	return 0;
+	if (inDelaySlot == 1) {
+		modifyDelaySlot = 1;
+	}
+
+	int ret = decodeInstruction(instruction); // Also execute
+
+	if (modifyDelaySlot == 1) {
+		inDelaySlot = 0;
+	}
+
+	instructionCounter += 1;
+
+	if (ret != ERR_OK) {
+		return ret;
+	}
+
+	return ERR_OK;
 }

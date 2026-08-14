@@ -22,6 +22,7 @@ class Cop0 {
 
 		void setCauseRegister(uint32_t value);
 		void setCauseRegisterExCode(uint8_t value);
+		void setCauseRegisterBD(uint8_t value);
 
 		void setSRRegisterIEc(uint8_t value);
 		void setSRRegisterKUc(uint8_t value);

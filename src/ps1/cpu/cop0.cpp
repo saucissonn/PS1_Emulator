@@ -52,6 +52,11 @@ void Cop0::setCauseRegisterExCode(uint8_t value) {
 	GPR[13] |= (uint32_t)(value << 2);
 }
 
+void Cop0::setCauseRegisterBD(uint8_t value) {
+    GPR[13] &= ~(0b1 << 31); // Clear area
+    GPR[13] |= (uint32_t)(value << 31);
+}
+
 void Cop0::setEPCRegister(uint32_t value) {
     GPR[14] = value;
 }
