@@ -2,6 +2,7 @@
 
 #include "ps1/cpu/cpu.hpp"
 #include "ps1/bus.hpp"
+#include "ps1/bios.hpp"
 
 class Ps1 {
 	public:
@@ -13,4 +14,5 @@ class Ps1 {
 	private:
 		Bus bus;
         Cpu cpu;
+		Bios bios;
 };

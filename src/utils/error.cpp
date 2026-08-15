@@ -1,6 +1,6 @@
 #include "utils/error.hpp"
 
-const char *error_string(Error err)
+const char *error_string(int err)
 {
 	switch(err)
 	{
@@ -24,6 +24,9 @@ const char *error_string(Error err)
 
         case ERR_UNEXPECTED_RESULT:
             return "unexpected result";
+
+		case ERR_CPU_INSTRUCTION_NOT_FOUND:
+			return "cpu instruction not found";
 
 		default:
 			return "unknown error";

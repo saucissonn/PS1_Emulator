@@ -2,8 +2,13 @@
 
 #include <cstdlib>
 
+#include "ps1/cpu/cpu.hpp"
 
-Cop0::Cop0() {
+
+Cop0::Cop0(Cpu *cpu_)
+{
+	cpu = cpu_;
+
 	for (int i = 0; i < 32; i++) {
 		GPR[i] = 0;
 	}
@@ -31,6 +36,11 @@ void Cop0::setCauseRegister(uint32_t value) {
 void Cop0::setCauseRegisterExCode(uint8_t value) {
     GPR[13] &= ~(0b1111100); // Clear area
 	GPR[13] |= (uint32_t)(value << 2);
+}
+
+void Cop0::setCauseRegisterBD(uint8_t value) {
+    GPR[13] &= ~(0b1 << 31); // Clear area
+    GPR[13] |= (uint32_t)(value << 31);
 }
 
 void Cop0::setEPCRegister(uint32_t value) {

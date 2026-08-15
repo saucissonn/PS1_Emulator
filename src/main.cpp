@@ -2,13 +2,21 @@
 
 #include <stdio.h>
 
+
+#include "utils/error.hpp"
+
 int main()
 {
 	printf("Hello World!\n");
 
 	Ps1 ps1 = Ps1();
 
-	ps1.run();
+	int ret = ps1.run();
 
-	return 0;
+	if (ret != ERR_OK) {
+		printf("%s\n", error_string(ret));
+		return ret;
+	}
+
+	return ERR_OK;
 }

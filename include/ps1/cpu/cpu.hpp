@@ -27,20 +27,9 @@ enum class Exception
     IntegerOverflow = 12,
 };
 
-enum class Mem // the physical memory zone in the cpu
-{
-    MAIN_RAM,
-    EXPANSION_REGION_1,
-    SCRATCHPAD,
-    IO_PORTS,
-    EXPANSION_REGION_2,
-    EXPANSION_REGION_3,
-    BIOS_ROM,
-    CACHE_CONTROL,
-    INVALID_COMPONENT
-};
-
 class Bus;
+class Cop0;
+class Cop2;
 
 class Cpu {
     public:
@@ -48,18 +37,26 @@ class Cpu {
         ~Cpu();
 
         uint32_t convertAddress(uint32_t address); // From virtual to physical address
-        Mem getMemoryHardware(uint32_t physicalAddr); // translate the physical address given into the physical component it is refering to
         uint32_t useCache(uint32_t address, CacheLine **cache); // Output is an instruction
 
 		uint32_t fetchPC(); // Decode PC and give the instruction to execute
 
+		int dispatchInstruction(uint32_t instruction); // Which componant has to execute the instruction
         int decodeInstruction(uint32_t instruction); // Decode and execute an instruction
+
         int accessDataMemory(uint32_t address); // If an instruction uses a load / store, use it to get the address
 
         int run();
 
+		// Utils
+
+		uint64_t getInstructionCounter();
+		uint32_t getInstructionPC();
+
 	private:
 		Bus *bus;
+        Cop0 cop0;
+        Cop2 cop2;
 
         uint32_t GPR[32];   // General purpose registers
         uint32_t PC;        // Program Counter
@@ -67,16 +64,17 @@ class Cpu {
         uint32_t LO;        // Low
 
         Operand *operand; // Current operands
+		uint32_t prevPC;
 		uint32_t instructionPC;
 		uint32_t nextPC;
+		bool inDelaySlot;
+
+		uint64_t instructionCounter;
 
 		uint8_t DCacheSize;
 		uint8_t ICacheSize;
         CacheLine **DCache;
         CacheLine **ICache;
-
-        Cop0 cop0;
-        Cop2 cop2;
 
 		// Instructions
 
@@ -87,7 +85,36 @@ class Cpu {
 		int raiseException(Exception exception);
 
 		int ADD();
+		int ADDI();
+		int ADDIU();
+		int ADDU();
+		int AND();
+		int ANDI();
 		int BEQ();
+		int BNE();
+		int J();
+		int JAL();
+		int JALR();
+		int JR();
+		int LUI();
+		int NOP();
+		int NOR();
+		int OR();
+		int ORI();
+		int SLL();
+        int SLLV();
+		int SLT();
+		int SLTI();
+        int SLTIU();
+		int SLTU();
+		int SRA();
+		int SRAV();
+		int SRL();
+		int SRLV();
+		int SUBU();
+		int SW();
+		int XOR();
+		int XORI();
 
 		// Utils
 
