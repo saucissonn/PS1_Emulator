@@ -385,6 +385,15 @@ int Cpu::XORI() {
     return ERR_OK;
 }
 
+int Cpu::DIV(){
+    LO = (int)GPR[operand->rs] / (int)GPR[operand->rt];
+    HI = (int)GPR[operand->rs] % (int)GPR[operand->rt];
+    printf("HI value: %d, LO value: %d\n", HI, LO );
+    printf("CPU instruction DIV done\n");
+
+    return ERR_OK;
+}
+
 uint32_t Cpu::fetchPC() { // From the current PC (instructionPC) return the value at its address
 	uint32_t address = convertAddress(instructionPC);
 
@@ -434,72 +443,85 @@ int Cpu::decodeInstruction(uint32_t instruction) { // From an instruction find a
 					}
 					return SLL();
 				}
-
-				case 0x02: {
-					return SRL();
-				}
-
+                case 0x02: {
+                    return SRL();
+                }
                 case 0x03: {
                     return SRA();
                 }
-
                 case 0x04: {
                     return SLLV();
                 }
-
                 case 0x06: {
                     return SRLV();
                 }
-
                 case 0x07: {
                     return SRAV();
                 }
-
                 case 0x08: {
                     return JR();
                 }
-
                 case 0x09: {
                     return JALR();
                 }
-
-				case 0x20: {
-					return ADD();
-				}
-
+                case 0x0C: {
+                    return SYSCALL();
+                }
+                case 0x0D: {
+                    return BREAK();
+                }
+                case 0x10: {
+                    return MFHI();
+                }
+                case 0x11: {
+                    return MTHI();
+                }
+                case 0x12: {
+                    return MFLO();
+                }
+                case 0x13: {
+                    return MTLO();
+                }
+                case 0x18: {
+                    return MULT();
+                }
+                case 0x19: {
+                    return MULTU();
+                }
+                case 0x1A: {
+                    return DIV();
+                }
+                case 0x1B: {
+                    return DIVU();
+                }
+                case 0x20: {
+                    return ADD();
+                }
                 case 0x21: {
                     return ADDU();
                 }
-
+                case 0x22: {
+                    return SUB();
+                }
                 case 0x23: {
                     return SUBU();
                 }
-
                 case 0x24: {
                     return AND();
                 }
-
                 case 0x25: {
                     return OR();
                 }
-
                 case 0x26: {
                     return XOR();
                 }
-
                 case 0x27: {
                     return NOR();
                 }
-
                 case 0x2A: {
                     return SLT();
                 }
-
                 case 0x2B: {
-                    return SLTU();
-                }
-
-                case 0x2C: {
                     return SLTU();
                 }
 			}
