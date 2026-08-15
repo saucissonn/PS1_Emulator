@@ -28,6 +28,8 @@ enum class Exception
 };
 
 class Bus;
+class Cop0;
+class Cop2;
 
 class Cpu {
     public:
@@ -39,7 +41,9 @@ class Cpu {
 
 		uint32_t fetchPC(); // Decode PC and give the instruction to execute
 
+		int dispatchInstruction(uint32_t instruction); // Which componant has to execute the instruction
         int decodeInstruction(uint32_t instruction); // Decode and execute an instruction
+
         int accessDataMemory(uint32_t address); // If an instruction uses a load / store, use it to get the address
 
         int run();
@@ -47,9 +51,12 @@ class Cpu {
 		// Utils
 
 		uint64_t getInstructionCounter();
+		uint32_t getInstructionPC();
 
 	private:
 		Bus *bus;
+        Cop0 cop0;
+        Cop2 cop2;
 
         uint32_t GPR[32];   // General purpose registers
         uint32_t PC;        // Program Counter
@@ -68,9 +75,6 @@ class Cpu {
 		uint8_t ICacheSize;
         CacheLine **DCache;
         CacheLine **ICache;
-
-        Cop0 cop0;
-        Cop2 cop2;
 
 		// Instructions
 

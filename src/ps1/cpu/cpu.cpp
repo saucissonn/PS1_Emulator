@@ -41,8 +41,8 @@ void destroyCache(CacheLine **cache, int size) {
 
 Cpu::Cpu(Bus *bus_) 
 	: bus(bus_),
-		cop0(),
-		cop2()
+		cop0(this),
+		cop2(this)
 {
 	for (int i = 0; i < 32; i++) {
 		GPR[i] = 0;
@@ -94,7 +94,7 @@ int Cpu::run() {
 		modifyDelaySlot = 1;
 	}
 
-	int ret = decodeInstruction(instruction); // Also execute
+	int ret = dispatchInstruction(instruction); // Also execute
 
 	if (modifyDelaySlot == 1) {
 		inDelaySlot = 0;

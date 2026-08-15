@@ -4,6 +4,27 @@
 
 #include "utils/error.hpp"
 
+int Cpu::dispatchInstruction(uint32_t instruction) {
+    uint8_t opcode = instruction >> 26; // 6 bits
+
+    switch (opcode) {
+		case 0x10: { // COP0
+			cop0.decodeInstruction(instruction);
+			return ERR_OK;
+		}
+
+		case 0x12: { // COP2
+			cop2.decodeInstruction(instruction);
+			return ERR_OK;
+		}
+
+		default: { // CPU
+			decodeInstruction(instruction);
+			return ERR_OK;
+		}
+	}
+}
+
 // Instructions
 
 int Cpu::ADD() {
@@ -551,6 +572,11 @@ int Cpu::decodeInstruction(uint32_t instruction) { // From an instruction find a
 			transfromIType(instruction);
 			return LUI();
 		}
+
+        case 0x2B: {
+            transfromIType(instruction);
+            return SW();
+        }
 	}
 
 	return ERR_CPU_INSTRUCTION_NOT_FOUND;

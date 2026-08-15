@@ -2,6 +2,8 @@
 
 #include <cstdlib>
 
+#include "ps1/cpu/cpu.hpp"
+
 TLBEntry *createTLBEntry() {
 	TLBEntry *tlbe = (TLBEntry *)malloc(sizeof(TLBEntry));
 
@@ -16,7 +18,10 @@ TLBEntry *createTLBEntry() {
 	return tlbe;
 }
 
-Cop0::Cop0() {
+Cop0::Cop0(Cpu *cpu_)
+{
+	cpu = cpu_;
+
 	for (int i = 0; i < 32; i++) {
 		GPR[i] = 0;
 	}

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+
 #include "ps1/cpu/operand.hpp"
 
 typedef struct {
@@ -13,9 +14,11 @@ typedef struct {
 	uint8_t ASID;	// Address Space Identifier, which physical block
 } TLBEntry;
 
+class Cpu;
+
 class Cop0 {
 	public:
-		Cop0();
+		Cop0(Cpu *cpu_);
 		~Cop0();
 
 		int decodeInstruction(uint32_t instruction);
@@ -30,6 +33,8 @@ class Cop0 {
 		void setEPCRegister(uint32_t value);
 
 	private:
+		Cpu *cpu;
+
         uint32_t GPR[32]; // General purpose registers
         uint32_t EntryHi; // R/W in TLB
         uint32_t EntryLo;

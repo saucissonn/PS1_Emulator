@@ -2,7 +2,11 @@
 
 #include <cstdlib>
 
-Cop2::Cop2() {
+#include "ps1/cpu/cpu.hpp"
+
+Cop2::Cop2(Cpu *cpu_) {
+	cpu = cpu_;
+
 	for (int i = 0; i < 32; i++) {
 		GPR[i] = 0;
 	}

@@ -12,3 +12,7 @@ int32_t Cpu::signExtend(uint32_t value, int bits) {
 uint64_t Cpu::getInstructionCounter() {
 	return instructionCounter;
 }
+
+uint32_t Cpu::getInstructionPC() {
+	return instructionPC;
+}
