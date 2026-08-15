@@ -4,7 +4,7 @@
 
 #include "utils/error.hpp"
 
-int Cpu::raiseException(Exception exception) {
+int Cpu::raiseException(Exception exception) { // Some instructions can call exceptions
     if (exception == Exception::IntegerOverflow) {
 		if (inDelaySlot) {
 			cop0.setEPCRegister(prevPC); // Put PC of the branch / jump
@@ -19,7 +19,7 @@ int Cpu::raiseException(Exception exception) {
         cop0.setSRRegisterKUc(0); // Kernel mode
         PC = 0x80000080; // TODO Sometimes different but enough for now
 
-        printf("Overflow\n");
+        printf("Exception: Overflow\n");
         return ERR_OK;
     }
 

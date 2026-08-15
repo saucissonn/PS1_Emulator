@@ -16,7 +16,7 @@ class Bus {
 		int setBios(Bios *bios_);
 
 		uint32_t read(uint32_t address);
-		uint32_t write(uint32_t address, uint32_t value);		
+		int write(uint32_t address, uint32_t value);		
 
 	private:
 		Cpu *cpu;

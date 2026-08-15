@@ -29,12 +29,12 @@ int Bios::load(const char *filename) {
 		return ERR_FILE_NOT_FOUND;
 	}
 
-	fseek(file, 0, SEEK_END);
+	fseek(file, 0, SEEK_END); // Get the file size
 	long int size = ftell(file);
 	rewind(file);
 
 	fread(biosRom, sizeof(uint8_t), size, file);
-/*
+/*	// To debug
 	for (int i = 0; i < size; i++) {
 		printf("%3d: %8X\n", i, biosRom[i]);
 	}
@@ -44,7 +44,7 @@ int Bios::load(const char *filename) {
 	return ERR_OK;
 }
 
-uint32_t Bios::read(uint32_t address) {
+uint32_t Bios::read(uint32_t address) { // Return a 32 bit value at address
 	uint32_t result = 0;
 
 	result |= (uint32_t)biosRom[address];
@@ -53,4 +53,13 @@ uint32_t Bios::read(uint32_t address) {
     result |= (uint32_t)(biosRom[address + 3] << 24);
 
 	return result;
+}
+
+int Bios::write(uint32_t address, uint32_t value) { // write a 32 bit value at address
+	biosRom[address] = value & 0xFF;
+	biosRom[address + 1] = (value >> 8) & 0xFF;
+	biosRom[address + 2] = (value >> 16) & 0xFF;
+	biosRom[address + 3] = (value >> 24) & 0xFF;
+
+    return ERR_OK;
 }

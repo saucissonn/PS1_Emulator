@@ -108,6 +108,7 @@ class Cpu {
 		int SRL();
 		int SRLV();
 		int SUBU();
+		int SW();
 		int XOR();
 		int XORI();
 

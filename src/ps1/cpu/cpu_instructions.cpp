@@ -331,6 +331,21 @@ int Cpu::SUBU() {
     return ERR_OK;
 }
 
+int Cpu::SW() {
+    int32_t address = signExtend(operand->immediate, 16) + GPR[operand->rs];
+
+    if (address & 3) {
+        raiseException(Exception::StoreAddressError);
+        return ERR_OK;
+    }
+
+	bus->write(address, GPR[operand->rt]); // Data Bus Error handled
+
+    printf("CPU instruction SW done\n");
+
+    return ERR_OK;
+}
+
 int Cpu::XOR() {
     GPR[operand->rd] = GPR[operand->rs] ^ GPR[operand->rt];
 
@@ -349,7 +364,7 @@ int Cpu::XORI() {
     return ERR_OK;
 }
 
-// Decoder
+// Convertor
 
 uint32_t Cpu::convertAddress(uint32_t address) {
     if (0x80000000 <= address && address <= 0xBFFFFFFF) { // KSEG0 or KSEG1
@@ -361,7 +376,7 @@ uint32_t Cpu::convertAddress(uint32_t address) {
     return address;
 }
 
-uint32_t Cpu::fetchPC() {
+uint32_t Cpu::fetchPC() { // From the current PC (instructionPC) return the value at its address
 	uint32_t address = convertAddress(instructionPC);
 
 	uint32_t value = bus->read(address);
@@ -369,24 +384,26 @@ uint32_t Cpu::fetchPC() {
 	return value;
 }
 
-void Cpu::transfromRType(uint32_t instruction) {
+// Decoder
+
+void Cpu::transfromRType(uint32_t instruction) { // Put R-Type instruction into operand
     operand->rs = (instruction >> 21) & 0x1F; // 5 bits
     operand->rt = (instruction >> 16) & 0x1F; // 5 bits
     operand->rd = (instruction >> 11) & 0x1F; // 5 bits
     operand->shamt = (instruction >> 6) & 0x1F; // 5 bits
 }
 
-void Cpu::transfromIType(uint32_t instruction) {
+void Cpu::transfromIType(uint32_t instruction) { // Put R-Type instruction into operand
     operand->rs = (instruction >> 21) & 0x1F; // 5 bits
     operand->rt = (instruction >> 16) & 0x1F; // 5 bits
     operand->immediate = instruction & 0xFFFF; // 16 bits
 }
 
-void Cpu::transfromJType(uint32_t instruction) {
+void Cpu::transfromJType(uint32_t instruction) { // Put R-Type instruction into operand
     operand->target = (instruction << 6) >> 6; // 26 bits
 }
 
-int Cpu::decodeInstruction(uint32_t instruction) {
+int Cpu::decodeInstruction(uint32_t instruction) { // From an instruction find and execute it among instruction functions
 	printf("\nPC: %8X\n", instructionPC);
 	printf("Instruction: %8X\n", instruction);
 	uint8_t opcode = instruction >> 26; // 6 bits
@@ -399,10 +416,7 @@ int Cpu::decodeInstruction(uint32_t instruction) {
 
 			printf("Funct: %2X\n", funct);
 
-			operand->rs = (instruction >> 21) & 0x1F; // 5 bits
-            operand->rt = (instruction >> 16) & 0x1F; // 5 bits
-            operand->rd = (instruction >> 11) & 0x1F; // 5 bits
-            operand->shamt = (instruction >> 6) & 0x1F; // 5 bits
+			transfromRType(instruction);
 
 			switch (funct) {
 				case 0x00: {

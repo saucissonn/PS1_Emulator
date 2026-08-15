@@ -16,7 +16,7 @@ int Bus::setBios(Bios *bios_) {
 }
 
 Bus::Bus() {
-	expansionRegion1Size = 0x80100;
+	expansionRegion1Size = 0x80100; // Temporarly here, maybe not here later on (for all regions)
 	memoryControl1Size = 36;
 	periphericalIOPortsSize = 32;
 	memoryControl2Size = 4;
@@ -38,4 +38,14 @@ uint32_t Bus::read(uint32_t address) {
 	}
 
 	return 0;
+}
+
+int Bus::write(uint32_t address, uint32_t value) {
+    if (0x1FC00000 <= address && address <= 0x1FC7FFFF) { // BIOS Region
+        address -= 0x1FC00000;
+		bios->write(address, value);
+		return 0;
+    }
+
+    return 0;
 }

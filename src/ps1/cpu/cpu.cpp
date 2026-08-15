@@ -87,7 +87,6 @@ int Cpu::run() {
 	nextPC = PC + 4; // after next (to modify if branch / jump)
 
 	uint32_t instruction = fetchPC();
-	// decodeInstruction(instruction);
 
 	bool modifyDelaySlot = 0;
 
