@@ -24,7 +24,20 @@ enum class Exception
     Breakpoint = 9,
     ReservedInstruction = 10,
     CoprocessorUnusable = 11,
-    IntegerOverflow = 12
+    IntegerOverflow = 12,
+};
+
+enum class Mem // the physical memory zone in the cpu
+{
+    MAIN_RAM,
+    EXPANSION_REGION_1,
+    SCRATCHPAD,
+    IO_PORTS,
+    EXPANSION_REGION_2,
+    EXPANSION_REGION_3,
+    BIOS_ROM,
+    CACHE_CONTROL,
+    INVALID_COMPONENT
 };
 
 class Bus;
@@ -34,7 +47,8 @@ class Cpu {
         Cpu(Bus *bus_);
         ~Cpu();
 
-        uint32_t convertAddress(uint32_t address); // From virtual to physical adress
+        uint32_t convertAddress(uint32_t address); // From virtual to physical address
+        Mem getMemoryHardware(uint32_t physicalAddr); // translate the physical address given into the physical component it is refering to
         uint32_t useCache(uint32_t address, CacheLine **cache); // Output is an instruction
 
 		uint32_t fetchPC(); // Decode PC and give the instruction to execute

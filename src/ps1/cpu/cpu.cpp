@@ -37,7 +37,7 @@ void destroyCache(CacheLine **cache, int size) {
 	free(cache);
 }
 
-Cpu::Cpu(Bus *bus_) 
+Cpu::Cpu(Bus *bus_)
 	: bus(bus_),
 		cop0(),
 		cop2()
@@ -73,9 +73,27 @@ Cpu::~Cpu() {
     return;
 }
 
-uint32_t Cpu::convertAddress(uint32_t address) {
-	printf("Convert address\n");
-	return address;
+uint32_t Cpu::convertAddress(uint32_t virtualAddr) {
+    if (virtualAddr >> 29 > 0b110){
+        // TODO: kseg2 decode
+    }
+    else
+        return virtualAddr & 0x1FFFFFFF;
+}
+
+Mem Cpu::getMemoryHardware(uint32_t physicalAddr){
+    if      (0x00000000 < physicalAddr && physicalAddr < 0x001FFFFF) return Mem::MAIN_RAM;
+    else if (0x1F000000 < physicalAddr && physicalAddr < 0x1F7FFFFF) return Mem::EXPANSION_REGION_1;
+    else if (0x1F800000 < physicalAddr && physicalAddr < 0x1F8003FF) return Mem::SCRATCHPAD;
+    else if (0x1F801000 < physicalAddr && physicalAddr < 0x1F802FFF) return Mem::IO_PORTS;
+    else if (0x1F802000 < physicalAddr && physicalAddr < 0x1F803FFF) return Mem::EXPANSION_REGION_2;
+    else if (0x1FA00000 < physicalAddr && physicalAddr < 0x1FBFFFFF) return Mem::EXPANSION_REGION_3;
+    else if (0x1FC00000 < physicalAddr && physicalAddr < 0x1FC7FFFF) return Mem::BIOS_ROM;
+    else if (0xFFFE0000 < physicalAddr && physicalAddr < 0xFFFE01FF) return Mem::CACHE_CONTROL;
+    else{
+        printf("Error: getHardware, the physical address given (%d) doesn't match any existing component\n", physicalAddr);
+        return Mem::INVALID_COMPONENT;
+    }
 }
 
 int Cpu::run() {
