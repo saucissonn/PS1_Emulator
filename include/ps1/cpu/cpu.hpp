@@ -115,6 +115,17 @@ class Cpu {
 		int SW();
 		int XOR();
 		int XORI();
+		int SUB();
+		int SYSCALL();
+		int BREAK();
+		int MFHI();
+		int MTHI();
+		int MFLO();
+		int MTLO();
+		int MULT();
+		int MULTU();
+		int DIV();
+		int DIVU();
 
 		// Utils
 

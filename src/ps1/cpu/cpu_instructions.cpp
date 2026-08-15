@@ -388,8 +388,58 @@ int Cpu::XORI() {
 int Cpu::DIV(){
     LO = (int)GPR[operand->rs] / (int)GPR[operand->rt];
     HI = (int)GPR[operand->rs] % (int)GPR[operand->rt];
-    printf("HI value: %d, LO value: %d\n", HI, LO );
+    printf("HI value: %d, LO value: %d\n", (int)HI, (int)LO );
     printf("CPU instruction DIV done\n");
+
+    return ERR_OK;
+}
+
+int Cpu::SUB() {
+
+    return ERR_OK;
+}
+
+int Cpu::SYSCALL() {
+
+    return ERR_OK;
+}
+
+int Cpu::BREAK() {
+
+    return ERR_OK;
+}
+
+int Cpu::MFHI() {
+
+    return ERR_OK;
+}
+
+int Cpu::MTHI() {
+
+    return ERR_OK;
+}
+
+int Cpu::MFLO() {
+
+    return ERR_OK;
+}
+
+int Cpu::MTLO() {
+
+    return ERR_OK;
+}
+
+int Cpu::MULT() {
+
+    return ERR_OK;
+}
+
+int Cpu::MULTU() {
+
+    return ERR_OK;
+}
+
+int Cpu::DIVU() {
 
     return ERR_OK;
 }
