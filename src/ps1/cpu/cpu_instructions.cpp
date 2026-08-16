@@ -342,7 +342,7 @@ int Cpu::SRLV() {
 }
 
 int Cpu::SUBU() {
-    int64_t result = (int64_t)GPR[operand->rs] - (int64_t)GPR[operand->rt];
+    int64_t result = (int64_t)GPR[operand->rs] - (int64_t)GPR[operand->rt]; // TODO: why int64_t ?
 
     GPR[operand->rd] = (uint32_t)result;
 
@@ -394,8 +394,18 @@ int Cpu::DIV(){
     return ERR_OK;
 }
 
-int Cpu::SUB() {
+int Cpu::DIVU() {
+    LO = GPR[operand->rs] / GPR[operand->rt];
+    HI = GPR[operand->rs] % GPR[operand->rt];
+    printf("HI value: %8X, LO value: %8X\n", HI, LO );
+    printf("CPU instruction DIVU done\n");
+    return ERR_OK;
+}
 
+int Cpu::SUB() {
+    GPR[operand->rd] = (int)GPR[operand->rs] - (int)GPR[operand->rt];
+    printf("GPR[%d] value : %8X\n", operand->rd, GPR[operand->rd]);
+    printf("CPU instruction SUB done\n");
     return ERR_OK;
 }
 
@@ -410,37 +420,48 @@ int Cpu::BREAK() {
 }
 
 int Cpu::MFHI() {
-
+    GPR[operand->rd] = HI;
+    printf("GPR[%d] value: %8X\n", operand->rd, GPR[operand->rd]);
+    printf("CPU instruction MFHI done\n");
     return ERR_OK;
 }
 
 int Cpu::MTHI() {
-
+    HI = GPR[operand->rs];
+    printf("HI value: %8X\n", HI);
+    printf("CPU instruction MTHI done\n");
     return ERR_OK;
 }
 
 int Cpu::MFLO() {
-
+    GPR[operand->rd] = LO;
+    printf("GPR[%d] value: %8X\n", operand->rd, GPR[operand->rd]);
+    printf("CPU instruction MFLO done\n");
     return ERR_OK;
 }
 
 int Cpu::MTLO() {
-
+    LO = GPR[operand->rs];
+    printf("LO value: %8X\n", LO);
+    printf("CPU instruction MTLO done\n");
     return ERR_OK;
 }
 
 int Cpu::MULT() {
-
+    int64_t res = (int64_t)GPR[operand->rs] * (int64_t)GPR[operand->rt];
+    LO = (uint32_t)res;
+    HI = (uint32_t)(res >> 32);
+    printf("HI value: %d, LO value: %d\n", (int)HI, (int)LO );
+    printf("CPU instruction MULT done\n");
     return ERR_OK;
 }
 
 int Cpu::MULTU() {
-
-    return ERR_OK;
-}
-
-int Cpu::DIVU() {
-
+    uint64_t res = (uint64_t)GPR[operand->rs] * (uint64_t)GPR[operand->rt];
+    LO = (uint32_t)res;
+    HI = (uint32_t)(res >> 32);
+    printf("HI value: %8X, LO value: %8X\n", HI, LO );
+    printf("CPU instruction MULTU done\n");
     return ERR_OK;
 }
 
