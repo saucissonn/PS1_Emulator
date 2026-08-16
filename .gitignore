@@ -1,3 +1,4 @@
 *.out
 *.o
+src/ps1/roms/BIOS.bin
 \
