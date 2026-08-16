@@ -28,7 +28,7 @@ int Cpu::ADD() {
 	int64_t result = (int64_t)(int32_t)GPR[operand->rs] + (int64_t)(int32_t)GPR[operand->rt];
 
 	if (result > INT32_MAX || result < INT32_MIN) {
-        raiseException(Exception::IntegerOverflow);
+        raiseException(Exception::ArithmeticOverflow);
         return ERR_OK;
 	}
 
@@ -44,7 +44,7 @@ int Cpu::ADDI() {
 	int64_t result = (int64_t)(int32_t)GPR[operand->rs] + (int64_t)(int32_t)signExtend(operand->immediate, 16);
 
     if (result > INT32_MAX || result < INT32_MIN) {
-        raiseException(Exception::IntegerOverflow);
+        raiseException(Exception::ArithmeticOverflow);
         return ERR_OK;
     }
 
@@ -125,14 +125,15 @@ int Cpu::BNE() {
 }
 
 int Cpu::BREAK() {
-
+    Cpu::raiseException(Exception::Breakpoint);
+    printf("CPU instruction BREAK done\n");
     return ERR_OK;
 }
 
 int Cpu::DIV(){
     LO = (int32_t)GPR[operand->rs] / (int32_t)GPR[operand->rt];
     HI = (int32_t)GPR[operand->rs] % (int32_t)GPR[operand->rt];
- 
+
 	printf("HI value: %8X, LO value: %8X\n", HI, LO);
     printf("CPU instruction DIV done\n");
 
@@ -182,6 +183,7 @@ int Cpu::JALR() {
     uint32_t target = GPR[operand->rs];
 
     if (target & 0x3) {
+        cop0.setBadVaddr(target);
         raiseException(Exception::LoadAddressError);
         return ERR_OK;
     }
@@ -200,6 +202,7 @@ int Cpu::JR() {
     uint32_t target = GPR[operand->rs];
 
 	if (target & 3) {
+	    cop0.setBadVaddr(target);
 		raiseException(Exception::LoadAddressError);
 		return ERR_OK;
 	}
@@ -452,6 +455,7 @@ int Cpu::SW() {
     int32_t address = signExtend(operand->immediate, 16) + GPR[operand->rs];
 
     if (address & 3) {
+        cop0.setBadVaddr(address);
         raiseException(Exception::StoreAddressError);
         return ERR_OK;
     }
@@ -465,7 +469,8 @@ int Cpu::SW() {
 }
 
 int Cpu::SYSCALL() {
-
+    raiseException(Exception::Syscall);
+    printf("CPU instruction SYSCALL done\n");
     return ERR_OK;
 }
 

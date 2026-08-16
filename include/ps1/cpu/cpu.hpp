@@ -24,7 +24,7 @@ enum class Exception
     Breakpoint = 9,
     ReservedInstruction = 10,
     CoprocessorUnusable = 11,
-    IntegerOverflow = 12,
+    ArithmeticOverflow = 12,
 };
 
 class Bus;

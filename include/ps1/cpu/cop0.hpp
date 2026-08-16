@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <sys/types.h>
 
 #include "ps1/cpu/operand.hpp"
 
@@ -19,10 +20,24 @@ class Cop0 {
 		void setCauseRegisterExCode(uint8_t value);
 		void setCauseRegisterBD(uint8_t value);
 
-		void setSRRegisterIEc(uint8_t value);
-		void setSRRegisterKUc(uint8_t value);
-
 		void setEPCRegister(uint32_t value);
+
+        // NOTE: DO NOT forget to call this function with the invalid address in case of badVaddr exception before calling Cpu::raiseException
+		void setBadVaddr(uint32_t badVaddr); // set BadVaddr (GPR[8]) to badVaddr
+
+		void setStatusRegisterIEc(uint8_t value);
+		void setStatusRegisterKUc(uint8_t value);
+		void setStatusRegisterIEo(uint8_t value);
+		void setStatusRegisterKUo(uint8_t value);
+		void setStatusRegisterIEp(uint8_t value);
+		void setStatusRegisterKUp(uint8_t value);
+		void setStatusRegisterBEV(uint8_t value);
+
+		int getStatusRegisterBEV();
+		int getStatusRegisterIEp();
+		int getStatusRegisterKUp();
+		int getStatusRegisterIEc();
+		int getStatusRegisterKUc();
 
 	private:
 		Cpu *cpu;

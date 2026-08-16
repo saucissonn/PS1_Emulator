@@ -25,7 +25,7 @@ int Bios::load(const char *filename) {
 	file = fopen(filename, "r");
 
 	if (!file) {
-		printf("Can't read this file\n");
+		printf("Error: Bios::Load, Can't read this file\n");
 		return ERR_FILE_NOT_FOUND;
 	}
 
