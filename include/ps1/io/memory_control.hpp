@@ -21,3 +21,15 @@ class MemoryControl1 {
 		uint32_t expansion2DelaySize;
 		uint32_t commonDelay;
 };
+
+class MemoryControl2 {
+    public:
+        MemoryControl2();
+        ~MemoryControl2();
+
+        uint32_t read(uint32_t address);
+        void write(uint32_t address, uint32_t value);
+
+    private:
+        uint32_t ramSize;
+};
