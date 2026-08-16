@@ -3,6 +3,7 @@
 #include "ps1/cpu/cpu.hpp"
 #include "ps1/bus.hpp"
 #include "ps1/bios.hpp"
+#include "ps1/ram.hpp"
 
 class Ps1 {
 	public:
@@ -15,4 +16,5 @@ class Ps1 {
 		Bus bus;
         Cpu cpu;
 		Bios bios;
+		Ram ram;
 };

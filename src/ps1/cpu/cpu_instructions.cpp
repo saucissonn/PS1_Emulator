@@ -28,7 +28,7 @@ int Cpu::dispatchInstruction(uint32_t instruction) {
 // Instructions
 
 int Cpu::ADD() {
-	int64_t result = (int64_t)GPR[operand->rs] + (int64_t)GPR[operand->rt];
+	int64_t result = (int64_t)(int32_t)GPR[operand->rs] + (int64_t)(int32_t)GPR[operand->rt];
 
 	if (result > INT32_MAX || result < INT32_MIN) {
         raiseException(Exception::IntegerOverflow);
@@ -44,7 +44,7 @@ int Cpu::ADD() {
 }
 
 int Cpu::ADDI() {
-	int64_t result = (int64_t)GPR[operand->rs] + (int64_t)signExtend(operand->immediate, 16);
+	int64_t result = (int64_t)(int32_t)GPR[operand->rs] + (int64_t)(int32_t)signExtend(operand->immediate, 16);
 
     if (result > INT32_MAX || result < INT32_MIN) {
         raiseException(Exception::IntegerOverflow);
@@ -60,7 +60,7 @@ int Cpu::ADDI() {
 }
 
 int Cpu::ADDIU() {
-    int64_t result = (int64_t)GPR[operand->rs] + (int64_t)signExtend(operand->immediate, 16);
+    int64_t result = (int64_t)(int32_t)GPR[operand->rs] + (int64_t)(int32_t)signExtend(operand->immediate, 16);
 
     GPR[operand->rt] = (uint32_t)result;
 
@@ -71,7 +71,7 @@ int Cpu::ADDIU() {
 }
 
 int Cpu::ADDU() {
-    int64_t result = (int64_t)GPR[operand->rs] + (int64_t)GPR[operand->rt];
+    int64_t result = (int64_t)(int32_t)GPR[operand->rs] + (int64_t)(int32_t)GPR[operand->rt];
 
     GPR[operand->rd] = (uint32_t)result;
 
@@ -127,6 +127,31 @@ int Cpu::BNE() {
     return ERR_OK;
 }
 
+int Cpu::BREAK() {
+
+    return ERR_OK;
+}
+
+int Cpu::DIV(){
+    LO = (int32_t)GPR[operand->rs] / (int32_t)GPR[operand->rt];
+    HI = (int32_t)GPR[operand->rs] % (int32_t)GPR[operand->rt];
+ 
+	printf("HI value: %8X, LO value: %8X\n", HI, LO);
+    printf("CPU instruction DIV done\n");
+
+    return ERR_OK;
+}
+
+int Cpu::DIVU() {
+    LO = GPR[operand->rs] / GPR[operand->rt];
+    HI = GPR[operand->rs] % GPR[operand->rt];
+
+    printf("HI value: %8X, LO value: %8X\n", HI, LO);
+    printf("CPU instruction DIVU done\n");
+
+    return ERR_OK;
+}
+
 int Cpu::J() {
     uint32_t temp = operand->target << 2;
 	uint32_t tempPC = instructionPC & 0xF0000000;
@@ -135,6 +160,7 @@ int Cpu::J() {
 
     inDelaySlot = 1;
 
+	printf("Jump to address: %8X\n", nextPC);
     printf("CPU instruction J done\n");
 
     return ERR_OK;
@@ -184,6 +210,7 @@ int Cpu::JR() {
     nextPC = target;
     inDelaySlot = 1;
 
+	printf("Jump to address: %8X\n", nextPC);
     printf("CPU instruction JR done\n");
 
     return ERR_OK;
@@ -196,6 +223,52 @@ int Cpu::LUI() {
     printf("CPU instruction LUI done\n");
 
 	return ERR_OK;
+}
+
+int Cpu::MFHI() {
+    GPR[operand->rd] = HI;
+
+    printf("Value: %8X\n", GPR[operand->rd]);
+    printf("CPU instruction MFHI done\n");
+
+    return ERR_OK;
+}
+
+int Cpu::MFLO() {
+    GPR[operand->rd] = LO;
+
+    printf("Value: %8X\n", GPR[operand->rd]);
+    printf("CPU instruction MFLO done\n");
+
+    return ERR_OK;
+}
+
+int Cpu::MTHI() {
+	HI = GPR[operand->rs];
+
+    printf("HI: %8X\n", HI);
+    printf("CPU instruction MTHI done\n");
+
+    return ERR_OK;
+}
+
+int Cpu::MTLO() {
+    LO = GPR[operand->rs];
+
+    printf("LO: %8X\n", LO);
+    printf("CPU instruction MTLO done\n");
+
+    return ERR_OK;
+}
+
+int Cpu::MULT() {
+
+    return ERR_OK;
+}
+
+int Cpu::MULTU() {
+
+    return ERR_OK;
 }
 
 int Cpu::NOP() {
@@ -306,7 +379,9 @@ int Cpu::SLLV() {
 }
 
 int Cpu::SRA() {
-    GPR[operand->rd] = signExtend(GPR[operand->rt] >> operand->shamt, 32);
+    int32_t value = signExtend(GPR[operand->rt], 32);;
+
+    GPR[operand->rd] = (uint32_t)(value >> operand->shamt);
 
     printf("Value: %8X\n", GPR[operand->rd]);
     printf("CPU instruction SRA done\n");
@@ -315,7 +390,10 @@ int Cpu::SRA() {
 }
 
 int Cpu::SRAV() {
-    GPR[operand->rd] = signExtend(GPR[operand->rt] >> (GPR[operand->rs] & 0x1F), 32);
+    int32_t value = signExtend(GPR[operand->rt], 32);
+    uint32_t shift = GPR[operand->rs] & 0x1F;
+
+    GPR[operand->rd] = (uint32_t)(value >> shift);
 
     printf("Value: %8X\n", GPR[operand->rd]);
     printf("CPU instruction SRAV done\n");
@@ -337,6 +415,11 @@ int Cpu::SRLV() {
 
     printf("Value: %8X\n", GPR[operand->rd]);
     printf("CPU instruction SRLV done\n");
+
+    return ERR_OK;
+}
+
+int Cpu::SUB() {
 
     return ERR_OK;
 }
@@ -367,6 +450,11 @@ int Cpu::SW() {
     return ERR_OK;
 }
 
+int Cpu::SYSCALL() {
+
+    return ERR_OK;
+}
+
 int Cpu::XOR() {
     GPR[operand->rd] = GPR[operand->rs] ^ GPR[operand->rt];
 
@@ -385,64 +473,7 @@ int Cpu::XORI() {
     return ERR_OK;
 }
 
-int Cpu::DIV(){
-    LO = (int)GPR[operand->rs] / (int)GPR[operand->rt];
-    HI = (int)GPR[operand->rs] % (int)GPR[operand->rt];
-    printf("HI value: %d, LO value: %d\n", (int)HI, (int)LO );
-    printf("CPU instruction DIV done\n");
-
-    return ERR_OK;
-}
-
-int Cpu::SUB() {
-
-    return ERR_OK;
-}
-
-int Cpu::SYSCALL() {
-
-    return ERR_OK;
-}
-
-int Cpu::BREAK() {
-
-    return ERR_OK;
-}
-
-int Cpu::MFHI() {
-
-    return ERR_OK;
-}
-
-int Cpu::MTHI() {
-
-    return ERR_OK;
-}
-
-int Cpu::MFLO() {
-
-    return ERR_OK;
-}
-
-int Cpu::MTLO() {
-
-    return ERR_OK;
-}
-
-int Cpu::MULT() {
-
-    return ERR_OK;
-}
-
-int Cpu::MULTU() {
-
-    return ERR_OK;
-}
-
-int Cpu::DIVU() {
-
-    return ERR_OK;
-}
+// Decoder
 
 uint32_t Cpu::fetchPC() { // From the current PC (instructionPC) return the value at its address
 	uint32_t address = convertAddress(instructionPC);
@@ -451,8 +482,6 @@ uint32_t Cpu::fetchPC() { // From the current PC (instructionPC) return the valu
 
 	return value;
 }
-
-// Decoder
 
 void Cpu::transfromRType(uint32_t instruction) { // Put R-Type instruction into operand
     operand->rs = (instruction >> 21) & 0x1F; // 5 bits
@@ -515,9 +544,11 @@ int Cpu::decodeInstruction(uint32_t instruction) { // From an instruction find a
                     return JALR();
                 }
                 case 0x0C: {
+                    printf("NOT DONE YET\n");
                     return SYSCALL();
                 }
                 case 0x0D: {
+					printf("NOT DONE YET\n");
                     return BREAK();
                 }
                 case 0x10: {
@@ -533,9 +564,11 @@ int Cpu::decodeInstruction(uint32_t instruction) { // From an instruction find a
                     return MTLO();
                 }
                 case 0x18: {
+                    printf("NOT DONE YET\n");
                     return MULT();
                 }
                 case 0x19: {
+                    printf("NOT DONE YET\n");
                     return MULTU();
                 }
                 case 0x1A: {
@@ -551,6 +584,7 @@ int Cpu::decodeInstruction(uint32_t instruction) { // From an instruction find a
                     return ADDU();
                 }
                 case 0x22: {
+                    printf("NOT DONE YET\n");
                     return SUB();
                 }
                 case 0x23: {

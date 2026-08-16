@@ -47,8 +47,15 @@ Cpu::Cpu(Bus *bus_)
 	for (int i = 0; i < 32; i++) {
 		GPR[i] = 0;
 	}
-
-	uint32_t startPC = 0xBFC00000;
+/*
+	GPR[8] = 0x12345678;
+    GPR[9] = 0x87654321;
+    GPR[10] = 3;
+    GPR[11] = 4;
+    GPR[12] = 0x80000000;
+    GPR[13] = 0xFFFFFFFF;
+*/
+	uint32_t startPC = 0x1FC00000;
 
 	PC = startPC;
 	HI = 0;

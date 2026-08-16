@@ -54,12 +54,3 @@ uint32_t Bios::read(uint32_t address) { // Return a 32 bit value at address
 
 	return result;
 }
-
-int Bios::write(uint32_t address, uint32_t value) { // write a 32 bit value at address
-	biosRom[address] = value & 0xFF;
-	biosRom[address + 1] = (value >> 8) & 0xFF;
-	biosRom[address + 2] = (value >> 16) & 0xFF;
-	biosRom[address + 3] = (value >> 24) & 0xFF;
-
-    return ERR_OK;
-}

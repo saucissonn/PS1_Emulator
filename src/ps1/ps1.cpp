@@ -5,7 +5,8 @@
 Ps1::Ps1() :
 	bus(),
 	cpu(&bus),
-	bios()
+	bios(),
+	ram()
 	
 {
 	int ret = bios.load("src/ps1/roms/test.bin");
@@ -17,6 +18,7 @@ Ps1::Ps1() :
 	// Link everything to the bus
 	bus.setCpu(&cpu);
 	bus.setBios(&bios);
+	bus.setRam(&ram);
 
 	return;
 }
@@ -27,7 +29,7 @@ Ps1::~Ps1() {
 
 int Ps1::run() {
 	while (1) {
-		if (cpu.getInstructionCounter() > 100) {
+		if (cpu.getInstructionCounter() > 60) {
 			return ERR_OK;
 		}
 		
