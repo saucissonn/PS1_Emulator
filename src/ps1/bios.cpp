@@ -35,7 +35,7 @@ int Bios::load(const char *filename) {
 
 	fread(biosRom, sizeof(uint8_t), size, file);
 /*	// To debug
-	for (int i = 0; i < size; i++) {
+	for (int i = 0; i < size && i < 1000; i++) {
 		printf("%3d: %8X\n", i, biosRom[i]);
 	}
 */
@@ -46,6 +46,8 @@ int Bios::load(const char *filename) {
 
 uint32_t Bios::read(uint32_t address) { // Return a 32 bit value at address
 	uint32_t result = 0;
+
+	address -= 0x1FC00000;
 
 	result |= (uint32_t)biosRom[address];
     result |= (uint32_t)(biosRom[address + 1] << 8);

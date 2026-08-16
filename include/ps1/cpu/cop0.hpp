@@ -13,6 +13,8 @@ class Cop0 {
 
 		int decodeInstruction(uint32_t instruction);
 
+		// Utils
+
 		void setCauseRegister(uint32_t value);
 		void setCauseRegisterExCode(uint8_t value);
 		void setCauseRegisterBD(uint8_t value);
@@ -29,5 +31,13 @@ class Cop0 {
         uint32_t EntryHi; // R/W in TLB
         uint32_t EntryLo;
 
+		void transfromInstruction(uint32_t instruction);
+
         Operand *operand; // Current operands
+
+		// Instructions
+
+		int MFC0();
+		int MTC0();
+		int RFE();
 };

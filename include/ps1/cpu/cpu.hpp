@@ -50,6 +50,9 @@ class Cpu {
 
 		// Utils
 
+		uint32_t getGPR(uint8_t index);
+		void setGPR(uint32_t value, uint8_t index);
+
 		uint64_t getInstructionCounter();
 		uint32_t getInstructionPC();
 

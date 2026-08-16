@@ -13,6 +13,22 @@ int32_t Cpu::signExtend(uint32_t value, int bits) {
     return (int32_t)value;
 }
 
+uint32_t Cpu::getGPR(uint8_t index) {
+	if (index > 31) {
+		return 0;
+	}
+
+	return GPR[index];
+}
+
+void Cpu::setGPR(uint32_t value, uint8_t index) {
+    if (index > 31) {
+        return;
+    }
+
+	GPR[index] = value;
+}
+
 uint64_t Cpu::getInstructionCounter() {
 	return instructionCounter;
 }

@@ -5,6 +5,7 @@
 #include "ps1/cpu/cpu.hpp"
 #include "ps1/bios.hpp"
 #include "ps1/ram.hpp"
+#include "ps1/io/io.hpp"
 
 enum class Mem // the physical memory zone in the cpu
 {
@@ -29,6 +30,7 @@ class Bus {
 		int setCpu(Cpu *cpu_);
 		int setBios(Bios *bios_);
 		int setRam(Ram *ram_);
+		int setIo(Io *io_);
 
 		uint32_t read(uint32_t address);
 		int write(uint32_t address, uint32_t value);
@@ -38,6 +40,7 @@ class Bus {
 		Cpu *cpu;
 		Bios *bios;
 		Ram *ram;
+		Io *io;
 
 		uint32_t expansionRegion1Size;
 		uint32_t memoryControl1Size;

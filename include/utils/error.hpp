@@ -8,7 +8,8 @@ typedef enum {
 	ERR_INVALID_ARGUMENT,			// Invalid argument (often when NULL)
 	ERR_INVALID_TYPE,				// Invalid type
 	ERR_UNEXPECTED_RESULT,			// When a value returned by a function isn't expected
-	ERR_CPU_INSTRUCTION_NOT_FOUND	// Cpu instruction not found
+	ERR_CPU_INSTRUCTION_NOT_FOUND,	// Cpu instruction not found
+	ERR_COP0_INSTRUCTION_NOT_FOUND  // Cop0 instruction not found
 } Error;
 
 const char *error_string(int err);

@@ -9,6 +9,7 @@ typedef struct {
     uint8_t shamt;      // Shift amount (5 bits)
     uint16_t immediate; // (16 bits)
     uint32_t target;    // (26 bits)
+	uint8_t funct;		// Function (8 bits)
 } Operand;
 
 Operand *operandCreate();

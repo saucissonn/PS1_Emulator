@@ -22,6 +22,12 @@ int Bus::setRam(Ram *ram_) {
 	return 0;
 }
 
+int Bus::setIo(Io *io_) {
+	io = io_;
+
+	return 0;
+}
+
 Bus::Bus() {
 	expansionRegion1Size = 0x80100; // Temporarly here, maybe not here later on (for all regions)
 	memoryControl1Size = 36;
@@ -38,29 +44,6 @@ Bus::~Bus() {
     return;
 }
 
-uint32_t Bus::read(uint32_t address) {
-	if (address <= 0x001FFFFF) { // Main Ram
-		return ram->read(address);
-	}
-
-	if (0x1FC00000 <= address && address <= 0x1FC7FFFF) { // BIOS Region
-		address -= 0x1FC00000;
-		return bios->read(address);
-	}
-
-	return 0;
-}
-
-int Bus::write(uint32_t address, uint32_t value) {
-    if (address <= 0x001FFFFF) { // Main Ram
-        address -= 0x1FC00000;
-		ram->write(address, value);
-		return 0;
-    }
-
-    return 0;
-}
-
 Mem Bus::getMemoryHardware(uint32_t physicalAddr) {
     if      (physicalAddr <= 0x001FFFFF) return Mem::MAIN_RAM;
     else if (0x1F000000 <= physicalAddr && physicalAddr <= 0x1F7FFFFF) return Mem::EXPANSION_REGION_1;
@@ -73,5 +56,100 @@ Mem Bus::getMemoryHardware(uint32_t physicalAddr) {
     else {
         printf("Error: getMemoryHardware, the physical address given (%8X) doesn't match any existing component\n", physicalAddr);
         return Mem::INVALID_COMPONENT;
+    }
+}
+
+uint32_t Bus::read(uint32_t address) {
+    Mem section = getMemoryHardware(address);
+
+    switch (section) {
+        case Mem::MAIN_RAM: {
+            return ram->read(address);
+		}
+
+        case Mem::EXPANSION_REGION_1: {
+            printf("Read memory in expansion region 1\n");
+            return 0;
+		}
+
+        case Mem::SCRATCHPAD: {
+            return 0;
+		}
+
+        case Mem::IO_PORTS: {
+            return io->read(address);
+		}
+
+        case Mem::EXPANSION_REGION_2: {
+            printf("Read memory in expansion region 2\n");
+            return 0;
+		}
+
+        case Mem::EXPANSION_REGION_3: {
+            printf("Read memory in expansion region 3\n");
+            return 0;
+		}
+
+        case Mem::BIOS_ROM: {
+            return bios->read(address);
+		}
+
+        case Mem::CACHE_CONTROL: {
+            return 0;
+		}
+
+		default: {
+            printf("Error: invalid memory component\n");
+            return 0;
+		}
+    }
+}
+
+int Bus::write(uint32_t address, uint32_t value) {
+    Mem section = getMemoryHardware(address);
+
+    switch (section) {
+        case Mem::MAIN_RAM: {
+            ram->write(address, value);
+            return 0;
+        }
+
+        case Mem::EXPANSION_REGION_1: {
+            printf("Write memory in expansion region 1\n");
+            return 0;
+        }
+
+        case Mem::SCRATCHPAD: {
+            return 0;
+        }
+
+        case Mem::IO_PORTS: {
+            io->write(address, value);
+			return 0;
+		}
+
+        case Mem::EXPANSION_REGION_2: {
+            printf("Write memory in expansion region 2\n");
+            return 0;
+        }
+
+        case Mem::EXPANSION_REGION_3: {
+            printf("Write memory in expansion region 3\n");
+            return 0;
+        }
+
+        case Mem::BIOS_ROM: {
+            printf("Error: cannot write to BIOS ROM\n");
+            return 0;
+        }
+
+        case Mem::CACHE_CONTROL: {
+            return 0;
+        }
+
+        default: {
+            printf("Error: invalid memory component\n");
+            return 0;
+        }
     }
 }

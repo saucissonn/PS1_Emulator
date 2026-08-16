@@ -28,6 +28,9 @@ const char *error_string(int err)
 		case ERR_CPU_INSTRUCTION_NOT_FOUND:
 			return "cpu instruction not found";
 
+        case ERR_COP0_INSTRUCTION_NOT_FOUND:
+            return "cop0 instruction not found";
+
 		default:
 			return "unknown error";
 	}

@@ -9,18 +9,15 @@ int Cpu::dispatchInstruction(uint32_t instruction) {
 
     switch (opcode) {
 		case 0x10: { // COP0
-			cop0.decodeInstruction(instruction);
-			return ERR_OK;
+			return cop0.decodeInstruction(instruction);
 		}
 
 		case 0x12: { // COP2
-			cop2.decodeInstruction(instruction);
-			return ERR_OK;
+			return cop2.decodeInstruction(instruction);
 		}
 
 		default: { // CPU
-			decodeInstruction(instruction);
-			return ERR_OK;
+			return decodeInstruction(instruction);
 		}
 	}
 }
@@ -461,6 +458,7 @@ int Cpu::SW() {
 
 	bus->write(address, GPR[operand->rt]); // Data Bus Error handled
 
+	printf("Address: %8X\n", address);
     printf("CPU instruction SW done\n");
 
     return ERR_OK;
@@ -557,14 +555,6 @@ int Cpu::decodeInstruction(uint32_t instruction) { // From an instruction find a
                 case 0x09: {
                     return JALR();
                 }
-                case 0x0C: {
-                    printf("NOT DONE YET\n");
-                    return SYSCALL();
-                }
-                case 0x0D: {
-					printf("NOT DONE YET\n");
-                    return BREAK();
-                }
                 case 0x10: {
                     return MFHI();
                 }
@@ -641,6 +631,11 @@ int Cpu::decodeInstruction(uint32_t instruction) { // From an instruction find a
         case 0x05: {
             transfromIType(instruction);
             return BNE();
+        }
+
+        case 0x08: {
+            transfromIType(instruction);
+            return ADDI();
         }
 
 		case 0x09: {
