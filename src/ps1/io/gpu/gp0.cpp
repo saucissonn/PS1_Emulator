@@ -8,7 +8,7 @@ Gp0::Gp0(Gpu *gpu_) {
 	gpu = gpu_;
 
 	commandBufferMaxSize = 100;
-	indexCommandBuffer = 0;
+	commandBufferIndex = 0;
 	commandBuffer = (uint32_t *)calloc(commandBufferMaxSize, sizeof(uint32_t));
 
 	return;
@@ -20,16 +20,16 @@ Gp0::~Gp0() {
 	return;
 }
 
-uint32_t Gp0::read(uint32_t address) {
-	return address; // TODO
+uint32_t Gp0::read() {
+	return gpu->getGpuread(); // TODO
 }
 
-void Gp0::write(uint32_t address, uint32_t value) {
-    if (0x1F801814 != address || indexCommandBuffer >= commandBufferMaxSize) {
+void Gp0::write(uint32_t value) {
+    if (commandBufferIndex >= commandBufferMaxSize) {
         return;
     }
 
-	commandBuffer[indexCommandBuffer] = value;
+	commandBuffer[commandBufferIndex] = value;
 
-	indexCommandBuffer += 1;
+	commandBufferIndex += 1;
 }

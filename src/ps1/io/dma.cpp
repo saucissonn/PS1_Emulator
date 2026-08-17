@@ -1,5 +1,7 @@
 #include "ps1/io/dma.hpp"
 
+#include "utils/error.hpp"
+
 Dma::Dma() {
     for (int i = 0; i < 7; i++) {
         channels[i].baseAddress = 0;
@@ -48,7 +50,7 @@ uint32_t Dma::read(uint32_t address) {
     return 0;
 }
 
-void Dma::write(uint32_t address, uint32_t value) {
+int Dma::write(uint32_t address, uint32_t value) {
     if (address >= 0x1F801080 && address <= 0x1F8010E8) {
         uint32_t channel = (address - 0x1F801080) / 0x10;
         uint32_t offset = (address - 0x1F801080) % 0x10;
@@ -56,17 +58,17 @@ void Dma::write(uint32_t address, uint32_t value) {
         switch (offset) {
             case 0x0: {
                 channels[channel].baseAddress = value;
-                return;
+                return ERR_OK;
 			}
 
             case 0x4: {
                 channels[channel].blockControl = value;
-                return;
+                return ERR_OK;
 			}
 
             case 0x8: {
                 channels[channel].channelControl = value;
-                return;
+                return ERR_OK;
 			}
         }
     }
@@ -74,12 +76,14 @@ void Dma::write(uint32_t address, uint32_t value) {
     switch (address) {
         case 0x1F8010F0: {
             dpcr = value;
-            return;
+            return ERR_OK;
 		}
 
         case 0x1F8010F4: {
             dicr = value;
-            return;
+            return ERR_OK;
 		}
     }
+
+	return ERR_WRITE_NOT_ALLOWED;
 }

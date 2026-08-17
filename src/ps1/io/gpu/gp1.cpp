@@ -1,5 +1,7 @@
 #include "ps1/io/gpu/gp1.hpp"
 
+#include "ps1/io/gpu/gpu.hpp"
+
 Gp1::Gp1(Gpu *gpu_) {
 	gpu = gpu_;
 
@@ -10,14 +12,12 @@ Gp1::~Gp1() {
     return;
 }
 
-uint32_t Gp1::read(uint32_t address) {
-    return address; // TODO
+uint32_t Gp1::read() {
+	return gpu->getGpustat(); // TODO
 }
 
-void Gp1::write(uint32_t address, uint32_t value) {
-	if (0x1F801814 != address) {
-		return;
-	}
-
-    instruction = value;
+void Gp1::write(uint32_t value) {
+    command = value >> 24;
+    parameter = value & 0x00FFFFFF;
+	decodeCommand();
 }

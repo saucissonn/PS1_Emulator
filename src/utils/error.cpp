@@ -37,6 +37,12 @@ const char *error_string(int err)
         case ERR_GP1_COMMAND_NOT_FOUND:
             return "gp1 command not found";
 
+		case ERR_WRITE_NOT_ALLOWED:
+			return "write not allowed";
+
+        case ERR_WRITE_SECTION_NOT_FOUND:
+            return "write section not found";
+
 		default:
 			return "unknown error";
 	}

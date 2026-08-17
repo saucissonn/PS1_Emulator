@@ -1,5 +1,7 @@
 #include "ps1/io/spu.hpp"
 
+#include "utils/error.hpp"
+
 Spu::Spu() {
     for (int i = 0; i < 24; i++) {
         voices[i].volumeLeft = 0;
@@ -316,278 +318,278 @@ uint16_t Spu::read(uint32_t address) {
     return 0;
 }
 
-void Spu::write(uint32_t address, uint16_t value) {
+int Spu::write(uint32_t address, uint16_t value) {
     if (address >= 0x1F801C00 && address <= 0x1F801D7E) {
         uint32_t voice = (address - 0x1F801C00) / 0x10;
         uint32_t offset = (address - 0x1F801C00) % 0x10;
-
+ 
         switch (offset) {
             case 0x0:
                 voices[voice].volumeLeft = value;
-                return;
+                return ERR_OK;
 
             case 0x2:
                 voices[voice].volumeRight = value;
-                return;
+                return ERR_OK;
 
             case 0x4:
                 voices[voice].sampleRate = value;
-                return;
+                return ERR_OK;
 
             case 0x6:
                 voices[voice].startAddress = value;
-                return;
+                return ERR_OK;
 
             case 0x8:
                 voices[voice].adsrAttackDecaySustain = value;
-                return;
+                return ERR_OK;
 
             case 0xA:
                 voices[voice].adsrRelease = value;
-                return;
+                return ERR_OK;
 
             case 0xC:
                 voices[voice].currentVolume = value;
-                return;
+                return ERR_OK;
 
             case 0xE:
                 voices[voice].repeatAddress = value;
-                return;
+                return ERR_OK;
         }
     }
 
     switch (address) {
         case 0x1F801D80:
             mainVolumeLeft = value;
-            return;
+            return ERR_OK;
 
         case 0x1F801D82:
             mainVolumeRight = value;
-            return;
+            return ERR_OK;
 
         case 0x1F801D84:
             reverbVolumeLeft = value;
-            return;
+            return ERR_OK;
 
         case 0x1F801D86:
             reverbVolumeRight = value;
-            return;
+            return ERR_OK;
 
         case 0x1F801D88:
             keyOn = (keyOn & 0xFFFF0000) | value;
-            return;
+            return ERR_OK;
 
         case 0x1F801D8A:
             keyOn = (keyOn & 0x0000FFFF) | ((uint32_t)value << 16);
-            return;
+            return ERR_OK;
 
         case 0x1F801D8C:
             keyOff = (keyOff & 0xFFFF0000) | value;
-            return;
+            return ERR_OK;
 
         case 0x1F801D8E:
             keyOff = (keyOff & 0x0000FFFF) | ((uint32_t)value << 16);
-            return;
+            return ERR_OK;
 
         case 0x1F801D90:
             channelFm = (channelFm & 0xFFFF0000) | value;
-            return;
+            return ERR_OK;
 
         case 0x1F801D92:
             channelFm = (channelFm & 0x0000FFFF) | ((uint32_t)value << 16);
-            return;
+            return ERR_OK;
 
         case 0x1F801D94:
             channelNoise = (channelNoise & 0xFFFF0000) | value;
-            return;
+            return ERR_OK;
 
         case 0x1F801D96:
             channelNoise = (channelNoise & 0x0000FFFF) | ((uint32_t)value << 16);
-            return;
+            return ERR_OK;
 
         case 0x1F801D98:
             channelReverb = (channelReverb & 0xFFFF0000) | value;
-            return;
+            return ERR_OK;
 
         case 0x1F801D9A:
             channelReverb = (channelReverb & 0x0000FFFF) | ((uint32_t)value << 16);
-            return;
+            return ERR_OK;
 
         case 0x1F801DA2:
             reverbWorkArea = value;
-            return;
+            return ERR_OK;
 
         case 0x1F801DA4:
             irqAddress = value;
-            return;
+            return ERR_OK;
 
         case 0x1F801DA6:
             transferAddress = value;
-            return;
+            return ERR_OK;
 
         case 0x1F801DA8:
             transferFifo = value;
-            return;
+            return ERR_OK;
 
         case 0x1F801DAA:
             control = value;
-            return;
+            return ERR_OK;
 
         case 0x1F801DAC:
             transferControl = value;
-            return;
+            return ERR_OK;
 
         case 0x1F801DB0:
             cdVolumeLeft = value;
-            return;
+            return ERR_OK;
 
         case 0x1F801DB2:
             cdVolumeRight = value;
-            return;
+            return ERR_OK;
 
         case 0x1F801DB4:
             externalVolumeLeft = value;
-            return;
+            return ERR_OK;
 
         case 0x1F801DB6:
             externalVolumeRight = value;
-            return;
+            return ERR_OK;
 
         case 0x1F801DBC:
         case 0x1F801DBE:
             unknown = value;
-            return;
+            return ERR_OK;
     }
 
     if (address >= 0x1F801DC0 && address <= 0x1F801DFF) {
         switch (address) {
             case 0x1F801DC0:
                 reverb.dAPF1 = value;
-                return;
+                return ERR_OK;
 
             case 0x1F801DC2:
                 reverb.dAPF2 = value;
-                return;
+                return ERR_OK;
 
             case 0x1F801DC4:
                 reverb.vIIR = value;
-                return;
+                return ERR_OK;
 
             case 0x1F801DC6:
                 reverb.vCOMB1 = value;
-                return;
+                return ERR_OK;
 
             case 0x1F801DC8:
                 reverb.vCOMB2 = value;
-                return;
+                return ERR_OK;
 
             case 0x1F801DCA:
                 reverb.vCOMB3 = value;
-                return;
+                return ERR_OK;
 
             case 0x1F801DCC:
                 reverb.vCOMB4 = value;
-                return;
+                return ERR_OK;
 
             case 0x1F801DCE:
                 reverb.vWALL = value;
-                return;
+                return ERR_OK;
 
             case 0x1F801DD0:
                 reverb.vAPF1 = value;
-                return;
+                return ERR_OK;
 
             case 0x1F801DD2:
                 reverb.vAPF2 = value;
-                return;
+                return ERR_OK;
 
             case 0x1F801DD4:
                 reverb.mSAME = (reverb.mSAME & 0xFFFF0000) | value;
-                return;
+                return ERR_OK;
 
             case 0x1F801DD6:
                 reverb.mSAME = (reverb.mSAME & 0x0000FFFF) | ((uint32_t)value << 16);
-                return;
+                return ERR_OK;
 
             case 0x1F801DD8:
                 reverb.mCOMB1 = (reverb.mCOMB1 & 0xFFFF0000) | value;
-                return;
+                return ERR_OK;
 
             case 0x1F801DDA:
                 reverb.mCOMB1 = (reverb.mCOMB1 & 0x0000FFFF) | ((uint32_t)value << 16);
-                return;
+                return ERR_OK;
 
             case 0x1F801DDC:
                 reverb.mCOMB2 = (reverb.mCOMB2 & 0xFFFF0000) | value;
-                return;
+                return ERR_OK;
 
             case 0x1F801DDE:
                 reverb.mCOMB2 = (reverb.mCOMB2 & 0x0000FFFF) | ((uint32_t)value << 16);
-                return;
+                return ERR_OK;
 
             case 0x1F801DE0:
                 reverb.dSAME = (reverb.dSAME & 0xFFFF0000) | value;
-                return;
+                return ERR_OK;
 
             case 0x1F801DE2:
                 reverb.dSAME = (reverb.dSAME & 0x0000FFFF) | ((uint32_t)value << 16);
-                return;
+                return ERR_OK;
 
             case 0x1F801DE4:
                 reverb.mDIFF = (reverb.mDIFF & 0xFFFF0000) | value;
-                return;
+                return ERR_OK;
 
             case 0x1F801DE6:
                 reverb.mDIFF = (reverb.mDIFF & 0x0000FFFF) | ((uint32_t)value << 16);
-                return;
+                return ERR_OK;
 
             case 0x1F801DE8:
                 reverb.mCOMB3 = (reverb.mCOMB3 & 0xFFFF0000) | value;
-                return;
+                return ERR_OK;
 
             case 0x1F801DEA:
                 reverb.mCOMB3 = (reverb.mCOMB3 & 0x0000FFFF) | ((uint32_t)value << 16);
-                return;
+                return ERR_OK;
 
             case 0x1F801DEC:
                 reverb.mCOMB4 = (reverb.mCOMB4 & 0xFFFF0000) | value;
-                return;
+                return ERR_OK;
 
             case 0x1F801DEE:
                 reverb.mCOMB4 = (reverb.mCOMB4 & 0x0000FFFF) | ((uint32_t)value << 16);
-                return;
+                return ERR_OK;
 
             case 0x1F801DF0:
                 reverb.dDIFF = (reverb.dDIFF & 0xFFFF0000) | value;
-                return;
+                return ERR_OK;
 
             case 0x1F801DF2:
                 reverb.dDIFF = (reverb.dDIFF & 0x0000FFFF) | ((uint32_t)value << 16);
-                return;
+                return ERR_OK;
 
             case 0x1F801DF4:
                 reverb.mAPF1 = (reverb.mAPF1 & 0xFFFF0000) | value;
-                return;
+                return ERR_OK;
 
             case 0x1F801DF6:
                 reverb.mAPF1 = (reverb.mAPF1 & 0x0000FFFF) | ((uint32_t)value << 16);
-                return;
+                return ERR_OK;
 
             case 0x1F801DF8:
                 reverb.mAPF2 = (reverb.mAPF2 & 0xFFFF0000) | value;
-                return;
+                return ERR_OK;
 
             case 0x1F801DFA:
                 reverb.mAPF2 = (reverb.mAPF2 & 0x0000FFFF) | ((uint32_t)value << 16);
-                return;
+                return ERR_OK;
 
             case 0x1F801DFC:
                 reverb.vIN = (reverb.vIN & 0xFFFF0000) | value;
-                return;
+                return ERR_OK;
 
             case 0x1F801DFE:
                 reverb.vIN = (reverb.vIN & 0x0000FFFF) | ((uint32_t)value << 16);
-                return;
+                return ERR_OK;
         }
     }
 
@@ -605,12 +607,14 @@ void Spu::write(uint32_t address, uint16_t value) {
                 (internalVolume[voice] & 0x0000FFFF) | ((uint32_t)value << 16);
         }
 
-        return;
+        return ERR_OK;
     }
 
     if (address >= 0x1F801E60 && address < 0x1F801E80) {
         internalUnknown[address - 0x1F801E60] = value & 0xFF;
         internalUnknown[address - 0x1F801E60 + 1] = value >> 8;
-        return;
+        return ERR_OK;
     }
+
+    return ERR_WRITE_SECTION_NOT_FOUND;
 }

@@ -9,15 +9,20 @@ class Gp0 {
         Gp0(Gpu *gpu_);
         ~Gp0();
 
-        uint32_t read(uint32_t address);
-        void write(uint32_t address, uint32_t value);
+        uint32_t read();
+        void write(uint32_t value);
 
 		int decodeCommand(uint32_t command);
+
+		// Utils
+
+		void setCommandBufferIndex(uint32_t value);
+		void resetCommandBuffer();
 
     private:
 		Gpu *gpu;
 
 		uint32_t commandBufferMaxSize;
-		uint32_t indexCommandBuffer;
+		uint32_t commandBufferIndex;
 		uint32_t *commandBuffer;
 };

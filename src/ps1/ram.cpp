@@ -23,6 +23,8 @@ uint32_t Ram::read(uint32_t address) {
 	return ram[address];
 }
 
-void Ram::write(uint32_t address, uint32_t value) {
+int Ram::write(uint32_t address, uint32_t value) {
 	ram[address] = value;
+
+	return ERR_OK;
 }

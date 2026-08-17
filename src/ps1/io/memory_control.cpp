@@ -1,5 +1,7 @@
 #include "ps1/io/memory_control.hpp"
 
+#include "utils/error.hpp"
+
 MemoryControl1::MemoryControl1() {
     expansion1Base = 0;
     expansion2Base = 0;
@@ -62,55 +64,55 @@ uint32_t MemoryControl1::read(uint32_t address) {
     }
 }
 
-void MemoryControl1::write(uint32_t address, uint32_t value) {
+int MemoryControl1::write(uint32_t address, uint32_t value) {
     switch (address) {
         case 0x1F801000: {
             expansion1Base = value;
-            return;
+            return ERR_OK;
         }
 
         case 0x1F801004: {
             expansion2Base = value;
-            return;
+            return ERR_OK;
         }
 
         case 0x1F801008: {
             expansion1DelaySize = value;
-            return;
+            return ERR_OK;
         }
 
         case 0x1F80100C: {
             expansion3DelaySize = value;
-            return;
+            return ERR_OK;
         }
 
         case 0x1F801010: {
             biosRomDelaySize = value;
-            return;
+            return ERR_OK;
         }
 
         case 0x1F801014: {
             spuDelay = value;
-            return;
+            return ERR_OK;
         }
 
         case 0x1F801018: {
             cdromDelay = value;
-            return;
+            return ERR_OK;
         }
 
         case 0x1F80101C: {
             expansion2DelaySize = value;
-            return;
+            return ERR_OK;
         }
 
         case 0x1F801020: {
             commonDelay = value;
-            return;
+            return ERR_OK;
         }
 
         default: {
-            return;
+            return ERR_WRITE_SECTION_NOT_FOUND;
         }
     }
 }
@@ -131,9 +133,36 @@ uint32_t MemoryControl2::read(uint32_t address) {
 	return 0;
 }
 
-void MemoryControl2::write(uint32_t address, uint32_t value) {
+int MemoryControl2::write(uint32_t address, uint32_t value) {
     if (address == 0x1F801060) {
         ramSize = value;
-		return;
+		return ERR_OK;
     }
+
+	return ERR_WRITE_SECTION_NOT_FOUND;
+}
+
+MemoryControl3::MemoryControl3() {
+    cacheControl = 0;
+}
+
+MemoryControl3::~MemoryControl3() {
+    return;
+}
+
+uint32_t MemoryControl3::read(uint32_t address) {
+    if (address == 0xFFFE0130) {
+        return cacheControl;
+    }
+
+    return 0;
+}
+
+int MemoryControl3::write(uint32_t address, uint32_t value) {
+    if (address == 0xFFFE0130) {
+        cacheControl = value;
+        return ERR_OK;
+    }
+
+    return ERR_WRITE_SECTION_NOT_FOUND;
 }

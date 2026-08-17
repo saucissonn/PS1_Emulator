@@ -6,6 +6,7 @@
 #include "ps1/bios.hpp"
 #include "ps1/ram.hpp"
 #include "ps1/io/io.hpp"
+#include "ps1/expansion.hpp"
 
 enum class Mem // the physical memory zone in the cpu
 {
@@ -21,6 +22,7 @@ enum class Mem // the physical memory zone in the cpu
 };
 
 class Cpu;
+class Expansion;
 
 class Bus {
 	public:
@@ -31,6 +33,9 @@ class Bus {
 		int setBios(Bios *bios_);
 		int setRam(Ram *ram_);
 		int setIo(Io *io_);
+		int setExpansion1(ExpansionRegion1 *expansion1_);
+		int setExpansion2(ExpansionRegion2 *expansion2_);
+		int setExpansion3(ExpansionRegion3 *expansion3_);
 
 		uint32_t read(uint32_t address);
 		int write(uint32_t address, uint32_t value);
@@ -41,20 +46,7 @@ class Bus {
 		Bios *bios;
 		Ram *ram;
 		Io *io;
-
-		uint32_t expansionRegion1Size;
-		uint32_t memoryControl1Size;
-		uint32_t periphericalIOPortsSize;
-		uint32_t memoryControl2Size;
-        uint32_t expansionRegion2Size;
-		uint32_t expansionRegion3Size;
-		uint32_t memoryControl3Size;
-
-        uint32_t *expansionRegion1;
-        uint32_t *memoryControl1;
-        uint32_t *periphericalIOPorts;
-        uint32_t *memoryControl2;
-        uint32_t *expansionRegion2;
-        uint32_t *expansionRegion3;
-        uint32_t *memoryControl3;
+        ExpansionRegion1 *expansion1;
+        ExpansionRegion2 *expansion2;
+        ExpansionRegion3 *expansion3;
 };
