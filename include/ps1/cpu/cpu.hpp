@@ -95,11 +95,20 @@ class Cpu {
 		int ANDI();
 		int BEQ();
 		int BNE();
+		int BREAK();
+		int DIV();
+		int DIVU();
 		int J();
 		int JAL();
 		int JALR();
 		int JR();
 		int LUI();
+		int MFHI();
+		int MTHI();
+		int MFLO();
+		int MTLO();
+		int MULT();
+		int MULTU();
 		int NOP();
 		int NOR();
 		int OR();
@@ -116,19 +125,10 @@ class Cpu {
 		int SRLV();
 		int SUBU();
 		int SW();
-		int XOR();
-		int XORI();
 		int SUB();
 		int SYSCALL();
-		int BREAK();
-		int MFHI();
-		int MTHI();
-		int MFLO();
-		int MTLO();
-		int MULT();
-		int MULTU();
-		int DIV();
-		int DIVU();
+		int XOR();
+		int XORI();
 
 		// Utils
 
