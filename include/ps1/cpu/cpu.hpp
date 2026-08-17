@@ -131,6 +131,10 @@ class Cpu {
 		int XORI();
 		int BLEZ();
 		int BGTZ();
+		int BLTZAL();
+		int BGEZAL();
+		int BGEZ();
+		int BLTZ();
 		int LB();
 		int LH();
 		int LWL();
@@ -139,6 +143,7 @@ class Cpu {
 		int LHU();
 		int LWR();
 		int SB();
+		int SH();
 		int SWL();
 		int SWR();
 		int LWC0();
