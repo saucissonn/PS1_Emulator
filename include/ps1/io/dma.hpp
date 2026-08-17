@@ -14,7 +14,7 @@ class Dma {
 		~Dma();
 
 		uint32_t read(uint32_t address);
-		void write(uint32_t address, uint32_t value);
+		int write(uint32_t address, uint32_t value);
 
 	private:
 		DMAChannel channels[7];

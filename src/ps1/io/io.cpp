@@ -1,5 +1,7 @@
 #include "ps1/io/io.hpp"
 
+#include "utils/error.hpp"
+
 Io::Io() :
 	memoryControl1(),
 	peripheralIO(),
@@ -11,9 +13,7 @@ Io::Io() :
 	gpu(),
 	mdec(),
 	spu(),
-	expansion1(),
-	expansion2(),
-	expansion3()
+	memoryControl3()
 {
 	return;
 }
@@ -23,10 +23,6 @@ Io::~Io() {
 }
 
 uint32_t Io::read(uint32_t address) {
-	if (0x1F000000 <= address && address <= 0x1F07FFFF) {
-		return expansion1.read(address);
-	}
-
 	if (0x1F801000 <= address && address <= 0x1F801020) {
 		return memoryControl1.read(address);
 	}
@@ -67,80 +63,57 @@ uint32_t Io::read(uint32_t address) {
 		return spu.read(address);
 	}
 
-	if (0x1F802000 <= address && address <= 0x1F80207F) {
-		return expansion2.read(address);
-	}
-
-	if (address == 0x1FA00000) {
-		return expansion3.read(address);
-	}
+    if (0xFFFE0000 <= address && address <= 0xFFFE01FF) {
+        return memoryControl3.read(address);
+    }
 
 	return 0;
 }
 
-void Io::write(uint32_t address, uint32_t value) {
-	if (0x1F000000 <= address && address <= 0x1F07FFFF) {
-		expansion1.write(address, value);
-		return;
-	}
-
+int Io::write(uint32_t address, uint32_t value) {
 	if (0x1F801000 <= address && address <= 0x1F801020) {
-		memoryControl1.write(address, value);
-		return;
+		return memoryControl1.write(address, value);
 	}
 
 	if (0x1F801040 <= address && address <= 0x1F80105E) {
-		peripheralIO.write(address, value);
-		return;
+		return peripheralIO.write(address, value);
 	}
 
 	if (address == 0x1F801060) {
-		memoryControl2.write(address, value);
-		return;
+		return memoryControl2.write(address, value);
 	}
 
 	if (0x1F801070 <= address && address <= 0x1F801074) {
-		interruptControl.write(address, value);
-		return;
+		return interruptControl.write(address, value);
 	}
 
 	if (0x1F801080 <= address && address <= 0x1F8010FC) {
-		dma.write(address, value);
-		return;
+		return dma.write(address, value);
 	}
 
 	if (0x1F801100 <= address && address <= 0x1F801128) {
-		timers.write(address, value);
-		return;
+		return timers.write(address, value);
 	}
 
 	if (0x1F801800 <= address && address <= 0x1F801803) {
-		cdrom.write(address, value);
-		return;
+		return cdrom.write(address, value);
 	}
 
 	if (0x1F801810 <= address && address <= 0x1F801814) {
-		gpu.write(address, value);
-		return;
+		return gpu.write(address, value);
 	}
 
 	if (0x1F801820 <= address && address <= 0x1F801824) {
-		mdec.write(address, value);
-		return;
+		return mdec.write(address, value);
 	}
 
 	if (0x1F801C00 <= address && address <= 0x1F801FFF) {
-		spu.write(address, value);
-		return;
+		return spu.write(address, value);
 	}
 
-	if (0x1F802000 <= address && address <= 0x1F80207F) {
-		expansion2.write(address, value);
-		return;
-	}
+    if (0xFFFE0000 <= address && address <= 0xFFFE01FF) {
+        return memoryControl3.write(address, value);
+    }
 
-	if (address == 0x1FA00000) {
-		expansion3.write(address, value);
-		return;
-	}
+	return ERR_WRITE_SECTION_NOT_FOUND;
 }

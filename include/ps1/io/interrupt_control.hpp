@@ -8,7 +8,7 @@ class InterruptControl {
 		~InterruptControl();
 
 		uint16_t read(uint32_t address);
-		void write(uint32_t address, uint16_t value);
+		int write(uint32_t address, uint16_t value);
 
 		void requestInterrupt(uint8_t source);
 

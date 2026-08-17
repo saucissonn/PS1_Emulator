@@ -8,7 +8,7 @@ class MemoryControl1 {
 		~MemoryControl1();
 
 		uint32_t read(uint32_t address);
-		void write(uint32_t address, uint32_t value);
+		int write(uint32_t address, uint32_t value);
 
 	private:
 		uint32_t expansion1Base;
@@ -28,8 +28,21 @@ class MemoryControl2 {
         ~MemoryControl2();
 
         uint32_t read(uint32_t address);
-        void write(uint32_t address, uint32_t value);
+		int write(uint32_t address, uint32_t value);
 
     private:
         uint32_t ramSize;
+};
+
+
+class MemoryControl3 {
+    public:
+        MemoryControl3();
+        ~MemoryControl3();
+
+        uint32_t read(uint32_t address);
+        int write(uint32_t address, uint32_t value);
+
+    private:
+        uint32_t cacheControl;
 };

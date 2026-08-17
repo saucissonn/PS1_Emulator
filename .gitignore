@@ -1,4 +1,5 @@
 *.out
 *.o
+*.swp
 src/ps1/roms/BIOS.bin
-\
+\\

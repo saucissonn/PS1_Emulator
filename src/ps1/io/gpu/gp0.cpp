@@ -2,13 +2,14 @@
 
 #include <stdlib.h>
 
+#include "utils/error.hpp"
 #include "ps1/io/gpu/gpu.hpp"
 
 Gp0::Gp0(Gpu *gpu_) {
 	gpu = gpu_;
 
 	commandBufferMaxSize = 100;
-	indexCommandBuffer = 0;
+	commandBufferIndex = 0;
 	commandBuffer = (uint32_t *)calloc(commandBufferMaxSize, sizeof(uint32_t));
 
 	return;
@@ -20,16 +21,17 @@ Gp0::~Gp0() {
 	return;
 }
 
-uint32_t Gp0::read(uint32_t address) {
-	return address; // TODO
+uint32_t Gp0::read() {
+	return gpu->getGpuread(); // TODO
 }
 
-void Gp0::write(uint32_t address, uint32_t value) {
-    if (0x1F801814 != address || indexCommandBuffer >= commandBufferMaxSize) {
-        return;
-    }
+int Gp0::write(uint32_t value) { // When we write in GP0 it adds a command (value) to a buffer
+	if (commandBufferIndex >= commandBufferMaxSize) { // Overflow (shouldn't happened)
+		return ERR_OUT_OF_MEMORY;
+	}
 
-	commandBuffer[indexCommandBuffer] = value;
+	commandBuffer[commandBufferIndex] = value; // Add the command to the buffer
+	commandBufferIndex += 1;
 
-	indexCommandBuffer += 1;
+	return decodeCommand(); // If something goes wrong the error is handled
 }

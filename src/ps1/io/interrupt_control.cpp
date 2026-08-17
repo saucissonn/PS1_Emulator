@@ -1,5 +1,7 @@
 #include "ps1/io/interrupt_control.hpp"
 
+#include "utils/error.hpp"
+
 InterruptControl::InterruptControl() {
 	stat = 0;
 	mask = 0;
@@ -23,16 +25,18 @@ uint16_t InterruptControl::read(uint32_t address) {
 	return 0;
 }
 
-void InterruptControl::write(uint32_t address, uint16_t value) {
+int InterruptControl::write(uint32_t address, uint16_t value) {
     switch (address) {
         case 0x1F801070: {
             stat = value;
-			return;
+			return ERR_OK;
         }
 
         case 0x1F801074: {
             mask = value;
-			return;
+			return ERR_OK;
         }
     }
+
+	return ERR_WRITE_SECTION_NOT_FOUND;
 }

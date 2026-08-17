@@ -3,40 +3,73 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "ps1/expansion.hpp"
+#include "utils/error.hpp"
 
 int Bus::setCpu(Cpu *cpu_) {
+	if (!cpu_) {
+		return ERR_INVALID_ARGUMENT;
+	}
 	cpu = cpu_;
 
-	return 0;
+	return ERR_OK;
 }
 
 int Bus::setBios(Bios *bios_) {
-	bios = bios_;
+    if (!bios_) {
+        return ERR_INVALID_ARGUMENT;
+    }
+    bios = bios_;
 
-	return 0;
+    return ERR_OK;
 }
 
 int Bus::setRam(Ram *ram_) {
-	ram = ram_;
+    if (!ram_) {
+        return ERR_INVALID_ARGUMENT;
+    }
+    ram = ram_;
 
-	return 0;
+    return ERR_OK;
 }
 
 int Bus::setIo(Io *io_) {
-	io = io_;
+    if (!io_) {
+        return ERR_INVALID_ARGUMENT;
+    }
+    io = io_;
 
-	return 0;
+    return ERR_OK;
+}
+
+int Bus::setExpansion1(ExpansionRegion1 *expansion1_) {
+    if (!expansion1_) {
+        return ERR_INVALID_ARGUMENT;
+    }
+    expansion1 = expansion1_;
+
+    return ERR_OK;
+}
+
+int Bus::setExpansion2(ExpansionRegion2 *expansion2_) {
+    if (!expansion2_) {
+        return ERR_INVALID_ARGUMENT;
+    }
+    expansion2 = expansion2_;
+
+    return ERR_OK;
+}
+
+int Bus::setExpansion3(ExpansionRegion3 *expansion3_) {
+    if (!expansion3_) {
+        return ERR_INVALID_ARGUMENT;
+    }
+    expansion3 = expansion3_;
+
+    return ERR_OK;
 }
 
 Bus::Bus() {
-	expansionRegion1Size = 0x80100; // Temporarly here, maybe not here later on (for all regions)
-	memoryControl1Size = 36;
-	periphericalIOPortsSize = 32;
-	memoryControl2Size = 4;
-    expansionRegion2Size = 80;
-	expansionRegion3Size = 0x200000;
-	memoryControl3Size = 4;
-
 	return;
 }
 
@@ -63,45 +96,18 @@ uint32_t Bus::read(uint32_t address) {
     Mem section = getMemoryHardware(address);
 
     switch (section) {
-        case Mem::MAIN_RAM: {
-            return ram->read(address);
-		}
+        case Mem::MAIN_RAM:				return ram->read(address);
+        case Mem::EXPANSION_REGION_1:	return expansion1->read(address);
+        case Mem::SCRATCHPAD:			return 0;
+        case Mem::IO_PORTS:				return io->read(address);
+        case Mem::EXPANSION_REGION_2:	return expansion2->read(address);
+        case Mem::EXPANSION_REGION_3:	return expansion3->read(address);
+        case Mem::BIOS_ROM:				return bios->read(address);
+        case Mem::CACHE_CONTROL:		return io->read(address);
 
-        case Mem::EXPANSION_REGION_1: {
-            printf("Read memory in expansion region 1\n");
-            return 0;
-		}
-
-        case Mem::SCRATCHPAD: {
-            return 0;
-		}
-
-        case Mem::IO_PORTS: {
-            return io->read(address);
-		}
-
-        case Mem::EXPANSION_REGION_2: {
-            printf("Read memory in expansion region 2\n");
-            return 0;
-		}
-
-        case Mem::EXPANSION_REGION_3: {
-            printf("Read memory in expansion region 3\n");
-            return 0;
-		}
-
-        case Mem::BIOS_ROM: {
-            return bios->read(address);
-		}
-
-        case Mem::CACHE_CONTROL: {
-            return 0;
-		}
-
-		default: {
+		default:
             printf("Error: invalid memory component\n");
             return 0;
-		}
     }
 }
 
@@ -109,47 +115,14 @@ int Bus::write(uint32_t address, uint32_t value) {
     Mem section = getMemoryHardware(address);
 
     switch (section) {
-        case Mem::MAIN_RAM: {
-            ram->write(address, value);
-            return 0;
-        }
-
-        case Mem::EXPANSION_REGION_1: {
-            printf("Write memory in expansion region 1\n");
-            return 0;
-        }
-
-        case Mem::SCRATCHPAD: {
-            return 0;
-        }
-
-        case Mem::IO_PORTS: {
-            io->write(address, value);
-			return 0;
-		}
-
-        case Mem::EXPANSION_REGION_2: {
-            printf("Write memory in expansion region 2\n");
-            return 0;
-        }
-
-        case Mem::EXPANSION_REGION_3: {
-            printf("Write memory in expansion region 3\n");
-            return 0;
-        }
-
-        case Mem::BIOS_ROM: {
-            printf("Error: cannot write to BIOS ROM\n");
-            return 0;
-        }
-
-        case Mem::CACHE_CONTROL: {
-            return 0;
-        }
-
-        default: {
-            printf("Error: invalid memory component\n");
-            return 0;
-        }
+        case Mem::MAIN_RAM:				return ram->write(address, value);
+        case Mem::EXPANSION_REGION_1:	return expansion1->write(address, value);
+        case Mem::SCRATCHPAD:			return ERR_WRITE_SECTION_NOT_FOUND;
+        case Mem::IO_PORTS:				return io->write(address, value);
+        case Mem::EXPANSION_REGION_2:	return expansion2->write(address, value);
+        case Mem::EXPANSION_REGION_3:	return expansion3->write(address, value);
+        case Mem::BIOS_ROM:				return ERR_WRITE_NOT_ALLOWED;
+        case Mem::CACHE_CONTROL:		return io->write(address, value);
+        default:						return ERR_WRITE_SECTION_NOT_FOUND;
     }
 }

@@ -9,7 +9,10 @@ Ps1::Ps1() :
 	cpu(&bus),
 	bios(),
 	ram(),
-	io()
+	io(),
+    expansion1(),
+    expansion2(),
+    expansion3()
 {
 	int ret = bios.load("src/ps1/roms/BIOS.bin");
 
@@ -22,6 +25,9 @@ Ps1::Ps1() :
 	bus.setBios(&bios);
 	bus.setRam(&ram);
 	bus.setIo(&io);
+	bus.setExpansion1(&expansion1);
+    bus.setExpansion2(&expansion2);
+    bus.setExpansion3(&expansion3);
 
 	return;
 }

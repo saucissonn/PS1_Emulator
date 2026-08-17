@@ -1,5 +1,7 @@
-#include "ps1/io/expansion.hpp"
+#include "ps1/expansion.hpp"
 #include <algorithm>
+
+#include "utils/error.hpp"
 
 ExpansionRegion1::ExpansionRegion1() {
     dataSize = 0x80000;
@@ -20,15 +22,19 @@ uint8_t ExpansionRegion1::read(uint32_t address) {
     return 0;
 }
 
-void ExpansionRegion1::write(uint32_t address, uint8_t value) {
+int ExpansionRegion1::write(uint32_t address, uint8_t value) {
     if (address >= 0x1F000000 && address < 0x1F080000) {
         data[address - 0x1F000000] = value;
-    }
+		return ERR_OK;
+	 }
+
+	return ERR_WRITE_SECTION_NOT_FOUND;
 }
 
 
 ExpansionRegion2::ExpansionRegion2() {
-    std::fill(data, data + 0x80, 0);
+    dataSize = 0x80000;
+    data = (uint8_t *)calloc(dataSize, sizeof(uint8_t));
 
     modeA = 0;
     statusA = 0;
@@ -69,6 +75,8 @@ ExpansionRegion2::ExpansionRegion2() {
 }
 
 ExpansionRegion2::~ExpansionRegion2() {
+	free(data);
+
     return;
 }
 
@@ -176,104 +184,109 @@ uint8_t ExpansionRegion2::read(uint32_t address) {
     return 0;
 }
 
-void ExpansionRegion2::write(uint32_t address, uint8_t value) {
+int ExpansionRegion2::write(uint32_t address, uint8_t value) {
     switch (address) {
         case 0x1F802002:
             atconsData = value;
-            return;
+            return ERR_OK;
 
         case 0x1F802004:
             unknown004 = (unknown004 & 0xFF00) | value;
-            return;
+            return ERR_OK;
 
         case 0x1F802030:
             irqFlags = value;
-            return;
+            return ERR_OK;
 
         case 0x1F802032:
             irqControl = value;
-            return;
+            return ERR_OK;
 
         case 0x1F802041:
             post = value;
-            return;
+            return ERR_OK;
 
         case 0x1F802042:
             postLed = value;
-            return;
+            return ERR_OK;
 
         case 0x1F802064:
             emuEnable1 = value;
-            return;
+            return ERR_OK;
 
         case 0x1F802065:
             emuEnable2 = value;
-            return;
+            return ERR_OK;
 
         case 0x1F802067:
             emuTurbo = value;
-            return;
+            return ERR_OK;
 
         case 0x1F802020:
             modeA = value;
-            return;
+            return ERR_OK;
 
         case 0x1F802021:
             clockA = value;
-            return;
+            return ERR_OK;
 
         case 0x1F802022:
             commandA = value;
-            return;
+            return ERR_OK;
 
         case 0x1F802023:
             txA = value;
-            return;
+            return ERR_OK;
 
         case 0x1F802024:
             outputConfig = value;
-            return;
+            return ERR_OK;
 
         case 0x1F802025:
             interruptMask = value;
-            return;
+            return ERR_OK;
 
         case 0x1F802026:
             counterReload = (counterReload & 0x00FF) | ((uint16_t)value << 8);
-            return;
+            return ERR_OK;
 
         case 0x1F802027:
             counterReload = (counterReload & 0xFF00) | value;
-            return;
+            return ERR_OK;
 
         case 0x1F802028:
             modeB = value;
-            return;
+            return ERR_OK;
 
         case 0x1F802029:
             clockB = value;
-            return;
+            return ERR_OK;
 
         case 0x1F80202A:
             commandB = value;
-            return;
+            return ERR_OK;
 
         case 0x1F80202B:
             txB = value;
-            return;
+            return ERR_OK;
 
         case 0x1F80202D:
             outputConfig = value;
-            return;
+            return ERR_OK;
 
         case 0x1F80202E:
+			return ERR_OK;
+
         case 0x1F80202F:
-            return;
+            return ERR_OK;
     }
 
-    if (address >= 0x1F802000 && address < 0x1F802080) {
+    if (0x1F802000 <= address && address < 0x1F802080) {
         data[address - 0x1F802000] = value;
+		return ERR_OK;
     }
+
+	return ERR_WRITE_SECTION_NOT_FOUND;
 }
 
 
@@ -294,10 +307,12 @@ uint8_t ExpansionRegion3::read(uint32_t address) {
     return 0;
 }
 
-void ExpansionRegion3::write(uint32_t address, uint8_t value) {
+int ExpansionRegion3::write(uint32_t address, uint8_t value) {
     switch (address) {
         case 0x1FA00000:
             post = value;
-            return;
+            return ERR_OK;
     }
+
+	return ERR_WRITE_SECTION_NOT_FOUND;
 }

@@ -9,13 +9,25 @@ class Gp1 {
         Gp1(Gpu *gpu_);
         ~Gp1();
 
-        uint32_t read(uint32_t address);
-        void write(uint32_t address, uint32_t value);
+        uint32_t read();
+		int write(uint32_t value);
 
-		int decodeCommand(uint32_t command);
+		int decodeCommand();
 
 	private:
 		Gpu *gpu;
 
-		uint32_t instruction;
+		uint8_t command;
+		uint32_t parameter;
+
+		// Commands
+
+		int resetCommandBuffer();
+		int acknowledgeGpuInterrupt();
+		int displayEnable();
+		int dmaDirection();
+		int startOfDisplayArea();
+		int horizontalDisplayRange();
+		int verticalDisplayRange();
+		int displayMode();
 };

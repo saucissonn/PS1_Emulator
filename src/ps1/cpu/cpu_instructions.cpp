@@ -462,7 +462,12 @@ int Cpu::SW() {
         return ERR_OK;
     }
 
-	bus->write(address, GPR[operand->rt]); // Data Bus Error handled
+	int ret = bus->write(address, GPR[operand->rt]);
+
+	if (ret != ERR_OK) {
+		printf("Address: %8X\n", address);
+		return ret;
+	}
 
 	printf("Address: %8X\n", address);
     printf("CPU instruction SW done\n");

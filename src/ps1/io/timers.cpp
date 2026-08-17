@@ -1,5 +1,7 @@
 #include "ps1/io/timers.hpp"
 
+#include "utils/error.hpp"
+
 Timers::Timers() {
     for (int i = 0; i < 3; i++) {
         timers[i].counter = 0;
@@ -32,7 +34,7 @@ uint16_t Timers::read(uint32_t address) {
     return 0;
 }
 
-void Timers::write(uint32_t address, uint16_t value) {
+int Timers::write(uint32_t address, uint16_t value) {
     if (address >= 0x1F801100 && address <= 0x1F801128) {
         uint32_t timer = (address - 0x1F801100) / 0x10;
         uint32_t offset = (address - 0x1F801100) % 0x10;
@@ -40,15 +42,17 @@ void Timers::write(uint32_t address, uint16_t value) {
         switch (offset) {
             case 0x0:
                 timers[timer].counter = value;
-                return;
+                return ERR_OK;
 
             case 0x4:
                 timers[timer].mode = value;
-                return;
+                return ERR_OK;
 
             case 0x8:
                 timers[timer].target = value;
-                return;
+                return ERR_OK;
         }
     }
+
+	return ERR_WRITE_SECTION_NOT_FOUND;
 }

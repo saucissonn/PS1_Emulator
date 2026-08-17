@@ -9,7 +9,6 @@
 #include "ps1/io/cdrom.hpp"
 #include "ps1/io/mdec.hpp"
 #include "ps1/io/spu.hpp"
-#include "ps1/io/expansion.hpp"
 
 class Io {
 	public:
@@ -17,7 +16,7 @@ class Io {
 		~Io();
 
 		uint32_t read(uint32_t address);
-		void write(uint32_t address, uint32_t value);
+		int write(uint32_t address, uint32_t value);
 
 	private:
 		MemoryControl1 memoryControl1;
@@ -30,8 +29,5 @@ class Io {
 		Gpu gpu;
 		Mdec mdec;
 		Spu spu;
-
-		ExpansionRegion1 expansion1;
-		ExpansionRegion2 expansion2;
-		ExpansionRegion3 expansion3;
+		MemoryControl3 memoryControl3;
 };

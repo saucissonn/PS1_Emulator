@@ -1,5 +1,7 @@
 #include "ps1/io/peripheral_io.hpp"
 
+#include "utils/error.hpp"
+
 PeripheralIO::PeripheralIO() {
     joyData = 0;
     joyStat = 0;
@@ -71,55 +73,55 @@ uint32_t PeripheralIO::read(uint32_t address) {
     }
 }
 
-void PeripheralIO::write(uint32_t address, uint32_t value) {
+int PeripheralIO::write(uint32_t address, uint32_t value) {
     switch (address) {
         case 0x1F801040: {
             joyData = value;
-            return;
+            return ERR_OK;
         }
 
         case 0x1F801048: {
             joyMode = value;
-            return;
+            return  ERR_OK;
         }
 
         case 0x1F80104A: {
             joyCtrl = value;
-            return;
+            return ERR_OK;
         }
 
         case 0x1F80104E: {
             joyBaud = value;
-            return;
+            return ERR_OK;
         }
 
         case 0x1F801050: {
             sioData = value;
-            return;
+            return ERR_OK;
         }
 
         case 0x1F801058: {
             sioMode = value;
-            return;
+            return ERR_OK;
         }
 
         case 0x1F80105A: {
             sioCtrl = value;
-            return;
+            return ERR_OK;
         }
 
         case 0x1F80105C: {
             sioMisc = value;
-            return;
+            return ERR_OK;
         }
 
         case 0x1F80105E: {
             sioBaud = value;
-            return;
+            return ERR_OK;
         }
 
         default: {
-            return;
+            return ERR_WRITE_SECTION_NOT_FOUND;
         }
     }
 }

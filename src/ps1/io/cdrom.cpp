@@ -1,5 +1,7 @@
 #include "ps1/io/cdrom.hpp"
 
+#include "utils/error.hpp"
+
 Cdrom::Cdrom() {
     index = 0;
 
@@ -54,46 +56,46 @@ uint8_t Cdrom::read(uint32_t address) {
     return 0;
 }
 
-void Cdrom::write(uint32_t address, uint8_t value) {
+int Cdrom::write(uint32_t address, uint8_t value) {
     switch (address) {
         case 0x1F801800:
             index = value & 0x03;
-            return;
+            return ERR_OK;
 
         case 0x1F801801:
             switch (index) {
                 case 0:
                     command = value;
-                    return;
+                    return ERR_OK;
 
                 case 1:
-                    return; // Unknown/unused
+                    return ERR_OK; // Unknown/unused
 
                 case 2:
-                    return; // Unknown/unused
+                    return ERR_OK; // Unknown/unused
 
                 case 3:
                     audioVolumeRightToRight = value;
-                    return;
+                    return ERR_OK;
             }
             break;
 
         case 0x1F801802:
             switch (index) {
                 case 0:
-                    return; // Parameter FIFO
+                    return ERR_OK; // Parameter FIFO
 
                 case 1:
                     interruptEnable = value;
-                    return;
+                    return ERR_OK;
 
                 case 2:
                     audioVolumeLeftToLeft = value;
-                    return;
+                    return ERR_OK;
 
                 case 3:
                     audioVolumeRightToLeft = value;
-                    return;
+                    return ERR_OK;
             }
             break;
 
@@ -101,19 +103,21 @@ void Cdrom::write(uint32_t address, uint8_t value) {
             switch (index) {
                 case 0:
                     request = value;
-                    return;
+                    return ERR_OK;
 
                 case 1:
                     interruptFlag = value;
-                    return;
+                    return ERR_OK;
 
                 case 2:
-                    return; // Audio volume apply changes
+                    return ERR_OK; // Audio volume apply changes
 
                 case 3:
                     interruptFlag = value;
-                    return;
+                    return ERR_OK;
             }
             break;
     }
+
+	return ERR_WRITE_NOT_ALLOWED;
 }

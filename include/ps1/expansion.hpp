@@ -9,7 +9,7 @@ class ExpansionRegion1 {
         ~ExpansionRegion1();
 
         uint8_t read(uint32_t address);
-        void write(uint32_t address, uint8_t value);
+        int write(uint32_t address, uint8_t value);
 
     private:
 		uint32_t dataSize;
@@ -22,10 +22,11 @@ class ExpansionRegion2 {
         ~ExpansionRegion2();
 
         uint8_t read(uint32_t address);
-        void write(uint32_t address, uint8_t value);
+        int write(uint32_t address, uint8_t value);
 
     private:
-        uint8_t data[0x80];
+		uint32_t dataSize;
+        uint8_t *data;
 
         // DUART
         uint8_t modeA;
@@ -74,7 +75,7 @@ class ExpansionRegion3 {
         ~ExpansionRegion3();
 
         uint8_t read(uint32_t address);
-        void write(uint32_t address, uint8_t value);
+        int write(uint32_t address, uint8_t value);
 
     private:
         uint8_t post;
