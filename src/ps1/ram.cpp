@@ -20,7 +20,14 @@ Ram::~Ram() {
 }
 
 uint32_t Ram::read(uint32_t address) {
-	return ram[address];
+	uint32_t result = 0;
+
+	result |= (uint32_t)ram[address];
+	result |= (uint32_t)(ram[address + 1] << 8);
+	result |= (uint32_t)(ram[address + 2] << 16);
+	result |= (uint32_t)(ram[address + 3] << 24);
+
+	return result;
 }
 
 int Ram::write(uint32_t address, uint32_t value) {

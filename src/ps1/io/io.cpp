@@ -62,6 +62,11 @@ uint32_t Io::read(uint32_t address) {
 	if (0x1F801C00 <= address && address <= 0x1F801FFF) {
 		return spu.read(address);
 	}
+
+    if (0xFFFE0000 <= address && address <= 0xFFFE01FF) {
+        return memoryControl3.read(address);
+    }
+
 	return 0;
 }
 

@@ -20,6 +20,12 @@ class Gpu {
 		uint32_t getGpuread();
         uint32_t getGpustat();
 
+		uint16_t getDisplayStartX();
+		uint16_t getDisplayStartY();
+		uint16_t getDisplayX1();
+		uint16_t getDisplayX2();
+		uint16_t getDisplayY1();
+		uint16_t getDisplayY2();
         uint8_t getGpustatPageX();
         bool getGpustatPageY();
         uint8_t getGpustatSemiTransparency();
@@ -46,7 +52,13 @@ class Gpu {
         uint8_t getGpustatDmaDirection();
         bool getGpustatDrawingLine();
 
-        void setGpustatPageX(uint8_t value);
+		void setDisplayStartX(uint16_t value);
+		void setDisplayStartY(uint16_t value);
+		void setDisplayX1(uint16_t value);
+		void setDisplayX2(uint16_t value);
+		void setDisplayY1(uint16_t value);
+		void setDisplayY2(uint16_t value);
+		void setGpustatPageX(uint8_t value);
         void setGpustatPageY(bool value);
         void setGpustatSemiTransparency(uint8_t value);
         void setGpustatTexturePageColors(uint8_t value);
@@ -78,4 +90,14 @@ class Gpu {
 
         uint32_t gpuread;
         uint32_t gpustat;
+
+		// VRAM position
+		uint16_t displayStartX;
+		uint16_t displayStartY;
+
+		// Window
+		uint16_t displayX1;
+        uint16_t displayX2;
+        uint16_t displayY1;
+        uint16_t displayY2;
 };

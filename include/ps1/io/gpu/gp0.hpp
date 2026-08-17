@@ -10,9 +10,9 @@ class Gp0 {
         ~Gp0();
 
         uint32_t read();
-        void write(uint32_t value);
+		int write(uint32_t value);
 
-		int decodeCommand(uint32_t command);
+		int decodeCommand();
 
 		// Utils
 
@@ -25,4 +25,8 @@ class Gp0 {
 		uint32_t commandBufferMaxSize;
 		uint32_t commandBufferIndex;
 		uint32_t *commandBuffer;
+
+		// Commands
+
+		int NOP();
 };

@@ -43,6 +43,9 @@ const char *error_string(int err)
         case ERR_WRITE_SECTION_NOT_FOUND:
             return "write section not found";
 
+		case ERR_INTENTIONAL_STOP:
+			return "intentional stop";
+
 		default:
 			return "unknown error";
 	}

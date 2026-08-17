@@ -10,7 +10,7 @@ class Gp1 {
         ~Gp1();
 
         uint32_t read();
-        void write(uint32_t value);
+		int write(uint32_t value);
 
 		int decodeCommand();
 
@@ -24,4 +24,10 @@ class Gp1 {
 
 		int resetCommandBuffer();
 		int acknowledgeGpuInterrupt();
+		int displayEnable();
+		int dmaDirection();
+		int startOfDisplayArea();
+		int horizontalDisplayRange();
+		int verticalDisplayRange();
+		int displayMode();
 };

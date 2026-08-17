@@ -6,6 +6,30 @@ int Gpu::resetCommandBuffer() {
     return 0;
 }
 
+uint16_t Gpu::getDisplayStartX() {
+	return displayStartX;
+}
+
+uint16_t Gpu::getDisplayStartY() {
+    return displayStartY;
+}
+
+uint16_t Gpu::getDisplayX1() {
+    return displayX1;
+}
+
+uint16_t Gpu::getDisplayX2() {
+    return displayX2;
+}
+
+uint16_t Gpu::getDisplayY1() {
+    return displayY1;
+}
+
+uint16_t Gpu::getDisplayY2() {
+    return displayY2;
+}
+
 uint32_t Gpu::getGpuread() {
     return gpuread;
 }
@@ -114,6 +138,30 @@ bool Gpu::getGpustatDrawingLine() {
     return (gpustat >> 31) & 0x01;
 }
 
+
+void Gpu::setDisplayStartX(uint16_t value) {
+	displayStartX = value & 0x4FF;
+}
+
+void Gpu::setDisplayStartY(uint16_t value) {
+	displayStartY = value & 0x4FF;
+}
+
+void Gpu::setDisplayX1(uint16_t value) {
+    displayX1 = value & 0x0FFF;
+}
+
+void Gpu::setDisplayX2(uint16_t value) {
+    displayX2 = value & 0x0FFF;
+}
+
+void Gpu::setDisplayY1(uint16_t value) {
+    displayY1 = value & 0x03FF;
+}
+
+void Gpu::setDisplayY2(uint16_t value) {
+    displayY2 = value & 0x03FF;
+}
 
 void Gpu::setGpustatPageX(uint8_t value) {
     gpustat &= ~(0x0F << 0);

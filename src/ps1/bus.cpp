@@ -103,7 +103,7 @@ uint32_t Bus::read(uint32_t address) {
         case Mem::EXPANSION_REGION_2:	return expansion2->read(address);
         case Mem::EXPANSION_REGION_3:	return expansion3->read(address);
         case Mem::BIOS_ROM:				return bios->read(address);
-        case Mem::CACHE_CONTROL:		return 0;
+        case Mem::CACHE_CONTROL:		return io->read(address);
 
 		default:
             printf("Error: invalid memory component\n");

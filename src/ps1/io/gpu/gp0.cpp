@@ -2,6 +2,7 @@
 
 #include <stdlib.h>
 
+#include "utils/error.hpp"
 #include "ps1/io/gpu/gpu.hpp"
 
 Gp0::Gp0(Gpu *gpu_) {
@@ -24,12 +25,13 @@ uint32_t Gp0::read() {
 	return gpu->getGpuread(); // TODO
 }
 
-void Gp0::write(uint32_t value) {
-    if (commandBufferIndex >= commandBufferMaxSize) {
-        return;
-    }
+int Gp0::write(uint32_t value) { // When we write in GP0 it adds a command (value) to a buffer
+	if (commandBufferIndex >= commandBufferMaxSize) { // Overflow (shouldn't happened)
+		return ERR_OUT_OF_MEMORY;
+	}
 
-	commandBuffer[commandBufferIndex] = value;
-
+	commandBuffer[commandBufferIndex] = value; // Add the command to the buffer
 	commandBufferIndex += 1;
+
+	return decodeCommand(); // If something goes wrong the error is handled
 }
