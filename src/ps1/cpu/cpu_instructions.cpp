@@ -394,7 +394,7 @@ int Cpu::SLLV() {
 }
 
 int Cpu::SRA() {
-    int32_t value = signExtend(GPR[operand->rt], 32);;
+    int32_t value = signExtend(GPR[operand->rt], 32);
 
     GPR[operand->rd] = (uint32_t)(value >> operand->shamt);
 
@@ -494,6 +494,116 @@ int Cpu::XORI() {
     return ERR_OK;
 }
 
+int Cpu::BLEZ(){
+    (int)operand->rs;
+}
+
+int Cpu::BGTZ(){
+}
+
+int Cpu::LB(){
+}
+
+int Cpu::LH(){
+}
+
+int Cpu::LWL(){
+}
+
+int Cpu::LW(){
+    uint32_t address = GPR[rs] + signExtend(operand->immediate, 16);
+    if ((address & 0b11) != 0){ // multiple of 4
+        setBadVaddr(address);
+        Cpu.raiseException(Exception::LoadAddressError);
+        return ERR_OK;
+    }
+    GPR[rt] = bus.read(address);
+    printf("%8X loaded from address %8X to register %8X\n", GPR[rt], address, rt);
+    printf("CPU instruction LW done\n");
+    return ERR_OK;
+}
+
+int Cpu::LBU(){
+    uint32_t address = GPR[rs] + signExtend(operand->immediate, 16); // any number
+    int miniOffset = address % 4;
+    uint32_t temp = bus.read(address - miniOffset); // multiple of 4
+    // reversed because of little endian
+    switch (miniOffset){
+        case 0: GPR[rt] = temp & 0xFF; break;
+        case 1: GPR[rt] = (temp >> 8) & 0xFF; break;
+        case 2: GPR[rt] = (temp >> 16) & 0xFF; break;
+        case 3: GPR[rt] = (temp >> 24) & 0xFF; break;
+    }
+    printf("%8X loaded from address %8X to register %8X\n", GPR[rt], address, rt);
+    printf("CPU instruction LBU done\n");
+    return ERR_OK;
+}
+
+int Cpu::LHU(){
+    uint32_t address = GPR[rs] + signExtend(operand->immediate, 16);
+    if ((address & 1) != 0){ // multiple of 2
+        setBadVaddr(address);
+        Cpu.raiseException(Exception::LoadAddressError);
+        return ERR_OK;
+    }
+    int miniOffset = address % 4;
+    uint32_t temp = bus.read(address - miniOffset) ; // multiple of 4
+    // reversed because of little endian
+    if (miniOffset == 0)
+        GPR[rt] = temp & 0xFFFF;
+    else if (miniOffset == 2)
+        GPR[rt] = temp >> 16;
+
+    printf("%8X loaded from address %8X to register %8X\n", GPR[rt], address, rt);
+    printf("CPU instruction LHU done\n");
+    return ERR_OK;
+}
+
+int Cpu::LWR(){
+}
+// TODO we need to be able to write 1 byte at a time
+// int Cpu::SB(){
+//     uint32_t address = GPR[rs] + signExtend(operand->immediate, 16);
+//     int ret = bus.write(address, GPR[rt] & 0xFF);
+//     if (ret != ERR_OK){
+//         printf("%8X\n", address);
+//         return ret;
+//     }
+//     printf("%8X written to %8X\n", GPR[rt] & 0xFF, address);
+//     printf("CPU instruction SB done\n");
+
+//     return ERR_OK;
+// }
+
+int Cpu::SWL(){
+}
+
+int Cpu::SWR(){
+}
+
+int Cpu::LWC0(){
+}
+
+int Cpu::LWC1(){
+}
+
+int Cpu::LWC2(){
+}
+
+int Cpu::LWC3(){
+}
+
+int Cpu::SWC0(){
+}
+
+int Cpu::SWC1(){
+}
+
+int Cpu::SWC2(){
+}
+
+int Cpu::SWC3(){
+}
 
 
 uint32_t Cpu::fetchPC() { // From the current PC (instructionPC) return the value at its address

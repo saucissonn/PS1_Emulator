@@ -129,8 +129,27 @@ class Cpu {
 		int SYSCALL();
 		int XOR();
 		int XORI();
+		int BLEZ();
+		int BGTZ();
+		int LB();
+		int LH();
+		int LWL();
+		int LW();
+		int LBU();
+		int LHU();
+		int LWR();
+		int SB();
+		int SWL();
+		int SWR();
+		int LWC0();
+		int LWC1();
+		int LWC2();
+		int LWC3();
+		int SWC0();
+		int SWC1();
+		int SWC2();
+		int SWC3();
 
 		// Utils
-
 		int32_t signExtend(uint32_t value, int bits);
 };
