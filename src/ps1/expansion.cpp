@@ -6,6 +6,8 @@
 ExpansionRegion1::ExpansionRegion1() {
     dataSize = 0x80000;
 	data = (uint8_t *)calloc(dataSize, sizeof(uint8_t));
+
+	connected = 0;
 }
 
 ExpansionRegion1::~ExpansionRegion1() {
@@ -14,23 +16,43 @@ ExpansionRegion1::~ExpansionRegion1() {
     return;
 }
 
-uint8_t ExpansionRegion1::read(uint32_t address) {
-    if (address >= 0x1F000000 && address < 0x1F080000) {
-        return data[address - 0x1F000000];
+uint32_t ExpansionRegion1::read(uint32_t address) {
+    if (0x1F000000 <= address && address <= 0x1F07FFFF) {
+        address -= 0x1F000000;
+
+		uint32_t result = (uint32_t)data[address];
+		result |= (uint32_t)data[address + 1] << 8;
+		result |= (uint32_t)data[address + 2] << 16;
+		result |= (uint32_t)data[address + 3] << 24;
+
+		return result;
     }
 
     return 0;
 }
 
-int ExpansionRegion1::write(uint32_t address, uint8_t value) {
-    if (address >= 0x1F000000 && address < 0x1F080000) {
-        data[address - 0x1F000000] = value;
-		return ERR_OK;
-	 }
+int ExpansionRegion1::write(uint32_t address, uint32_t value) {
+    if (0x1F000000 <= address && address <= 0x1F07FFFF) {
+        address -= 0x1F000000;
 
-	return ERR_WRITE_SECTION_NOT_FOUND;
+        data[address] = (uint8_t)(value);
+        data[address + 1] = (uint8_t)(value >> 8);
+        data[address + 2] = (uint8_t)(value >> 16);
+        data[address + 3] = (uint8_t)(value >> 24);
+
+        return ERR_OK;
+    }
+
+    return ERR_WRITE_SECTION_NOT_FOUND;
 }
 
+int ExpansionRegion1::getConnected() {
+	return connected;
+}
+
+void ExpansionRegion1::setConnected(int value) {
+	connected = value;
+}
 
 ExpansionRegion2::ExpansionRegion2() {
     dataSize = 0x80000;
@@ -72,6 +94,8 @@ ExpansionRegion2::ExpansionRegion2() {
     emuEnable2 = 0;
     emuHalt = 0;
     emuTurbo = 0;
+
+	connected = 0;
 }
 
 ExpansionRegion2::~ExpansionRegion2() {
@@ -177,14 +201,19 @@ uint8_t ExpansionRegion2::read(uint32_t address) {
             return 0;
     }
 
-    if (address >= 0x1F802000 && address < 0x1F802080) {
-        return data[address - 0x1F802000];
-    }
+	if (0x1F802000 <= address && address <= 0x1F80207F) {
+	    address -= 0x1F802000;
+
+	    return (uint32_t)data[address]
+	         | ((uint32_t)data[address + 1] << 8)
+	         | ((uint32_t)data[address + 2] << 16)
+	         | ((uint32_t)data[address + 3] << 24);
+	}
 
     return 0;
 }
 
-int ExpansionRegion2::write(uint32_t address, uint8_t value) {
+int ExpansionRegion2::write(uint32_t address, uint32_t value) {
     switch (address) {
         case 0x1F802002:
             atconsData = value;
@@ -281,17 +310,32 @@ int ExpansionRegion2::write(uint32_t address, uint8_t value) {
             return ERR_OK;
     }
 
-    if (0x1F802000 <= address && address < 0x1F802080) {
-        data[address - 0x1F802000] = value;
-		return ERR_OK;
-    }
+	if (0x1F802000 <= address && address < 0x1F802080) {
+	    address -= 0x1F802000;
+
+	    data[address] = (uint8_t)value;
+	    data[address + 1] = (uint8_t)(value >> 8);
+	    data[address + 2] = (uint8_t)(value >> 16);
+	    data[address + 3] = (uint8_t)(value >> 24);
+
+	    return ERR_OK;
+	}
 
 	return ERR_WRITE_SECTION_NOT_FOUND;
 }
 
+int ExpansionRegion2::getConnected() {
+    return connected;
+}
+
+void ExpansionRegion2::setConnected(int value) {
+    connected = value;
+}
 
 ExpansionRegion3::ExpansionRegion3() {
     post = 0;
+
+	connected = 0;
 }
 
 ExpansionRegion3::~ExpansionRegion3() {
@@ -307,7 +351,7 @@ uint8_t ExpansionRegion3::read(uint32_t address) {
     return 0;
 }
 
-int ExpansionRegion3::write(uint32_t address, uint8_t value) {
+int ExpansionRegion3::write(uint32_t address, uint32_t value) {
     switch (address) {
         case 0x1FA00000:
             post = value;
@@ -315,4 +359,12 @@ int ExpansionRegion3::write(uint32_t address, uint8_t value) {
     }
 
 	return ERR_WRITE_SECTION_NOT_FOUND;
+}
+
+int ExpansionRegion3::getConnected() {
+    return connected;
+}
+
+void ExpansionRegion3::setConnected(int value) {
+    connected = value;
 }

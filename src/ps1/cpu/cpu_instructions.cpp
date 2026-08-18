@@ -464,10 +464,11 @@ int Cpu::SW() {
 
 	int ret = bus->write(address, GPR[operand->rt]);
 
-	if (ret != ERR_OK) {
-		printf("Address: %8X\n", address);
-		return ret;
-	}
+	if (ret != ERR_OK || bus->getBusError() != ERR_OK) {
+        bus->setBusError(ERR_OK);
+        cop0.setBadVaddr(address);
+        return raiseException(Exception::BusErrorData);
+    }
 
 	printf("Address: %8X\n", address);
     printf("CPU instruction SW done\n");
@@ -526,21 +527,39 @@ int Cpu::LWL(){
 
 int Cpu::LW(){
     uint32_t address = GPR[operand->rs] + signExtend(operand->immediate, 16);
-    if ((address & 0b11) != 0){ // multiple of 4
+    
+	if ((address & 0b11) != 0) { // multiple of 4
         cop0.setBadVaddr(address);
-        raiseException(Exception::LoadAddressError);
-        return ERR_OK;
+        return raiseException(Exception::LoadAddressError);
     }
-    GPR[operand->rt] = bus->read(address);
-    printf("%8X loaded from address %8X to register %8X\n", GPR[operand->rt], address, operand->rt);
+   
+	uint32_t value = bus->read(address);
+ 
+	if (bus->getBusError() != ERR_OK) {
+		bus->setBusError(ERR_OK);
+        cop0.setBadVaddr(address);
+        return raiseException(Exception::BusErrorData);
+	}
+
+	GPR[operand->rt] = value;
+    
+	printf("%8X loaded from address %8X to register %8X\n", GPR[operand->rt], address, operand->rt);
     printf("CPU instruction LW done\n");
-    return ERR_OK;
+    
+	return ERR_OK;
 }
 
 int Cpu::LBU(){
     uint32_t address = GPR[operand->rs] + signExtend(operand->immediate, 16); // any number
     int miniOffset = address % 4;
     uint32_t temp = bus->read(address - miniOffset); // multiple of 4
+
+    if (bus->getBusError() != ERR_OK) {
+        bus->setBusError(ERR_OK);
+        cop0.setBadVaddr(address);
+        return raiseException(Exception::BusErrorData);
+    }
+
     // reversed because of little endian
     switch (miniOffset){
         case 0: GPR[operand->rt] = temp & 0xFF; break;
@@ -548,20 +567,31 @@ int Cpu::LBU(){
         case 2: GPR[operand->rt] = (temp >> 16) & 0xFF; break;
         case 3: GPR[operand->rt] = (temp >> 24) & 0xFF; break;
     }
+
     printf("%8X loaded from address %8X to register %8X\n", GPR[operand->rt], address, operand->rt);
     printf("CPU instruction LBU done\n");
+
     return ERR_OK;
 }
 
 int Cpu::LHU(){
     uint32_t address = GPR[operand->rs] + signExtend(operand->immediate, 16);
+
     if ((address & 1) != 0){ // multiple of 2
         cop0.setBadVaddr(address);
         raiseException(Exception::LoadAddressError);
         return ERR_OK;
     }
+
     int miniOffset = address % 4;
     uint32_t temp = bus->read(address - miniOffset) ; // multiple of 4
+
+    if (bus->getBusError() != ERR_OK) {
+        bus->setBusError(ERR_OK);
+        cop0.setBadVaddr(address);
+        return raiseException(Exception::BusErrorData);
+    }
+
     // reversed because of little endian
     if (miniOffset == 0)
         GPR[operand->rt] = temp & 0xFFFF;
@@ -570,6 +600,7 @@ int Cpu::LHU(){
 
     printf("%8X loaded from address %8X to register %8X\n", GPR[operand->rt], address, operand->rt);
     printf("CPU instruction LHU done\n");
+
     return ERR_OK;
 }
 
@@ -580,7 +611,7 @@ int Cpu::LWR(){
  int Cpu::SB(){
      return 0;
 //     uint32_t address = GPR[rs] + signExtend(operand->immediate, 16);
-//     int ret = bus.write(address, GPR[rt] & 0xFF);
+//     int ret = bus->write(address, GPR[rt] & 0xFF);
 //     if (ret != ERR_OK){
 //         printf("%8X\n", address);
 //         return ret;
@@ -646,6 +677,12 @@ uint32_t Cpu::fetchPC() { // From the current PC (instructionPC) return the valu
 	uint32_t address = convertAddress(instructionPC);
 
 	uint32_t value = bus->read(address);
+
+    if (bus->getBusError() != ERR_OK) {
+        bus->setBusError(ERR_OK);
+        cop0.setBadVaddr(address);
+        return raiseException(Exception::BusErrorInstruction); // TODO handle this exception
+    }
 
 	return value;
 }
@@ -752,26 +789,26 @@ int Cpu::decodeInstruction(uint32_t instruction) { // From an instruction find a
 		case 0x0F: return LUI();
 		case 0x06: return BLEZ();
 		case 0x07: return BGTZ();
-		case 0x20: return LB();
-		case 0x21: return LH();
-		case 0x22: return LWL();
+//		case 0x20: return LB();
+//		case 0x21: return LH();
+//		case 0x22: return LWL();
 		case 0x23: return LW();
 		case 0x24: return LBU();
 		case 0x25: return LHU();
-		case 0x26: return LWR();
+//		case 0x26: return LWR();
 		case 0x28: return SB();
-		case 0x29: return SH();
+//		case 0x29: return SH();
 		case 0x2A: return SWL();
 		case 0x2B: return SW();
-		case 0x2E: return SWR();
-		case 0x30: return LWC0();
-		case 0x31: return LWC1();
-		case 0x32: return LWC2();
-		case 0x33: return LWC3();
-		case 0x38: return SWC0();
-		case 0x39: return SWC1();
-		case 0x3A: return SWC2();
-		case 0x3B: return SWC3();
+//		case 0x2E: return SWR();
+//		case 0x30: return LWC0();
+//		case 0x31: return LWC1();
+//		case 0x32: return LWC2();
+//		case 0x33: return LWC3();
+//		case 0x38: return SWC0();
+//		case 0x39: return SWC1();
+//		case 0x3A: return SWC2();
+//		case 0x3B: return SWC3();
 	}
 	return ERR_CPU_INSTRUCTION_NOT_FOUND;
 }

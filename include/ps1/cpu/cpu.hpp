@@ -16,10 +16,10 @@ CacheLine **createCache(int size);
 enum class Exception
 {
     Interrupt = 0,
-    LoadAddressError = 4,
-    StoreAddressError = 5,
-    BusErrorInstruction = 6,
-    BusErrorData = 7,
+    LoadAddressError = 4,		// Address not alligned on read
+    StoreAddressError = 5,		// Address not alligned on store
+    BusErrorInstruction = 6,	// Can't read instruction
+    BusErrorData = 7,			// Can't read / write at the current address
     Syscall = 8,
     Breakpoint = 9,
     ReservedInstruction = 10,

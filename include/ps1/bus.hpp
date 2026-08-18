@@ -33,13 +33,16 @@ class Bus {
 		int setBios(Bios *bios_);
 		int setRam(Ram *ram_);
 		int setIo(Io *io_);
-		int setExpansion1(ExpansionRegion1 *expansion1_);
-		int setExpansion2(ExpansionRegion2 *expansion2_);
-		int setExpansion3(ExpansionRegion3 *expansion3_);
+		int setExpansion1(ExpansionRegion1 *expansion1_); // Currently disconnected
+		int setExpansion2(ExpansionRegion2 *expansion2_); // Currently disconnected
+		int setExpansion3(ExpansionRegion3 *expansion3_); // Currently disconnected
 
 		uint32_t read(uint32_t address);
 		int write(uint32_t address, uint32_t value);
         Mem getMemoryHardware(uint32_t physicalAddr); // translate the physical address given into the physical component it is refering to
+
+		int getBusError();
+		void setBusError(int value);
 
 	private:
 		Cpu *cpu;
@@ -49,4 +52,6 @@ class Bus {
         ExpansionRegion1 *expansion1;
         ExpansionRegion2 *expansion2;
         ExpansionRegion3 *expansion3;
+
+		int busError; // Call exceptions if not equals to ERR_OK
 };

@@ -7,8 +7,8 @@
 #include "utils/error.hpp"
 
 Ram::Ram() {
-	ramSize = 0x200000;
-	ram = (uint8_t *)calloc(0x200000, sizeof(uint8_t));
+	ramSize = 0x200000 + 4;
+	ram = (uint8_t *)calloc(ramSize, sizeof(uint8_t));
 
 	return;
 }
@@ -20,18 +20,25 @@ Ram::~Ram() {
 }
 
 uint32_t Ram::read(uint32_t address) {
-	uint32_t result = 0;
+    address &= 0x001FFFFF;
 
-	result |= (uint32_t)ram[address];
-	result |= (uint32_t)(ram[address + 1] << 8);
-	result |= (uint32_t)(ram[address + 2] << 16);
-	result |= (uint32_t)(ram[address + 3] << 24);
+    uint32_t result = 0;
 
-	return result;
+    result |= (uint32_t)ram[address];
+    result |= ((uint32_t)ram[address + 1]) << 8;
+    result |= ((uint32_t)ram[address + 2]) << 16;
+    result |= ((uint32_t)ram[address + 3]) << 24;
+
+    return result;
 }
 
 int Ram::write(uint32_t address, uint32_t value) {
-	ram[address] = value;
+    address &= 0x001FFFFF;
 
-	return ERR_OK;
-}
+    ram[address]     = (uint8_t)(value);
+    ram[address + 1] = (uint8_t)(value >> 8);
+    ram[address + 2] = (uint8_t)(value >> 16);
+    ram[address + 3] = (uint8_t)(value >> 24);
+
+    return ERR_OK;
+};

@@ -14,6 +14,12 @@ typedef enum {
 	ERR_GP1_COMMAND_NOT_FOUND,		// Gp1 command not found
 	ERR_WRITE_NOT_ALLOWED,			// Write not allowed
 	ERR_WRITE_SECTION_NOT_FOUND,	// Write section not found
+	ERR_WRITE_SECTION_NOT_CONNECTED,// Write section not connected
+	ERR_READ_NOT_ALLOWED,			// Read not allowed
+	ERR_READ_SECTION_NOT_FOUND,		// Read section not found
+	ERR_READ_SECTION_NOT_CONNECTED,	// Read section not connected
+	ERR_BUS_SECTION_NOT_FOUND,		// Bus section not found
+    ERR_BUS_SECTION_NOT_CONNECTED,  // Bus section not connected
 	ERR_INTENTIONAL_STOP			// Intentional stop
 } Error;
 

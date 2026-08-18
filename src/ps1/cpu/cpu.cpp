@@ -81,7 +81,8 @@ Cpu::~Cpu() {
 }
 
 uint32_t Cpu::convertAddress(uint32_t virtualAddr) {
-    if (virtualAddr >> 29 > 0b110){
+    if (virtualAddr >= 0xFFFE0000){
+		return virtualAddr;
         // TODO: kseg2 decode
     }
     return virtualAddr & 0x1FFFFFFF;

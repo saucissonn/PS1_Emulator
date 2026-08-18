@@ -8,12 +8,19 @@ class ExpansionRegion1 {
         ExpansionRegion1();
         ~ExpansionRegion1();
 
-        uint8_t read(uint32_t address);
-        int write(uint32_t address, uint8_t value);
+        uint32_t read(uint32_t address);
+        int write(uint32_t address, uint32_t value);
+
+		int getConnected();
+		void setConnected(int value);
 
     private:
 		uint32_t dataSize;
         uint8_t *data;
+
+        // Utils
+
+        int connected;
 };
 
 class ExpansionRegion2 {
@@ -22,7 +29,10 @@ class ExpansionRegion2 {
         ~ExpansionRegion2();
 
         uint8_t read(uint32_t address);
-        int write(uint32_t address, uint8_t value);
+        int write(uint32_t address, uint32_t value);
+
+        int getConnected();
+        void setConnected(int value);
 
     private:
 		uint32_t dataSize;
@@ -67,6 +77,10 @@ class ExpansionRegion2 {
         uint8_t emuEnable2;
         uint8_t emuHalt;
         uint8_t emuTurbo;
+
+		// Utils
+
+		int connected;
 };
 
 class ExpansionRegion3 {
@@ -75,8 +89,15 @@ class ExpansionRegion3 {
         ~ExpansionRegion3();
 
         uint8_t read(uint32_t address);
-        int write(uint32_t address, uint8_t value);
+        int write(uint32_t address, uint32_t value);
+
+        int getConnected();
+        void setConnected(int value);
 
     private:
         uint8_t post;
+
+        // Utils
+
+        int connected;
 };
