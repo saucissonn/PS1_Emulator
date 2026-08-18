@@ -40,14 +40,14 @@ int Ps1::run() {
 	while (1) {
 		uint64_t count = cpu.getInstructionCounter();
 
-		if (count > 18000) {
+		if (count > 17395) {
 			return ERR_OK;
 		}
-		
+
 		printf("%ld\n", count);
 
 		int ret = cpu.run();
-		
+
 		if (ret != ERR_OK) {
 			return ret;
 		}

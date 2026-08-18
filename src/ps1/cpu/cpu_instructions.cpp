@@ -501,27 +501,122 @@ int Cpu::XORI() {
 }
 
 int Cpu::BLEZ(){
+    int32_t offset = signExtend(operand->immediate, 16);
+	int32_t target = offset << 2;
+
+	if ((int)GPR[operand->rs] <= 0)
+		nextPC = PC + target;
+
+	inDelaySlot = 1;
+
+    printf("CPU instruction BLEZ done\n");
+
     return ERR_OK;
 }
 
 int Cpu::BGTZ(){
+    int32_t offset = signExtend(operand->immediate, 16);
+	int32_t target = offset << 2;
+
+	if ((int)GPR[operand->rs] > 0)
+		nextPC = PC + target;
+
+	inDelaySlot = 1;
+
+    printf("CPU instruction BGTZ done\n");
+
     return ERR_OK;
 }
+
 int Cpu::BLTZAL(){
+    int32_t offset = signExtend(operand->immediate, 16);
+	int32_t target = offset << 2;
+
+	if ((int)GPR[operand->rs] < 0)
+		nextPC = PC + target;
+	GPR[31] = nextPC;
+
+	inDelaySlot = 1;
+
+    printf("CPU instruction BLTZAL done\n");
+
     return ERR_OK;
 }
+
 int Cpu::BGEZAL(){
+    int32_t offset = signExtend(operand->immediate, 16);
+	int32_t target = offset << 2;
+
+	if ((int)GPR[operand->rs] >= 0)
+		nextPC = PC + target;
+	GPR[31] = nextPC;
+
+	inDelaySlot = 1;
+
+    printf("CPU instruction BGEZAL done\n");
+
     return ERR_OK;
 }
+
 int Cpu::LB(){
+    uint32_t address = GPR[operand->rs] + signExtend(operand->immediate, 16); // any number
+    int miniOffset = address % 4;
+    uint32_t temp = bus->read(address - miniOffset); // multiple of 4
+
+    if (bus->getBusError() != ERR_OK) {
+        bus->setBusError(ERR_OK);
+        cop0.setBadVaddr(address);
+        return raiseException(Exception::BusErrorData);
+    }
+
+    // reversed because of little endian
+    switch (miniOffset){
+        case 0: GPR[operand->rt] = signExtend(temp & 0xFF, 8); break;
+        case 1: GPR[operand->rt] = signExtend((temp >> 8) & 0xFF, 8); break;
+        case 2: GPR[operand->rt] = signExtend((temp >> 16) & 0xFF, 8); break;
+        case 3: GPR[operand->rt] = signExtend((temp >> 24) & 0xFF, 8); break;
+    }
+
+    printf("%8X loaded from address %8X to register %8X\n", GPR[operand->rt], address, operand->rt);
+    printf("CPU instruction LB done\n");
+
     return ERR_OK;
 }
 
 int Cpu::LH(){
+    uint32_t address = GPR[operand->rs] + signExtend(operand->immediate, 16); // multiple of 2
+
+    if ((address & 1) != 0){
+        cop0.setBadVaddr(address);
+        return raiseException(Exception::LoadAddressError);
+    }
+
+    int miniOffset = address % 4;
+    uint32_t temp = bus->read(address - miniOffset) ; // multiple of 4
+
+    if (bus->getBusError() != ERR_OK) {
+        bus->setBusError(ERR_OK);
+        cop0.setBadVaddr(address);
+        return raiseException(Exception::BusErrorData);
+    }
+
+    // reversed because of little endian
+    switch(miniOffset){
+        case 0: GPR[operand->rt] = signExtend(temp & 0xFFFF, 16); break;
+        case 2: GPR[operand->rt] = signExtend(temp >> 16, 16); break;
+        // TODO: maybe add a default case for the error
+    }
+    printf("%8X loaded from address %8X to register %8X\n", (int)GPR[operand->rt], address, operand->rt);
+    printf("CPU instruction LH done\n");
+
     return ERR_OK;
 }
 
 int Cpu::LWL(){
+    return ERR_OK;
+}
+
+int Cpu::LWR(){
     return ERR_OK;
 }
 
@@ -534,6 +629,7 @@ int Cpu::LW(){
     }
 
 	uint32_t value = bus->read(address);
+
 	if (bus->getBusError() != ERR_OK) {
 		bus->setBusError(ERR_OK);
         cop0.setBadVaddr(address);
@@ -591,20 +687,17 @@ int Cpu::LHU(){
     }
 
     // reversed because of little endian
-    if (miniOffset == 0)
-        GPR[operand->rt] = temp & 0xFFFF;
-    else if (miniOffset == 2)
-        GPR[operand->rt] = temp >> 16;
-
+    switch(miniOffset){
+        case 0: GPR[operand->rt] = temp & 0xFFFF; break;
+        case 2: GPR[operand->rt] = temp >> 16; break;
+        // TODO: maybe add a default case for the error
+    }
     printf("%8X loaded from address %8X to register %8X\n", GPR[operand->rt], address, operand->rt);
     printf("CPU instruction LHU done\n");
 
     return ERR_OK;
 }
 
-int Cpu::LWR(){
-    return ERR_OK;
-}
 int Cpu::SB(){
     uint32_t address = GPR[operand->rs] + signExtend(operand->immediate, 16);
     int ret = bus->write8(address, GPR[operand->rt] & 0xFF);
@@ -621,15 +714,50 @@ int Cpu::SB(){
 }
 
 int Cpu::SH(){
+    uint32_t address = GPR[operand->rs] + signExtend(operand->immediate, 16); // multiple of 2
+    if (address % 2 != 0){
+        bus->setBusError(ERR_OK);
+        cop0.setBadVaddr(address);
+        return raiseException(Exception::StoreAddressError);
+    }
+    int ret = bus->write16(address, GPR[operand->rt] & 0xFFFF);
+
+    if (ret != ERR_OK ||bus->getBusError() != ERR_OK) {
+        bus->setBusError(ERR_OK);
+        cop0.setBadVaddr(address);
+        return raiseException(Exception::BusErrorData);
+    }
+    printf("%8X written to %8X\n", GPR[operand->rt] & 0xFFFF, address);
+    printf("CPU instruction SH done\n");
+
     return ERR_OK;
 }
 
 int Cpu::BGEZ(){
+    int32_t offset = signExtend(operand->immediate, 16);
+	int32_t target = offset << 2;
+
+	if ((int)GPR[operand->rs] >= 0)
+		nextPC = PC + target;
+
+	inDelaySlot = 1;
+
+    printf("CPU instruction BGEZ done\n");
 
     return ERR_OK;
 }
 
 int Cpu::BLTZ(){
+    int32_t offset = signExtend(operand->immediate, 16);
+	int32_t target = offset << 2;
+
+	if ((int)GPR[operand->rs] < 0)
+		nextPC = PC + target;
+
+	inDelaySlot = 1;
+
+    printf("CPU instruction BLTZ done\n");
+
     return ERR_OK;
 }
 int Cpu::SWL(){
@@ -803,7 +931,7 @@ int Cpu::decodeInstruction(uint32_t instruction) { // From an instruction find a
 		case 0x25: return LHU();
 //		case 0x26: return LWR();
 		case 0x28: return SB();
-//		case 0x29: return SH();
+		case 0x29: return SH();
 		case 0x2A: return SWL();
 		case 0x2B: return SW();
 //		case 0x2E: return SWR();

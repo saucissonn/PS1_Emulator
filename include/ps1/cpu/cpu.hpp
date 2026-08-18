@@ -62,14 +62,14 @@ class Cpu {
         Cop2 cop2;
 
         uint32_t GPR[32];   // General purpose registers
-        uint32_t PC;        // Program Counter
+        uint32_t PC;        // Program Counter (instructionPC + 4)
         uint32_t HI;        // High
         uint32_t LO;        // Low
 
         Operand *operand; // Current operands
 		uint32_t prevPC;
-		uint32_t instructionPC;
-		uint32_t nextPC;
+		uint32_t instructionPC; // current pc
+		uint32_t nextPC; // instructionPC + 8 | branch or jump address
 		bool inDelaySlot;
 
 		uint64_t instructionCounter;
