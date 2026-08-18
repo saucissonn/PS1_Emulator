@@ -500,28 +500,28 @@ int Cpu::XORI() {
 }
 
 int Cpu::BLEZ(){
-    return 0;
+    return ERR_OK;
 }
 
 int Cpu::BGTZ(){
-    return 0;
+    return ERR_OK;
 }
 int Cpu::BLTZAL(){
-    return 0;
+    return ERR_OK;
 }
 int Cpu::BGEZAL(){
-    return 0;
+    return ERR_OK;
 }
 int Cpu::LB(){
-    return 0;
+    return ERR_OK;
 }
 
 int Cpu::LH(){
-    return 0;
+    return ERR_OK;
 }
 
 int Cpu::LWL(){
-    return 0;
+    return ERR_OK;
 }
 
 int Cpu::LW(){
@@ -574,71 +574,72 @@ int Cpu::LHU(){
 }
 
 int Cpu::LWR(){
-    return 0;
+    return ERR_OK;
 }
-// TODO we need to be able to write 1 byte at a time
- int Cpu::SB(){
-     return 0;
-//     uint32_t address = GPR[rs] + signExtend(operand->immediate, 16);
-//     int ret = bus.write(address, GPR[rt] & 0xFF);
-//     if (ret != ERR_OK){
-//         printf("%8X\n", address);
-//         return ret;
-//     }
-//     printf("%8X written to %8X\n", GPR[rt] & 0xFF, address);
-//     printf("CPU instruction SB done\n");
+int Cpu::SB(){
+    uint32_t address = GPR[rs] + signExtend(operand->immediate, 16);
+    bus.write8(address, GPR[rt] & 0xFF);
+    printf("%8X written to %8X\n", GPR[rt] & 0xFF, address);
+    printf("CPU instruction SB done\n");
 
-//     return ERR_OK;
+     return ERR_OK;
  }
 int Cpu::SH(){
-    return 0;
+    return ERR_OK;
 }
 
 int Cpu::BGEZ(){
-    return 0;
+
+    return ERR_OK;
 }
 
 int Cpu::BLTZ(){
-    return 0;
+    return ERR_OK;
 }
 int Cpu::SWL(){
-    return 0;
+    return ERR_OK;
 }
 
 int Cpu::SWR(){
-    return 0;
+    return ERR_OK;
 }
 
 int Cpu::LWC0(){
-    return 0;
+    printf("not supported\n")
+    return ERR_OK;
 }
 
 int Cpu::LWC1(){
-    return 0;
+    printf("not supported\n")
+    return ERR_OK;
 }
 
 int Cpu::LWC2(){
-    return 0;
+    return ERR_OK;
 }
 
 int Cpu::LWC3(){
-    return 0;
+    printf("not supported\n")
+    return ERR_OK;
 }
 
 int Cpu::SWC0(){
-    return 0;
+    printf("not supported\n")
+    return ERR_OK;
 }
 
 int Cpu::SWC1(){
-    return 0;
+    printf("not supported\n")
+    return ERR_OK;
 }
 
 int Cpu::SWC2(){
-    return 0;
+    return ERR_OK;
 }
 
 int Cpu::SWC3(){
-    return 0;
+    printf("not supported\n")
+    return ERR_OK;
 }
 
 

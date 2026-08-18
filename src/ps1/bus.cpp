@@ -112,6 +112,11 @@ uint32_t Bus::read(uint32_t address) {
 }
 
 int Bus::write(uint32_t address, uint32_t value) {
+    if (address %4 != 0){
+        printf("Error: write, the address %8X is not a multiple of 4\n", address);
+        return ERR_WRITE_ADDRESS_NOT_ALIGNED;
+    }
+
     Mem section = getMemoryHardware(address);
 
     switch (section) {
@@ -125,4 +130,45 @@ int Bus::write(uint32_t address, uint32_t value) {
         case Mem::CACHE_CONTROL:		return io->write(address, value);
         default:						return ERR_WRITE_SECTION_NOT_FOUND;
     }
+}
+int Bus::write16(uint32_t address, uint16_t value){ // address is a multiple of 2
+    int miniOffset = address % 4;
+    uint32_t temp = bus->read(address - miniOffset) ; // multiple of 4
+    if (miniOffset == 0){
+        temp &= 0x0000FFFF;
+        temp |= value << 16;
+    }
+    else if (miniOffset == 2){
+        temp &= 0xFFFF0000;
+        temp |= value;
+    }
+    else {
+        printf("Error: write16, the address %8X is not a multiple of 2\n", address);
+        return ERR_WRITE_ADDRESS_NOT_ALIGNED;
+    }
+    return write(address-miniOffset, temp);
+}
+
+int Bus::write8(uint32_t address, uint8_t value){ // address is any number
+    int miniOffset = address % 4;
+    uint32_t temp = bus->read(address - miniOffset) ; // multiple of 4
+    switch(miniOffset){
+        case 0{
+            temp &= 0x00FFFFFF;
+            temp |= value << 24;
+        }
+        case 1{
+            temp &= 0xFF00FFFF;
+            temp |= value << 16;
+        }
+        case 2{
+            temp &= 0xFFFF00FF;
+            temp |= value << 8;
+        }
+        case 3{
+            temp &= 0xFFFFFF00;
+            temp |= value;
+        }
+    }
+    return write(address-miniOffset, temp);
 }

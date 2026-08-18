@@ -14,7 +14,8 @@ typedef enum {
 	ERR_GP1_COMMAND_NOT_FOUND,		// Gp1 command not found
 	ERR_WRITE_NOT_ALLOWED,			// Write not allowed
 	ERR_WRITE_SECTION_NOT_FOUND,	// Write section not found
-	ERR_INTENTIONAL_STOP			// Intentional stop
+	ERR_INTENTIONAL_STOP,			// Intentional stop
+	ERR_WRITE_ADDRESS_NOT_ALIGNED
 } Error;
 
 const char *error_string(int err);
