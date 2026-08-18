@@ -70,6 +70,8 @@ int Bus::setExpansion3(ExpansionRegion3 *expansion3_) {
 }
 
 Bus::Bus() {
+	busError = ERR_OK;
+
 	return;
 }
 
@@ -78,22 +80,52 @@ Bus::~Bus() {
 }
 
 Mem Bus::getMemoryHardware(uint32_t physicalAddr) {
-    if      (physicalAddr <= 0x001FFFFF) return Mem::MAIN_RAM;
-    else if (0x1F000000 <= physicalAddr && physicalAddr <= 0x1F7FFFFF) return Mem::EXPANSION_REGION_1;
-    else if (0x1F800000 <= physicalAddr && physicalAddr <= 0x1F8003FF) return Mem::SCRATCHPAD;
-    else if (0x1F801000 <= physicalAddr && physicalAddr <= 0x1F802FFF) return Mem::IO_PORTS;
-    else if (0x1F802000 <= physicalAddr && physicalAddr <= 0x1F803FFF) return Mem::EXPANSION_REGION_2;
-    else if (0x1FA00000 <= physicalAddr && physicalAddr <= 0x1FBFFFFF) return Mem::EXPANSION_REGION_3;
-    else if (0x1FC00000 <= physicalAddr && physicalAddr <= 0x1FC7FFFF) return Mem::BIOS_ROM;
-    else if (0xFFFE0000 <= physicalAddr && physicalAddr <= 0xFFFE01FF) return Mem::CACHE_CONTROL;
-    else {
+    if (physicalAddr <= 0x001FFFFF)
+		return Mem::MAIN_RAM;
+
+    else if (0x1F000000 <= physicalAddr && physicalAddr <= 0x1F7FFFFF && (expansion1->getConnected() == 1))
+		return Mem::EXPANSION_REGION_1;
+
+    else if (0x1F800000 <= physicalAddr && physicalAddr <= 0x1F8003FF)
+		return Mem::SCRATCHPAD;
+
+    else if (0x1F801000 <= physicalAddr && physicalAddr <= 0x1F802FFF)
+		return Mem::IO_PORTS;
+
+    else if (0x1F802000 <= physicalAddr && physicalAddr <= 0x1F803FFF && (expansion2->getConnected() == 1))
+		return Mem::EXPANSION_REGION_2;
+
+    else if (0x1FA00000 <= physicalAddr && physicalAddr <= 0x1FBFFFFF && (expansion3->getConnected() == 1))
+		return Mem::EXPANSION_REGION_3;
+
+    else if (0x1FC00000 <= physicalAddr && physicalAddr <= 0x1FC7FFFF)
+		return Mem::BIOS_ROM;
+
+    else if (0xFFFE0000 <= physicalAddr && physicalAddr <= 0xFFFE01FF)
+		return Mem::CACHE_CONTROL;
+
+    else if (0xFFFE0200 <= physicalAddr) {
         printf("Error: getMemoryHardware, the physical address given (%8X) doesn't match any existing component\n", physicalAddr);
+		busError = ERR_BUS_SECTION_NOT_FOUND;
         return Mem::INVALID_COMPONENT;
     }
+
+	else {
+        printf("Error: getMemoryHardware, the physical address given (%8X) doesn't match any connected component\n", physicalAddr);
+		busError = ERR_BUS_SECTION_NOT_CONNECTED;
+        return Mem::INVALID_COMPONENT;
+	}
 }
 
 uint32_t Bus::read(uint32_t address) {
-    Mem section = getMemoryHardware(address);
+    if (address %4 != 0){
+        printf("Error: read, the address %8X is not a multiple of 4\n", address);
+        busError = ERR_READ_ADDRESS_NOT_ALIGNED;
+        return ERR_READ_ADDRESS_NOT_ALIGNED;
+    }
+    uint32_t physicalAddress = cpu->convertAddress(address);
+
+    Mem section = getMemoryHardware(physicalAddress);
 
     switch (section) {
         case Mem::MAIN_RAM:				return ram->read(address);
@@ -107,17 +139,25 @@ uint32_t Bus::read(uint32_t address) {
 
 		default:
             printf("Error: invalid memory component\n");
-            return 0;
+			if (busError == ERR_BUS_SECTION_NOT_FOUND) { // Convert general error to spesific error
+				busError = ERR_READ_SECTION_NOT_FOUND;
+			}
+            if (busError == ERR_BUS_SECTION_NOT_CONNECTED) {
+				busError = ERR_READ_SECTION_NOT_CONNECTED;
+			}
+	        return 0;
     }
 }
 
 int Bus::write(uint32_t address, uint32_t value) {
     if (address %4 != 0){
         printf("Error: write, the address %8X is not a multiple of 4\n", address);
+        busError = ERR_WRITE_ADDRESS_NOT_ALIGNED;
         return ERR_WRITE_ADDRESS_NOT_ALIGNED;
     }
+	uint32_t physicalAddress = cpu->convertAddress(address);
 
-    Mem section = getMemoryHardware(address);
+    Mem section = getMemoryHardware(physicalAddress);
 
     switch (section) {
         case Mem::MAIN_RAM:				return ram->write(address, value);
@@ -128,12 +168,23 @@ int Bus::write(uint32_t address, uint32_t value) {
         case Mem::EXPANSION_REGION_3:	return expansion3->write(address, value);
         case Mem::BIOS_ROM:				return ERR_WRITE_NOT_ALLOWED;
         case Mem::CACHE_CONTROL:		return io->write(address, value);
-        default:						return ERR_WRITE_SECTION_NOT_FOUND;
+        default:
+            if (busError == ERR_BUS_SECTION_NOT_FOUND) { // Convert general error to spesific error
+                busError = ERR_WRITE_SECTION_NOT_FOUND;
+            }
+            if (busError == ERR_BUS_SECTION_NOT_CONNECTED) {
+                busError = ERR_WRITE_SECTION_NOT_CONNECTED;
+            }
+			return ERR_WRITE_SECTION_NOT_FOUND;
     }
 }
 int Bus::write16(uint32_t address, uint16_t value){ // address is a multiple of 2
     int miniOffset = address % 4;
-    uint32_t temp = bus->read(address - miniOffset) ; // multiple of 4
+    uint32_t temp = read(address - miniOffset) ; // multiple of 4
+    if (busError != ERR_OK){
+        printf("Error: write16, impossible to read address %8X\n", address);
+        return busError;
+    }
     if (miniOffset == 0){
         temp &= 0x0000FFFF;
         temp |= value << 16;
@@ -144,6 +195,7 @@ int Bus::write16(uint32_t address, uint16_t value){ // address is a multiple of 
     }
     else {
         printf("Error: write16, the address %8X is not a multiple of 2\n", address);
+        busError = ERR_WRITE_ADDRESS_NOT_ALIGNED;
         return ERR_WRITE_ADDRESS_NOT_ALIGNED;
     }
     return write(address-miniOffset, temp);
@@ -151,24 +203,36 @@ int Bus::write16(uint32_t address, uint16_t value){ // address is a multiple of 
 
 int Bus::write8(uint32_t address, uint8_t value){ // address is any number
     int miniOffset = address % 4;
-    uint32_t temp = bus->read(address - miniOffset) ; // multiple of 4
+    uint32_t temp = read(address - miniOffset); // multiple of 4
+    if (busError != ERR_OK){
+        printf("Error: write8, impossible to read address %8X\n", address);
+        return busError;
+    }
     switch(miniOffset){
-        case 0{
+        case 0 :
             temp &= 0x00FFFFFF;
             temp |= value << 24;
-        }
-        case 1{
+            break;
+        case 1 :
             temp &= 0xFF00FFFF;
             temp |= value << 16;
-        }
-        case 2{
+            break;
+        case 2 :
             temp &= 0xFFFF00FF;
             temp |= value << 8;
-        }
-        case 3{
+            break;
+        case 3 :
             temp &= 0xFFFFFF00;
             temp |= value;
-        }
+            break;
     }
     return write(address-miniOffset, temp);
+}
+
+int Bus::getBusError() {
+	return busError;
+}
+
+void Bus::setBusError(int value) {
+	busError = value;
 }

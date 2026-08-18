@@ -50,9 +50,9 @@ uint32_t Bios::read(uint32_t address) { // Return a 32 bit value at address
 	address -= 0x1FC00000;
 
 	result |= (uint32_t)biosRom[address];
-    result |= (uint32_t)(biosRom[address + 1] << 8);
-    result |= (uint32_t)(biosRom[address + 2] << 16);
-    result |= (uint32_t)(biosRom[address + 3] << 24);
+    result |= (uint32_t)(biosRom[address + 1]) << 8;
+    result |= (uint32_t)(biosRom[address + 2]) << 16;
+    result |= (uint32_t)(biosRom[address + 3]) << 24;
 
 	return result;
 }

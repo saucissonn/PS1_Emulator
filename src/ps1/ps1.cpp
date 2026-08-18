@@ -38,10 +38,14 @@ Ps1::~Ps1() {
 
 int Ps1::run() {
 	while (1) {
-		if (cpu.getInstructionCounter() > 100000) {
+		uint64_t count = cpu.getInstructionCounter();
+
+		if (count > 18000) {
 			return ERR_OK;
 		}
 		
+		printf("%ld\n", count);
+
 		int ret = cpu.run();
 		
 		if (ret != ERR_OK) {
