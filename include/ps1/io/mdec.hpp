@@ -9,6 +9,8 @@ class Mdec {
 
         uint32_t read(uint32_t address);
 		int write(uint32_t address, uint32_t value);
+		int dmaWrite(uint32_t value);
+		uint32_t dmaRead();
 
     private:
         uint32_t data;

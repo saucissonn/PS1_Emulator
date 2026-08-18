@@ -10,13 +10,19 @@
 #include "ps1/io/mdec.hpp"
 #include "ps1/io/spu.hpp"
 
+class Bus;
+
 class Io {
 	public:
 		Io();
 		~Io();
 
+		int setBus(Bus *bus_);
+
 		uint32_t read(uint32_t address);
 		int write(uint32_t address, uint32_t value);
+
+		int run();
 
 	private:
 		MemoryControl1 memoryControl1;
@@ -30,4 +36,6 @@ class Io {
 		Mdec mdec;
 		Spu spu;
 		MemoryControl3 memoryControl3;
+
+		Bus *bus;
 };

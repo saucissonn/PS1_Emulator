@@ -20,6 +20,8 @@ Ps1::Ps1() :
 		return;
 	}
 
+	io.setBus(&bus);
+
 	// Link everything to the bus
 	bus.setCpu(&cpu);
 	bus.setBios(&bios);
@@ -37,16 +39,23 @@ Ps1::~Ps1() {
 }
 
 int Ps1::run() {
+	int ret = ERR_OK;
+
 	while (1) {
 		uint64_t count = cpu.getInstructionCounter();
 
 		if (count > 18000) {
 			return ERR_OK;
 		}
-		
-		printf("%ld\n", count);
+	
+		ret = io.run(); // DMA
 
-		int ret = cpu.run();
+        if (ret != ERR_OK) {
+            return ret;
+        }
+
+		printf("%ld\n", count);
+		ret = cpu.run();
 		
 		if (ret != ERR_OK) {
 			return ret;

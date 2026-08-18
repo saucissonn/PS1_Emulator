@@ -37,3 +37,12 @@ int Mdec::write(uint32_t address, uint32_t value) {
 
 	return ERR_WRITE_SECTION_NOT_FOUND;
 }
+
+int Mdec::dmaWrite(uint32_t value) {
+	data = value;
+	return ERR_OK;
+}
+
+uint32_t Mdec::dmaRead() {
+	return data;
+}

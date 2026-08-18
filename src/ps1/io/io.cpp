@@ -1,6 +1,7 @@
 #include "ps1/io/io.hpp"
 
 #include "utils/error.hpp"
+#include "ps1/bus.hpp"
 
 Io::Io() :
 	memoryControl1(),
@@ -15,11 +16,27 @@ Io::Io() :
 	spu(),
 	memoryControl3()
 {
+	dma.setMdec(&mdec);
+	dma.setGpu(&gpu);
+	dma.setCdrom(&cdrom);
+	dma.setSpu(&spu);
+	dma.setBus(bus);
+
 	return;
 }
 
 Io::~Io() {
 	return;
+}
+
+int Io::setBus(Bus *bus_) {
+    if (!bus_) {
+        return ERR_INVALID_ARGUMENT;
+    }
+
+    bus = bus_;
+
+    return ERR_OK;
 }
 
 uint32_t Io::read(uint32_t address) {
@@ -116,4 +133,8 @@ int Io::write(uint32_t address, uint32_t value) {
     }
 
 	return ERR_WRITE_SECTION_NOT_FOUND;
+}
+
+int Io::run() {
+	return dma.run();
 }
