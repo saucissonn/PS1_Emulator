@@ -5,10 +5,14 @@
 #include "ps1/io/gpu/gp0.hpp"
 #include "ps1/io/gpu/gp1.hpp"
 
+class InterruptController;
+
 class Gpu {
     public:
         Gpu();
         ~Gpu();
+
+		int setInterruptController(InterruptController *interruptController_);
 
         uint32_t read(uint32_t address);
         int write(uint32_t address, uint32_t value);
@@ -87,6 +91,7 @@ class Gpu {
     private:
         Gp0 gp0;
         Gp1 gp1;
+		InterruptController *interruptController;
 
         uint32_t gpuread;
         uint32_t gpustat;

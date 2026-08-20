@@ -1,43 +1,55 @@
 #include "ps1/io/dma.hpp"
 
+uint32_t Dma::getMADR(uint8_t channel) {
+    return channels[channel].MADR;
+}
+
+uint32_t Dma::getBCR(uint8_t channel) {
+    return channels[channel].BCR;
+}
+
+uint32_t Dma::getCHCR(uint8_t channel) {
+	return channels[channel].CHCR;
+}
+
 uint8_t Dma::getChannelTransferDirection(uint8_t channel) {
-    return (channels[channel].channelControl >> 0) & 0x01;
+    return (channels[channel].CHCR >> 0) & 0x01;
 }
 
 uint8_t Dma::getChannelMemoryAddressStep(uint8_t channel) {
-    return (channels[channel].channelControl >> 1) & 0x01;
+    return (channels[channel].CHCR >> 1) & 0x01;
 }
 
 uint8_t Dma::getChannelChoppingEnable(uint8_t channel) {
-    return (channels[channel].channelControl >> 8) & 0x01;
+    return (channels[channel].CHCR >> 8) & 0x01;
 }
 
 uint8_t Dma::getChannelSyncMode(uint8_t channel) {
-    return (channels[channel].channelControl >> 9) & 0x03;
+    return (channels[channel].CHCR >> 9) & 0x03;
 }
 
 uint8_t Dma::getChannelChoppingDmaWindowSize(uint8_t channel) {
-    return (channels[channel].channelControl >> 16) & 0x07;
+    return (channels[channel].CHCR >> 16) & 0x07;
 }
 
 uint8_t Dma::getChannelChoppingCpuWindowSize(uint8_t channel) {
-    return (channels[channel].channelControl >> 20) & 0x07;
+    return (channels[channel].CHCR >> 20) & 0x07;
 }
 
 bool Dma::getChannelStartBusy(uint8_t channel) {
-    return (channels[channel].channelControl >> 24) & 0x01;
+    return (channels[channel].CHCR >> 24) & 0x01;
 }
 
 bool Dma::getChannelStartTrigger(uint8_t channel) {
-    return (channels[channel].channelControl >> 28) & 0x01;
+    return (channels[channel].CHCR >> 28) & 0x01;
 }
 
 bool Dma::getChannelUnknown29(uint8_t channel) {
-    return (channels[channel].channelControl >> 29) & 0x01;
+    return (channels[channel].CHCR >> 29) & 0x01;
 }
 
 bool Dma::getChannelUnknown30(uint8_t channel) {
-    return (channels[channel].channelControl >> 30) & 0x01;
+    return (channels[channel].CHCR >> 30) & 0x01;
 }
 
 uint8_t Dma::getDmaPriority(uint8_t channel) {
@@ -82,53 +94,53 @@ bool Dma::getDicrIrqSignal() {
 
 
 void Dma::setChannelTransferDirection(uint8_t channel, uint8_t value) {
-    channels[channel].channelControl &= ~(0x01 << 0);
-    channels[channel].channelControl |= (value & 0x01) << 0;
+    channels[channel].CHCR &= ~(0x01 << 0);
+    channels[channel].CHCR |= (value & 0x01) << 0;
 }
 
 void Dma::setChannelMemoryAddressStep(uint8_t channel, uint8_t value) {
-    channels[channel].channelControl &= ~(0x01 << 1);
-    channels[channel].channelControl |= (value & 0x01) << 1;
+    channels[channel].CHCR &= ~(0x01 << 1);
+    channels[channel].CHCR |= (value & 0x01) << 1;
 }
 
 void Dma::setChannelChoppingEnable(uint8_t channel, uint8_t value) {
-    channels[channel].channelControl &= ~(0x01 << 8);
-    channels[channel].channelControl |= (value & 0x01) << 8;
+    channels[channel].CHCR &= ~(0x01 << 8);
+    channels[channel].CHCR |= (value & 0x01) << 8;
 }
 
 void Dma::setChannelSyncMode(uint8_t channel, uint8_t value) {
-    channels[channel].channelControl &= ~(0x03 << 9);
-    channels[channel].channelControl |= (value & 0x03) << 9;
+    channels[channel].CHCR &= ~(0x03 << 9);
+    channels[channel].CHCR |= (value & 0x03) << 9;
 }
 
 void Dma::setChannelChoppingDmaWindowSize(uint8_t channel, uint8_t value) {
-    channels[channel].channelControl &= ~(0x07 << 16);
-    channels[channel].channelControl |= (value & 0x07) << 16;
+    channels[channel].CHCR &= ~(0x07 << 16);
+    channels[channel].CHCR |= (value & 0x07) << 16;
 }
 
 void Dma::setChannelChoppingCpuWindowSize(uint8_t channel, uint8_t value) {
-    channels[channel].channelControl &= ~(0x07 << 20);
-    channels[channel].channelControl |= (value & 0x07) << 20;
+    channels[channel].CHCR &= ~(0x07 << 20);
+    channels[channel].CHCR |= (value & 0x07) << 20;
 }
 
 void Dma::setChannelStartBusy(uint8_t channel, bool value) {
-    channels[channel].channelControl &= ~(0x01 << 24);
-    channels[channel].channelControl |= (value & 0x01) << 24;
+    channels[channel].CHCR &= ~(0x01 << 24);
+    channels[channel].CHCR |= (value & 0x01) << 24;
 }
 
 void Dma::setChannelStartTrigger(uint8_t channel, bool value) {
-    channels[channel].channelControl &= ~(0x01 << 28);
-    channels[channel].channelControl |= (value & 0x01) << 28;
+    channels[channel].CHCR &= ~(0x01 << 28);
+    channels[channel].CHCR |= (value & 0x01) << 28;
 }
 
 void Dma::setChannelUnknown29(uint8_t channel, bool value) {
-    channels[channel].channelControl &= ~(0x01 << 29);
-    channels[channel].channelControl |= (value & 0x01) << 29;
+    channels[channel].CHCR &= ~(0x01 << 29);
+    channels[channel].CHCR |= (value & 0x01) << 29;
 }
 
 void Dma::setChannelUnknown30(uint8_t channel, bool value) {
-    channels[channel].channelControl &= ~(0x01 << 30);
-    channels[channel].channelControl |= (value & 0x01) << 30;
+    channels[channel].CHCR &= ~(0x01 << 30);
+    channels[channel].CHCR |= (value & 0x01) << 30;
 }
 
 void Dma::setDmaPriority(uint8_t channel, uint8_t value) {

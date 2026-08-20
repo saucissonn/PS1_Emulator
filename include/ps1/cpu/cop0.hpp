@@ -18,6 +18,7 @@ class Cop0 {
 
 		void setCauseRegister(uint32_t value);
 		void setCauseRegisterExCode(uint8_t value);
+		void setCauseRegisterIP2(bool value);
 		void setCauseRegisterBD(uint8_t value);
 
 		void setEPCRegister(uint32_t value);
@@ -33,11 +34,12 @@ class Cop0 {
 		void setStatusRegisterKUp(uint8_t value);
 		void setStatusRegisterBEV(uint8_t value);
 
-		int getStatusRegisterBEV();
-		int getStatusRegisterIEp();
-		int getStatusRegisterKUp();
-		int getStatusRegisterIEc();
-		int getStatusRegisterKUc();
+		bool getStatusRegisterIEp();
+		bool getStatusRegisterKUp();
+		bool getStatusRegisterIEc();
+		bool getStatusRegisterKUc();
+		bool getStatusRegisterIP2();
+        bool getStatusRegisterBEV();
 
 	private:
 		Cpu *cpu;

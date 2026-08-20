@@ -1,5 +1,7 @@
 #include "ps1/cpu/cpu.hpp"
 
+#include <stdio.h>
+
 #include "utils/error.hpp"
 
 int Cpu::raiseException(Exception exception) { // Some instructions can call exceptions
@@ -26,9 +28,31 @@ int Cpu::raiseException(Exception exception) { // Some instructions can call exc
     // }
 
     if (cop0.getStatusRegisterBEV() == 0)
-        PC = 0x80000080; // normal exception vector
+        nextPC = 0x80000080; // normal exception vector
     else
-        PC = 0xBFC00180; // bios exceptoin vector
+        nextPC = 0xBFC00180; // bios exception vector
 
     return ERR_OK;
+}
+
+bool Cpu::errorRaiseException(int error) {
+	switch (error) {
+		case ERR_WRITE_SECTION_NOT_CONNECTED: return false;
+		case ERR_READ_SECTION_NOT_CONNECTED: return false;
+		case ERR_BUS_SECTION_NOT_CONNECTED: return false;
+	}
+	return true;
+}
+
+int Cpu::handleErrorOnRW(int error, uint32_t address) {
+    if (error != ERR_OK) { 
+        bus->setBusError(ERR_OK);
+
+        if (errorRaiseException(error)) {
+            cop0.setBadVaddr(address);
+            return raiseException(Exception::BusErrorData);
+        }
+    }
+
+	return ERR_OK;
 }

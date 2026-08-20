@@ -9,6 +9,11 @@ void Cop0::setCauseRegisterExCode(uint8_t value) {
     GPR[13] |= (uint32_t)((value& 0x1F) << 2);
 }
 
+void Cop0::setCauseRegisterIP2(bool value) {
+    GPR[13] &= ~(1u << 10); // Clear area
+    GPR[13] |= (uint32_t)value << 10;
+}
+
 void Cop0::setCauseRegisterBD(uint8_t value) {
     GPR[13] &= ~(0b1 << 31); // Clear area
     GPR[13] |= (uint32_t)((value & 1) << 31);
@@ -58,18 +63,26 @@ void Cop0::setBadVaddr(uint32_t badVaddr){
 }
 
 
-int Cop0::getStatusRegisterIEc(){
+bool Cop0::getStatusRegisterIEc(){
     return GPR[12] & 1;
 }
-int Cop0::getStatusRegisterKUc(){
+
+bool Cop0::getStatusRegisterKUc(){
     return (GPR[12] >> 1) & 1;
 }
-int Cop0::getStatusRegisterIEp(){
+
+bool Cop0::getStatusRegisterIEp(){
     return (GPR[12] >> 2) & 1;
 }
-int Cop0::getStatusRegisterKUp(){
+
+bool Cop0::getStatusRegisterKUp(){
     return (GPR[12] >> 3) & 1;
 }
-int Cop0::getStatusRegisterBEV(){
+
+bool Cop0::getStatusRegisterIP2(){
+    return (GPR[12] >> 10) & 1;
+}
+
+bool Cop0::getStatusRegisterBEV(){
     return (GPR[12] >> 22) & 1;
 }

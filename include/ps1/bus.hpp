@@ -40,6 +40,7 @@ class Bus {
 		uint32_t read(uint32_t address);
 		int write(uint32_t address, uint32_t value);
 		int write16(uint32_t address, uint16_t value);
+		int write8Only(uint32_t address, uint8_t value); // Some rare address can only be written in 8 bits
 		int write8(uint32_t adderss, uint8_t value);
         Mem getMemoryHardware(uint32_t physicalAddr); // translate the physical address given into the physical component it is refering to
 

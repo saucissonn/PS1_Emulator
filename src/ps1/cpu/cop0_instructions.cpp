@@ -39,7 +39,7 @@ void Cop0::transfromInstruction(uint32_t instruction) {
 }
 
 int Cop0::decodeInstruction(uint32_t instruction) { // From an instruction find and execute it among instruction functions
-    printf("\nPC: %8X\n", cpu->getInstructionPC());
+    printf("PC: %8X\n", cpu->getInstructionPC());
     printf("Instruction: %8X\n", instruction);
 
 	transfromInstruction(instruction);

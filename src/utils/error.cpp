@@ -26,16 +26,22 @@ const char *error_string(int err)
             return "unexpected result";
 
         case ERR_CPU_INSTRUCTION_NOT_FOUND:
-            return "cpu instruction not found";
+            return "CPU instruction not found";
 
         case ERR_COP0_INSTRUCTION_NOT_FOUND:
-            return "cop0 instruction not found";
+            return "COP0 instruction not found";
 
         case ERR_GP0_COMMAND_NOT_FOUND:
-            return "gp0 command not found";
+            return "GP0 command not found";
 
         case ERR_GP1_COMMAND_NOT_FOUND:
-            return "gp1 command not found";
+            return "GP1 command not found";
+
+		case ERR_CDROM_COMMAND_NOT_FOUND:
+			return "CDROM command not found";
+
+		case ERR_CDROM_NOT_ENOUGH_PARAMETERS:
+			return "CDROM not enough parameters";
 
         case ERR_WRITE_NOT_ALLOWED:
             return "write not allowed";
@@ -66,6 +72,15 @@ const char *error_string(int err)
 
 		case ERR_BUS_SECTION_NOT_CONNECTED:
 			return "bus section not connected";
+
+		case ERR_DMA_CHANNEL_NUMBER:
+			return "wrong DMA channel";
+
+        case ERR_DMA_WRITE:
+            return "DMA write is not possible";
+
+        case ERR_DMA_READ:
+            return "DMA read is not possible";
 
         case ERR_INTENTIONAL_STOP:
             return "intentional stop";

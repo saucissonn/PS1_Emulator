@@ -3,7 +3,18 @@
 #include <stdio.h>
 #include <cstdlib>
 
+#include "ps1/interrupt_controller.hpp"
 #include "utils/error.hpp"
+
+int Cpu::setInterruptController(InterruptController *interruptController_) {
+	if (!interruptController_) {
+		return ERR_INVALID_ARGUMENT;
+	}
+
+	interruptController = interruptController_;
+
+	return ERR_OK;
+}
 
 CacheLine *createCacheLine() {
 	CacheLine *cacheLine = (CacheLine *)malloc(sizeof(CacheLine));
@@ -81,38 +92,59 @@ Cpu::~Cpu() {
 }
 
 uint32_t Cpu::convertAddress(uint32_t virtualAddr) {
-    if (virtualAddr >= 0xFFFE0000){
-		return virtualAddr;
-        // TODO: kseg2 decode
+    // KUSEG / KSEG0 / KSEG1
+    if (virtualAddr < 0xC0000000) {
+        return virtualAddr & 0x1FFFFFFF;
     }
-    return virtualAddr & 0x1FFFFFFF;
+
+	// KSEG2
+    if (virtualAddr >= 0xFFFE0000 &&
+        virtualAddr <= 0xFFFE01FF) {
+        return virtualAddr;
+    }
+
+	// Unmapped address
+	cop0.setBadVaddr(virtualAddr);
+    raiseException(Exception::BusErrorData);
+
+    return 0;
+}
+
+int Cpu::executeInstruction() {
+	prevPC = instructionPC;
+    instructionPC = PC;
+
+    uint32_t instruction = fetchPC();
+
+    bool wasDelaySlot = inDelaySlot;
+
+    int ret = dispatchInstruction(instruction);
+
+    if (wasDelaySlot) {
+        PC = nextPC;
+        nextPC = PC + 4;
+        inDelaySlot = false;
+    }
+    else if (inDelaySlot) {
+        PC = PC + 4;
+    }
+    else {
+        PC = nextPC;
+        nextPC = PC + 4;
+    }
+
+    instructionCounter++;
+
+    return ret;
 }
 
 int Cpu::run() {
-	prevPC = instructionPC; // before
-	instructionPC = PC; // now (to modify if exception)
-	PC = nextPC; // next
-	nextPC = PC + 4; // after next (to modify if branch / jump)
+	updateInterrupt();
 
-	uint32_t instruction = fetchPC();
-
-	bool modifyDelaySlot = 0;
-
-	if (inDelaySlot == 1) {
-		modifyDelaySlot = 1;
+	if (launchInterrupt()) {
+		return handleInterrupt();
 	}
-
-	int ret = dispatchInstruction(instruction); // Also execute
-
-	if (modifyDelaySlot == 1) {
-		inDelaySlot = 0;
+	else {
+		return executeInstruction();
 	}
-
-	instructionCounter += 1;
-
-	if (ret != ERR_OK) {
-		return ret;
-	}
-
-	return ERR_OK;
 }

@@ -1,6 +1,17 @@
 #include "ps1/io/gpu/gpu.hpp"
 
 #include "utils/error.hpp"
+#include "ps1/interrupt_controller.hpp"
+
+int Gpu::setInterruptController(InterruptController *interruptController_) {
+    if (!interruptController_) {
+        return ERR_INVALID_ARGUMENT;
+    }
+
+    interruptController = interruptController_;
+
+    return ERR_OK;
+}
 
 Gpu::Gpu() :
 	gp0(this),

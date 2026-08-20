@@ -2,6 +2,8 @@
 
 #include <cstdint>
 
+class InterruptController;
+
 struct SPUVoice {
     uint16_t volumeLeft;
     uint16_t volumeRight;
@@ -43,10 +45,14 @@ class Spu {
         Spu();
         ~Spu();
 
+		int setInterruptController(InterruptController *interruptController_);
+
         uint16_t read(uint32_t address);
 		int write(uint32_t address, uint16_t value);
 
     private:
+		InterruptController *interruptController;
+
         SPUVoice voices[24];
         SPUReverb reverb;
 

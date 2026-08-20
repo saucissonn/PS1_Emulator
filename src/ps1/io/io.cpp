@@ -2,6 +2,17 @@
 
 #include "utils/error.hpp"
 #include "ps1/bus.hpp"
+#include "ps1/interrupt_controller.hpp"
+
+int Io::setInterruptController(InterruptController *interruptController_) {
+    if (!interruptController_) {
+        return ERR_INVALID_ARGUMENT;
+    }
+
+    interruptController = interruptController_;
+
+    return ERR_OK;
+}
 
 Io::Io() :
 	memoryControl1(),
@@ -16,6 +27,15 @@ Io::Io() :
 	spu(),
 	memoryControl3()
 {
+	cdrom.setDma(&dma);
+	cdrom.setBus(bus);
+	cdrom.setInterruptController(interruptController);
+
+	gpu.setInterruptController(interruptController);
+
+	spu.setInterruptController(interruptController);
+
+	// Connect to DMA
 	dma.setMdec(&mdec);
 	dma.setGpu(&gpu);
 	dma.setCdrom(&cdrom);
@@ -112,10 +132,6 @@ int Io::write(uint32_t address, uint32_t value) {
 		return timers.write(address, value);
 	}
 
-	if (0x1F801800 <= address && address <= 0x1F801803) {
-		return cdrom.write(address, value);
-	}
-
 	if (0x1F801810 <= address && address <= 0x1F801814) {
 		return gpu.write(address, value);
 	}
@@ -135,6 +151,14 @@ int Io::write(uint32_t address, uint32_t value) {
 	return ERR_WRITE_SECTION_NOT_FOUND;
 }
 
-int Io::run() {
+int Io::write8Only(uint32_t address, uint8_t value) {
+    if (0x1F801800 <= address && address <= 0x1F801803) {
+        return cdrom.write(address, value);
+    }
+
+    return ERR_WRITE_SECTION_NOT_FOUND;
+}
+
+int Io::dmaRun() {
 	return dma.run();
 }

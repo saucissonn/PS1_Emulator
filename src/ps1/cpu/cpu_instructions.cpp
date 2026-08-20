@@ -97,13 +97,13 @@ int Cpu::ANDI() {
 }
 
 int Cpu::BEQ() {
-	int32_t offset = signExtend(operand->immediate, 16);
-	int32_t target = offset << 2;
+    int32_t offset = signExtend(operand->immediate, 16);
+    int32_t target = offset << 2;
 
-	if (GPR[operand->rs] == GPR[operand->rt])
-		nextPC = PC + target;
+    if (GPR[operand->rs] == GPR[operand->rt])
+        nextPC = PC + 4 + target;
 
-	inDelaySlot = 1;
+    inDelaySlot = 1;
 
     printf("CPU instruction BEQ done\n");
 
@@ -114,8 +114,13 @@ int Cpu::BNE() {
     int32_t offset = signExtend(operand->immediate, 16);
     int32_t target = offset << 2;
 
+
+    printf("BNE: rs=$%d = %08X, rt=$%d = %08X\n",
+           operand->rs, GPR[operand->rs],
+           operand->rt, GPR[operand->rt]);
+
     if (GPR[operand->rs] != GPR[operand->rt])
-        nextPC = PC + target;
+        nextPC = PC + 4 + target;
 
     inDelaySlot = 1;
 
@@ -151,29 +156,28 @@ int Cpu::DIVU() {
 }
 
 int Cpu::J() {
-    uint32_t temp = operand->target << 2;
-	uint32_t tempPC = instructionPC & 0xF0000000;
+    uint32_t target = operand->target << 2;
+    uint32_t tempPC = instructionPC & 0xF0000000;
 
-	nextPC = tempPC | temp;
-
+    nextPC = tempPC | target;
     inDelaySlot = 1;
 
-	printf("Jump to address: %8X\n", nextPC);
+    printf("Jump to address: %8X\n", nextPC);
     printf("CPU instruction J done\n");
 
     return ERR_OK;
 }
 
 int Cpu::JAL() {
-    uint32_t temp = operand->target << 2;
+    uint32_t target = operand->target << 2;
     uint32_t tempPC = instructionPC & 0xF0000000;
 
-	GPR[31] = instructionPC + 8;
+    GPR[31] = instructionPC + 8;
 
-    nextPC = tempPC | temp;
-
+    nextPC = tempPC | target;
     inDelaySlot = 1;
 
+    printf("Jump to address: %8X\n", nextPC);
     printf("CPU instruction JAL done\n");
 
     return ERR_OK;
@@ -193,6 +197,7 @@ int Cpu::JALR() {
     nextPC = target;
     inDelaySlot = 1;
 
+    printf("Jump to address: %8X\n", nextPC);
     printf("CPU instruction JALR done\n");
 
     return ERR_OK;
@@ -201,16 +206,16 @@ int Cpu::JALR() {
 int Cpu::JR() {
     uint32_t target = GPR[operand->rs];
 
-	if (target & 3) {
-	    cop0.setBadVaddr(target);
-		raiseException(Exception::LoadAddressError);
-		return ERR_OK;
-	}
+    if (target & 0x3) {
+        cop0.setBadVaddr(target);
+        raiseException(Exception::LoadAddressError);
+        return ERR_OK;
+    }
 
     nextPC = target;
     inDelaySlot = 1;
 
-	printf("Jump to address: %8X\n", nextPC);
+    printf("Jump to address: %8X\n", nextPC);
     printf("CPU instruction JR done\n");
 
     return ERR_OK;
@@ -462,12 +467,12 @@ int Cpu::SW() {
         return ERR_OK;
     }
 
-	int ret = bus->write(address, GPR[operand->rt]);
+	bus->write(address, GPR[operand->rt]);
 
-	if (ret != ERR_OK || bus->getBusError() != ERR_OK) {
-        bus->setBusError(ERR_OK);
-        cop0.setBadVaddr(address);
-        return raiseException(Exception::BusErrorData);
+    int error = bus->getBusError();
+
+    if (error != ERR_OK) { 
+        return handleErrorOnRW(error, address);
     }
 
 	printf("Address: %8X\n", address);
@@ -563,10 +568,10 @@ int Cpu::LB(){
     int miniOffset = address % 4;
     uint32_t temp = bus->read(address - miniOffset); // multiple of 4
 
-    if (bus->getBusError() != ERR_OK) {
-        bus->setBusError(ERR_OK);
-        cop0.setBadVaddr(address);
-        return raiseException(Exception::BusErrorData);
+    int error = bus->getBusError();
+
+	if (error != ERR_OK) { 
+        return handleErrorOnRW(error, address);
     }
 
     // reversed because of little endian
@@ -594,10 +599,10 @@ int Cpu::LH(){
     int miniOffset = address % 4;
     uint32_t temp = bus->read(address - miniOffset) ; // multiple of 4
 
-    if (bus->getBusError() != ERR_OK) {
-        bus->setBusError(ERR_OK);
-        cop0.setBadVaddr(address);
-        return raiseException(Exception::BusErrorData);
+    int error = bus->getBusError();
+
+    if (error != ERR_OK) { 
+        return handleErrorOnRW(error, address);
     }
 
     // reversed because of little endian
@@ -630,11 +635,11 @@ int Cpu::LW(){
 
 	uint32_t value = bus->read(address);
 
-	if (bus->getBusError() != ERR_OK) {
-		bus->setBusError(ERR_OK);
-        cop0.setBadVaddr(address);
-        return raiseException(Exception::BusErrorData);
-	}
+    int error = bus->getBusError();
+
+    if (error != ERR_OK) { 
+        return handleErrorOnRW(error, address);
+    }
 
 	GPR[operand->rt] = value;
 
@@ -649,10 +654,10 @@ int Cpu::LBU(){
     int miniOffset = address % 4;
     uint32_t temp = bus->read(address - miniOffset); // multiple of 4
 
-    if (bus->getBusError() != ERR_OK) {
-        bus->setBusError(ERR_OK);
-        cop0.setBadVaddr(address);
-        return raiseException(Exception::BusErrorData);
+    int error = bus->getBusError();
+
+    if (error != ERR_OK) { 
+        return handleErrorOnRW(error, address);
     }
 
     // reversed because of little endian
@@ -680,10 +685,10 @@ int Cpu::LHU(){
     int miniOffset = address % 4;
     uint32_t temp = bus->read(address - miniOffset) ; // multiple of 4
 
-    if (bus->getBusError() != ERR_OK) {
-        bus->setBusError(ERR_OK);
-        cop0.setBadVaddr(address);
-        return raiseException(Exception::BusErrorData);
+    int error = bus->getBusError();
+
+    if (error != ERR_OK) { 
+        return handleErrorOnRW(error, address);
     }
 
     // reversed because of little endian
@@ -698,16 +703,19 @@ int Cpu::LHU(){
     return ERR_OK;
 }
 
-int Cpu::SB(){
+int Cpu::SB() {
     uint32_t address = GPR[operand->rs] + signExtend(operand->immediate, 16);
-    int ret = bus->write8(address, GPR[operand->rt] & 0xFF);
 
-    if (ret != ERR_OK ||bus->getBusError() != ERR_OK) {
-        bus->setBusError(ERR_OK);
-        cop0.setBadVaddr(address);
-        return raiseException(Exception::BusErrorData);
-    }
+    bus->write8(address, GPR[operand->rt] & 0xFF);
+
+    int error = bus->getBusError();
+
+    if (error != ERR_OK) {
+		return handleErrorOnRW(error, address);
+	}
+
     printf("%8X written to %8X\n", GPR[operand->rt] & 0xFF, address);
+
     printf("CPU instruction SB done\n");
 
     return ERR_OK;
@@ -715,18 +723,21 @@ int Cpu::SB(){
 
 int Cpu::SH(){
     uint32_t address = GPR[operand->rs] + signExtend(operand->immediate, 16); // multiple of 2
+
     if (address % 2 != 0){
         bus->setBusError(ERR_OK);
         cop0.setBadVaddr(address);
         return raiseException(Exception::StoreAddressError);
     }
-    int ret = bus->write16(address, GPR[operand->rt] & 0xFFFF);
 
-    if (ret != ERR_OK ||bus->getBusError() != ERR_OK) {
-        bus->setBusError(ERR_OK);
-        cop0.setBadVaddr(address);
-        return raiseException(Exception::BusErrorData);
+	bus->write16(address, GPR[operand->rt] & 0xFFFF);
+
+    int error = bus->getBusError();
+
+    if (error != ERR_OK) { 
+        return handleErrorOnRW(error, address);
     }
+
     printf("%8X written to %8X\n", GPR[operand->rt] & 0xFFFF, address);
     printf("CPU instruction SH done\n");
 
@@ -807,8 +818,8 @@ int Cpu::SWC3(){
 }
 
 
-uint32_t Cpu::fetchPC() { // From the current PC (instructionPC) return the value at its address
-	uint32_t address = convertAddress(instructionPC);
+uint32_t Cpu::fetchPC() { // From the current PC return the value at its address
+	uint32_t address = convertAddress(PC);
 
 	uint32_t value = bus->read(address);
 
@@ -839,7 +850,7 @@ void Cpu::transfromJType(uint32_t instruction) { // Put R-Type instruction into 
 }
 
 int Cpu::decodeInstruction(uint32_t instruction) { // From an instruction find and execute it among instruction functions
-	printf("\nPC: %8X\n", instructionPC);
+printf("PC=%08X nextPC=%08X prevPC=%08X delay=%d\n", PC, nextPC, prevPC, inDelaySlot);
 	printf("Instruction: %8X\n", instruction);
 	uint8_t opcode = instruction >> 26; // 6 bits
 

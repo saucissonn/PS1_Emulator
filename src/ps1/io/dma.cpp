@@ -3,7 +3,7 @@
 #include "utils/error.hpp"
 #include "ps1/io/mdec.hpp"
 #include "ps1/io/gpu/gpu.hpp"
-#include "ps1/io/cdrom.hpp"
+#include "ps1/io/cdrom/cdrom.hpp"
 #include "ps1/io/spu.hpp"
 #include "ps1/bus.hpp"
 
@@ -60,15 +60,16 @@ int Dma::setBus(Bus *bus_) {
 Dma::Dma()
 {
     for (int i = 0; i < 7; i++) {
-        channels[i].baseAddress = 0;
-        channels[i].blockControl = 0;
-        channels[i].channelControl = 0;
+        channels[i].MADR = 0;
+        channels[i].BCR = 0;
+        channels[i].CHCR = 0;
     }
 
     dpcr = 0;
     dicr = 0;
 
 	channelMasterIndex = 0;
+	dmaError = ERR_OK;
 }
 
 Dma::~Dma() {
@@ -82,15 +83,15 @@ uint32_t Dma::read(uint32_t address) {
 
         switch (offset) {
             case 0x0: {
-                return channels[channel].baseAddress;
+                return channels[channel].MADR;
 			}
 
             case 0x4: {
-                return channels[channel].blockControl;
+                return channels[channel].BCR;
 			}
 
             case 0x8: {
-                return channels[channel].channelControl;
+                return channels[channel].CHCR;
 			}
         }
     }
@@ -115,17 +116,17 @@ int Dma::write(uint32_t address, uint32_t value) {
 
         switch (offset) {
             case 0x0: {
-                channels[channel].baseAddress = value;
+                channels[channel].MADR = value;
                 return ERR_OK;
 			}
 
             case 0x4: {
-                channels[channel].blockControl = value;
+                channels[channel].BCR = value;
                 return ERR_OK;
 			}
 
             case 0x8: {
-                channels[channel].channelControl = value;
+                channels[channel].CHCR = value;
                 return ERR_OK;
 			}
         }
@@ -146,7 +147,7 @@ int Dma::write(uint32_t address, uint32_t value) {
 	return ERR_WRITE_NOT_ALLOWED;
 }
 
-int Dma::getChannelMasterIndex() {
+uint8_t Dma::getChannelMasterIndex() {
 	return channelMasterIndex;
 }
 
@@ -171,23 +172,35 @@ void Dma::setChannelMasterIndex() {
 }
 
 int Dma::runManual() {
+	switch (channelMasterIndex) {
+		case 3:
+			return cdrom->dmaWrite();
+
+        default:
+            return ERR_DMA_CHANNEL_NUMBER;
+	}
+
+	return ERR_OK;
+}
+
+int Dma::runBlock() {
 	DMAChannel channel = channels[channelMasterIndex];
 
-	for (uint32_t i = 0; i < channel.blockControl; i++) {
+	for (uint32_t i = 0; i < channel.BCR; i++) {
 		uint32_t value = 0;
 
 		switch (channelMasterIndex) {
-			case 3: 
-				value = mdec->dmaRead(); // TODO handle busError like
+			case 1: 
+				value = mdec->dmaRead(); // TODO handle dmaError
 				break;
 
 			default:
-				return 0; // TODO return a new error
+				return ERR_DMA_CHANNEL_NUMBER;
 		}
 
-		bus->write(channel.baseAddress, value);
+		bus->write(channel.MADR, value);
 
-		channel.baseAddress += 4;
+		channel.MADR += 4;
 	}
 
 	return ERR_OK;
@@ -202,15 +215,15 @@ int Dma::decodeSyncMode() {
 		}
 
 		case 1: {
-
+			return runBlock();
 		}
 
 		case 2: {
-
+			return ERR_OK;
 		}
 	}
 
-	return 0;
+	return ERR_DMA_CHANNEL_NUMBER;
 }
 
 int Dma::run() {

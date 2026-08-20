@@ -3,9 +3,9 @@
 #include <cstdint>
 
 struct DMAChannel {
-	uint32_t baseAddress; // MADR
-	uint32_t blockControl; // BCR
-	uint32_t channelControl; // CHCR
+	uint32_t MADR;	// Base address
+	uint32_t BCR;	// Nb of elements
+	uint32_t CHCR;	// Additional info
 };
 
 class Mdec;
@@ -33,7 +33,10 @@ class Dma {
 
 		// Utils
 
-		int getChannelMasterIndex();
+		uint32_t getMADR(uint8_t channel);
+		uint32_t getBCR(uint8_t channel);
+		uint32_t getCHCR(uint8_t channel);
+		uint8_t getChannelMasterIndex();
 
 		uint8_t getChannelTransferDirection(uint8_t channel);
 		uint8_t getChannelMemoryAddressStep(uint8_t channel);
@@ -93,6 +96,8 @@ class Dma {
 		uint32_t dicr; // 1F8010F4 - DMA Interrupt Register
 
 		int channelMasterIndex;
+		int dmaError;
 
 		int runManual();
+		int runBlock();
 };

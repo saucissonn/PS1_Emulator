@@ -30,11 +30,14 @@ enum class Exception
 class Bus;
 class Cop0;
 class Cop2;
+class InterruptController;
 
 class Cpu {
     public:
         Cpu(Bus *bus_);
         ~Cpu();
+
+		int setInterruptController(InterruptController *interruptController_);
 
         uint32_t convertAddress(uint32_t address); // From virtual to physical address
         uint32_t useCache(uint32_t address, CacheLine **cache); // Output is an instruction
@@ -46,7 +49,14 @@ class Cpu {
 
         int accessDataMemory(uint32_t address); // If an instruction uses a load / store, use it to get the address
 
-        int run();
+		int executeInstruction();
+        int run(); // Check if we need to handle an interrupt or execute an instruction
+
+		// Interrupts
+
+        bool launchInterrupt();
+		void updateInterrupt();
+        int handleInterrupt();
 
 		// Utils
 
@@ -60,6 +70,7 @@ class Cpu {
 		Bus *bus;
         Cop0 cop0;
         Cop2 cop2;
+		InterruptController *interruptController;
 
         uint32_t GPR[32];   // General purpose registers
         uint32_t PC;        // Program Counter (instructionPC + 4)
@@ -86,6 +97,8 @@ class Cpu {
 		void transfromJType(uint32_t instruction);
 
 		int raiseException(Exception exception);
+		bool errorRaiseException(int error); // True if an error raise an exception
+		int handleErrorOnRW(int error, uint32_t address); // Only for read or write errors
 
 		int ADD();
 		int ADDI();

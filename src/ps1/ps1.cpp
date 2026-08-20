@@ -12,13 +12,16 @@ Ps1::Ps1() :
 	io(),
     expansion1(),
     expansion2(),
-    expansion3()
+    expansion3(),
+	interruptController()
 {
 	int ret = bios.load("src/ps1/roms/BIOS.bin");
 
 	if (ret != ERR_OK) {
 		return;
 	}
+
+	cpu.setInterruptController(&interruptController);
 
 	io.setBus(&bus);
 
@@ -44,17 +47,17 @@ int Ps1::run() {
 	while (1) {
 		uint64_t count = cpu.getInstructionCounter();
 
-		if (count > 17395) {
+		if (count > 100000) { // 17381 (nb instructions to check a non connected hardware) 
 			return ERR_OK;
 		}
 	
-		ret = io.run(); // DMA
+		ret = io.dmaRun(); // DMA (not tested yet)
 
         if (ret != ERR_OK) {
             return ret;
         }
 
-		printf("%ld\n", count);
+		printf("\n%ld\n", count);
 		ret = cpu.run();
 
 		if (ret != ERR_OK) {
