@@ -7,7 +7,7 @@
 #include "ps1/io/dma.hpp"
 #include "ps1/io/timers.hpp"
 #include "ps1/io/cdrom/cdrom.hpp"
-#include "ps1/io/mdec.hpp"
+#include "ps1/io/mdec/mdec.hpp"
 #include "ps1/io/spu.hpp"
 
 class Bus;

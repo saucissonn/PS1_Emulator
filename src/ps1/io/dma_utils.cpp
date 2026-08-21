@@ -93,6 +93,10 @@ bool Dma::getDicrIrqSignal() {
 }
 
 
+void Dma::setMADR(uint32_t value, uint8_t channel) {
+	channels[channel].MADR = value;
+}
+
 void Dma::setChannelTransferDirection(uint8_t channel, uint8_t value) {
     channels[channel].CHCR &= ~(0x01 << 0);
     channels[channel].CHCR |= (value & 0x01) << 0;

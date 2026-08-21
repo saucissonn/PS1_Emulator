@@ -23,6 +23,9 @@ Io::Io() :
 
 	gpu.setInterruptController(&interruptController);
 
+	mdec.setDma(&dma);
+	mdec.setBus(bus);
+
 	spu.setInterruptController(&interruptController);
 
 	// Connect to DMA

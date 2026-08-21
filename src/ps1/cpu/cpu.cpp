@@ -6,6 +6,16 @@
 #include "ps1/io/interrupt_controller.hpp"
 #include "utils/error.hpp"
 
+int Cpu::setBus(Bus *bus_) {
+    if (!bus_) {
+        return ERR_INVALID_ARGUMENT;
+    }
+
+    bus = bus_;
+
+    return ERR_OK;
+}
+
 int Cpu::setInterruptController(InterruptController *interruptController_) {
 	if (!interruptController_) {
 		return ERR_INVALID_ARGUMENT;
@@ -50,10 +60,9 @@ void destroyCache(CacheLine **cache, int size) {
 	free(cache);
 }
 
-Cpu::Cpu(Bus *bus_)
-	: bus(bus_),
-		cop0(this),
-		cop2(this)
+Cpu::Cpu() :
+	cop0(this),
+	cop2(this)
 {
 	for (int i = 0; i < 32; i++) {
 		GPR[i] = 0;

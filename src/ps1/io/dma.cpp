@@ -1,7 +1,7 @@
 #include "ps1/io/dma.hpp"
 
 #include "utils/error.hpp"
-#include "ps1/io/mdec.hpp"
+#include "ps1/io/mdec/mdec.hpp"
 #include "ps1/io/gpu/gpu.hpp"
 #include "ps1/io/cdrom/cdrom.hpp"
 #include "ps1/io/spu.hpp"
@@ -184,23 +184,15 @@ int Dma::runManual() {
 }
 
 int Dma::runBlock() {
-	DMAChannel channel = channels[channelMasterIndex];
+	switch (channelMasterIndex) {
+        case 0: 
+            return mdec->dmaWriteIn();
 
-	for (uint32_t i = 0; i < channel.BCR; i++) {
-		uint32_t value = 0;
+		case 1: 
+			return mdec->dmaWriteOut();
 
-		switch (channelMasterIndex) {
-			case 1: 
-				value = mdec->dmaRead(); // TODO handle dmaError
-				break;
-
-			default:
-				return ERR_DMA_CHANNEL_NUMBER;
-		}
-
-		bus->write(channel.MADR, value);
-
-		channel.MADR += 4;
+		default:
+			return ERR_DMA_CHANNEL_NUMBER;
 	}
 
 	return ERR_OK;
@@ -211,15 +203,15 @@ int Dma::decodeSyncMode() {
 
 	switch (syncmode) {
 		case 0: {
-			return runManual();
+			return runManual(); // Send n elements at once
 		}
 
 		case 1: {
-			return runBlock();
+			return runBlock(); // Send n block of m elements at once
 		}
 
 		case 2: {
-			return ERR_OK;
+			return ERR_OK; // TODO: Weird
 		}
 	}
 

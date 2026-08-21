@@ -28,6 +28,8 @@ class Dma {
 		uint32_t read(uint32_t address);
 		int write(uint32_t address, uint32_t value);
 
+		void setChannelMasterIndex();
+
 		int decodeSyncMode();
 		int run();
 
@@ -59,7 +61,7 @@ class Dma {
 		bool getDicrIrqFlag(uint8_t channel);
 		bool getDicrIrqSignal();
 
-		void setChannelMasterIndex();
+		void setMADR(uint32_t value, uint8_t channel);
 
 		void setChannelTransferDirection(uint8_t channel, uint8_t value);
 		void setChannelMemoryAddressStep(uint8_t channel, uint8_t value);

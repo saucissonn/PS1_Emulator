@@ -6,7 +6,7 @@
 
 Ps1::Ps1() :
 	bus(),
-	cpu(&bus),
+	cpu(),
 	bios(),
 	ram(),
 	io(),
@@ -17,9 +17,10 @@ Ps1::Ps1() :
 	int ret = bios.load("src/ps1/roms/BIOS.bin");
 
 	if (ret != ERR_OK) {
-		return;
+		return; // TODO handle error
 	}
 
+	cpu.setBus(&bus);
 	cpu.setInterruptController(io.getInterruptController());
 
 	io.setBus(&bus);

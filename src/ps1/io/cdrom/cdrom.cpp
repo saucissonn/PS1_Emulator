@@ -102,17 +102,24 @@ uint8_t Cdrom::readData() {
 }
 
 int Cdrom::dmaWrite() { // data FIFO -> RAM
+	// DMA Channel 3, SyncMode = 0
 	uint32_t bcr = dma->getBCR(3);
 	uint32_t madr = dma->getMADR(3);
+	uint8_t step = dma->getChannelMemoryAddressStep(3); // 1 or -1
+	step *= 4; // 4 or -4
+	uint32_t wordCount = bcr & 0xFFFF;
 
-	for (uint32_t i = 0; i < bcr; i++) {
-		uint32_t data = readData();
-		data |= readData() << 8;
-	    data |= readData() << 16;
-		data |= readData() << 24;
+	for (uint32_t i = 0; i < wordCount; i++) {
+		uint32_t data = (uint32_t)readData();
+		data |= (uint32_t)(readData() << 8);
+	    data |= (uint32_t)(readData() << 16);
+		data |= (uint32_t)(readData() << 24);
 		
 		bus->write(madr, data);
-		madr += 4;
+		madr += step;
 	}
+
+	dma->setMADR(madr, 3);
+
 	return ERR_OK;
 }

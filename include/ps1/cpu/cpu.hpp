@@ -34,9 +34,10 @@ class InterruptController;
 
 class Cpu {
     public:
-        Cpu(Bus *bus_);
+        Cpu();
         ~Cpu();
 
+		int setBus(Bus *bus_);
 		int setInterruptController(InterruptController *interruptController_);
 
         uint32_t convertAddress(uint32_t address); // From virtual to physical address

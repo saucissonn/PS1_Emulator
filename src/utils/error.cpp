@@ -43,6 +43,12 @@ const char *error_string(int err)
 		case ERR_CDROM_NOT_ENOUGH_PARAMETERS:
 			return "CDROM not enough parameters";
 
+        case ERR_MDEC_COMMAND_NOT_FOUND:
+            return "MDEC command not found";
+
+        case ERR_MDEC_NOT_ENOUGH_PARAMETERS:
+            return "MDEC not enough parameters";
+
         case ERR_WRITE_NOT_ALLOWED:
             return "write not allowed";
 
