@@ -12,8 +12,7 @@ Ps1::Ps1() :
 	io(),
     expansion1(),
     expansion2(),
-    expansion3(),
-	interruptController()
+    expansion3()
 {
 	int ret = bios.load("src/ps1/roms/BIOS.bin");
 
@@ -21,7 +20,7 @@ Ps1::Ps1() :
 		return;
 	}
 
-	cpu.setInterruptController(&interruptController);
+	cpu.setInterruptController(io.getInterruptController());
 
 	io.setBus(&bus);
 

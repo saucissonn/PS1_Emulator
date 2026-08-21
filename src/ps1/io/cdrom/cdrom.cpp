@@ -3,7 +3,7 @@
 #include "ps1/io/dma.hpp"
 #include "ps1/bus.hpp"
 #include "utils/error.hpp"
-#include "ps1/interrupt_controller.hpp"
+#include "ps1/io/interrupt_controller.hpp"
 
 int Cdrom::setInterruptController(InterruptController *interruptController_) {
     if (!interruptController_) {

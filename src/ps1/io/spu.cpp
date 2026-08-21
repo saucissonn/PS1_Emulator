@@ -1,7 +1,7 @@
 #include "ps1/io/spu.hpp"
 
 #include "utils/error.hpp"
-#include "ps1/interrupt_controller.hpp"
+#include "ps1/io/interrupt_controller.hpp"
 
 int Spu::setInterruptController(InterruptController *interruptController_) {
     if (!interruptController_) {

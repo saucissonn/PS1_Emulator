@@ -2,23 +2,13 @@
 
 #include "utils/error.hpp"
 #include "ps1/bus.hpp"
-#include "ps1/interrupt_controller.hpp"
-
-int Io::setInterruptController(InterruptController *interruptController_) {
-    if (!interruptController_) {
-        return ERR_INVALID_ARGUMENT;
-    }
-
-    interruptController = interruptController_;
-
-    return ERR_OK;
-}
+#include "ps1/io/interrupt_controller.hpp"
 
 Io::Io() :
 	memoryControl1(),
 	peripheralIO(),
 	memoryControl2(),
-	interruptControl(),
+	interruptController(),
 	dma(),
 	timers(),
 	cdrom(),
@@ -29,11 +19,11 @@ Io::Io() :
 {
 	cdrom.setDma(&dma);
 	cdrom.setBus(bus);
-	cdrom.setInterruptController(interruptController);
+	cdrom.setInterruptController(&interruptController);
 
-	gpu.setInterruptController(interruptController);
+	gpu.setInterruptController(&interruptController);
 
-	spu.setInterruptController(interruptController);
+	spu.setInterruptController(&interruptController);
 
 	// Connect to DMA
 	dma.setMdec(&mdec);
@@ -72,10 +62,6 @@ uint32_t Io::read(uint32_t address) {
 		return memoryControl2.read(address);
 	}
 
-	if (0x1F801070 <= address && address <= 0x1F801074) {
-		return interruptControl.read(address);
-	}
-
 	if (0x1F801080 <= address && address <= 0x1F8010FC) {
 		return dma.read(address);
 	}
@@ -107,7 +93,7 @@ uint32_t Io::read(uint32_t address) {
 	return 0;
 }
 
-int Io::write(uint32_t address, uint32_t value) {
+int Io::write(uint32_t address, uint32_t value) {	
 	if (0x1F801000 <= address && address <= 0x1F801020) {
 		return memoryControl1.write(address, value);
 	}
@@ -120,8 +106,8 @@ int Io::write(uint32_t address, uint32_t value) {
 		return memoryControl2.write(address, value);
 	}
 
-	if (0x1F801070 <= address && address <= 0x1F801074) {
-		return interruptControl.write(address, value);
+    if (0x1F801070 <= address && address <= 0x1F801074) {
+        return interruptController.write(address, value);
 	}
 
 	if (0x1F801080 <= address && address <= 0x1F8010FC) {
@@ -161,4 +147,9 @@ int Io::write8Only(uint32_t address, uint8_t value) {
 
 int Io::dmaRun() {
 	return dma.run();
+}
+
+InterruptController* Io::getInterruptController()
+{
+    return &interruptController;
 }

@@ -6,7 +6,6 @@
 #include "ps1/ram.hpp"
 #include "ps1/io/io.hpp"
 #include "ps1/expansion.hpp"
-#include "ps1/interrupt_controller.hpp"
 
 class Ps1 {
 	public:
@@ -24,5 +23,4 @@ class Ps1 {
 		ExpansionRegion1 expansion1;
 		ExpansionRegion2 expansion2;
 		ExpansionRegion3 expansion3;
-		InterruptController interruptController;
 };

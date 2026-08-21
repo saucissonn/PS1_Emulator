@@ -1,7 +1,7 @@
 #include "ps1/io/gpu/gpu.hpp"
 
 #include "utils/error.hpp"
-#include "ps1/interrupt_controller.hpp"
+#include "ps1/io/interrupt_controller.hpp"
 
 int Gpu::setInterruptController(InterruptController *interruptController_) {
     if (!interruptController_) {

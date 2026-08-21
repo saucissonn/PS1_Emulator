@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <cstdlib>
 
-#include "ps1/interrupt_controller.hpp"
+#include "ps1/io/interrupt_controller.hpp"
 #include "utils/error.hpp"
 
 int Cpu::setInterruptController(InterruptController *interruptController_) {

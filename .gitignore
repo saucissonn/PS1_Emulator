@@ -2,4 +2,5 @@
 *.o
 *.swp
 src/ps1/roms/BIOS.bin
+src/ps1/roms/games/*.bin
 \\

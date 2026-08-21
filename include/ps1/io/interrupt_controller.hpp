@@ -20,8 +20,9 @@ class InterruptController {
 
 	    void request(Interrupt source);
 		void clear(Interrupt source);
-	    void writeStat(uint32_t value);
-	    void writeMask(uint32_t value);
+	    int writeStat(uint32_t value);
+	    int writeMask(uint32_t value);
+		int write(uint32_t address, uint32_t value);
 
 		bool irqPending();
 

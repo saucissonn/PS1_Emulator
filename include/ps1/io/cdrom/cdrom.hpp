@@ -3,6 +3,20 @@
 #include <cstdint>
 #include <queue>
 
+class Disc {
+	public:
+		Disc();
+		~Disc();
+
+		int load(const char *filename);
+		uint8_t read(uint32_t address);
+
+	private:
+		uint32_t sectorSize;
+		uint32_t nbSector;
+		uint8_t *data;
+};
+
 enum class CdromInterrupt { // commands returned value, we actually return error but if no error occurs we put this value in interruptFlag
     INT1 = 1,
     INT2 = 2,
@@ -27,7 +41,7 @@ class Cdrom {
         uint8_t read(uint32_t address);
         int write(uint32_t address, uint8_t value);
 
-		uint8_t readData(); // Pop and retuen data FIOF value
+		uint8_t readData(); // Pop and return data FIFO value
 		int dmaWrite();
 
     private:
