@@ -44,6 +44,8 @@ int Cop0::decodeInstruction(uint32_t instruction) { // From an instruction find 
 
 	transfromInstruction(instruction);
 
+	printf("Opcode: %8X\n", operand->rs);
+
     switch (operand->rs) {
 		case 0x00: {
 			return MFC0();
@@ -61,9 +63,6 @@ int Cop0::decodeInstruction(uint32_t instruction) { // From an instruction find 
 			return ERR_COP0_INSTRUCTION_NOT_FOUND;
         }
 
-		default: {
-			return ERR_OK;
-		}
 	}
 
 	return ERR_COP0_INSTRUCTION_NOT_FOUND;

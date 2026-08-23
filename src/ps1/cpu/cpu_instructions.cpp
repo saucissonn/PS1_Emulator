@@ -13,7 +13,7 @@ int Cpu::dispatchInstruction(uint32_t instruction) {
 		}
 
 		case 0x12: { // COP2
-			return cop2.decodeInstruction(instruction);
+			return cop2.decodeCommand(instruction);
 		}
 
 		default: { // CPU

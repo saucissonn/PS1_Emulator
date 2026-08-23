@@ -47,7 +47,7 @@ int Ps1::run() {
 	while (1) {
 		uint64_t count = cpu.getInstructionCounter();
 
-		if (count > 100000) { // 17381 (nb instructions to check a non connected hardware) 
+		if (count > 20000) { // 17381 (nb instructions to check a non connected hardware) 
 			return ERR_OK;
 		}
 	

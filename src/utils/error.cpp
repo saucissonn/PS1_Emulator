@@ -31,6 +31,9 @@ const char *error_string(int err)
         case ERR_COP0_INSTRUCTION_NOT_FOUND:
             return "COP0 instruction not found";
 
+        case ERR_COP2_COMMAND_NOT_FOUND:
+            return "COP2 command not found";
+
         case ERR_GP0_COMMAND_NOT_FOUND:
             return "GP0 command not found";
 
