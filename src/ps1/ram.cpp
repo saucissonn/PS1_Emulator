@@ -24,7 +24,7 @@ uint32_t Ram::read(uint32_t address) {
 
     uint32_t result = 0;
 
-    result |= (uint32_t)ram[address];
+    result |= (uint32_t)ram[address]; // Little endian + 8 bits to 32 bits
     result |= ((uint32_t)ram[address + 1]) << 8;
     result |= ((uint32_t)ram[address + 2]) << 16;
     result |= ((uint32_t)ram[address + 3]) << 24;
@@ -35,7 +35,7 @@ uint32_t Ram::read(uint32_t address) {
 int Ram::write(uint32_t address, uint32_t value) {
     address &= 0x001FFFFF;
 
-    ram[address]     = (uint8_t)(value);
+    ram[address] = (uint8_t)(value); // Little endian + 32 bits to 8 bits
     ram[address + 1] = (uint8_t)(value >> 8);
     ram[address + 2] = (uint8_t)(value >> 16);
     ram[address + 3] = (uint8_t)(value >> 24);

@@ -35,14 +35,20 @@ int Cdrom::setBus(Bus *bus_) {
     return ERR_OK;
 }
 
-Cdrom::Cdrom() {
+Cdrom::Cdrom() :
+	disc()
+{
     index = 0;
-
     interruptEnable = 0;
     interruptFlag = 0;
-
     command = 0;
-    request = 0;
+	longCommand = 0;
+    countLongCommandParameters = 0;
+	request = 0;
+	status = 0;
+	targetMinute = 0;
+	targetSecond = 0;
+	targetFrame = 0;
 
     audioVolumeLeftToLeft = 0;
     audioVolumeLeftToRight = 0;
@@ -91,16 +97,6 @@ int Cdrom::write(uint32_t address, uint8_t value) {
 	return ERR_WRITE_NOT_ALLOWED;
 }
 
-uint8_t Cdrom::readData() {
-    if (data.empty())
-        return 0;
-
-    uint8_t value = data.front();
-    data.pop();
-
-    return value;
-}
-
 int Cdrom::dmaWrite() { // data FIFO -> RAM
 	// DMA Channel 3, SyncMode = 0
 	uint32_t bcr = dma->getBCR(3);
@@ -122,4 +118,8 @@ int Cdrom::dmaWrite() { // data FIFO -> RAM
 	dma->setMADR(madr, 3);
 
 	return ERR_OK;
+}
+
+int Cdrom::run() {
+	return decodeLongCommand();
 }

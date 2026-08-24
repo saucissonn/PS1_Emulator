@@ -25,6 +25,7 @@ class Io {
 		int write8Only(uint32_t address, uint8_t value);
 
 		int dmaRun();
+		int run();
 
 		InterruptController *getInterruptController();
 

@@ -17,6 +17,7 @@ Ps1::Ps1() :
 	int ret = bios.load("src/ps1/roms/BIOS.bin");
 
 	if (ret != ERR_OK) {
+		printf("Error: Ps1, Invalid BIOS\n");
 		return; // TODO handle error
 	}
 
@@ -51,7 +52,7 @@ int Ps1::run() {
 			return ERR_OK;
 		}
 	
-		ret = io.dmaRun(); // DMA (not tested yet)
+		ret = io.run(); // DMA (not tested yet)
 
         if (ret != ERR_OK) {
             return ret;

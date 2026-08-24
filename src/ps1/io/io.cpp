@@ -22,6 +22,8 @@ Io::Io() :
 	cdrom.setInterruptController(&interruptController);
 
 	gpu.setInterruptController(&interruptController);
+	gpu.setBus(bus);
+	gpu.setDma(&dma);
 
 	mdec.setDma(&dma);
 	mdec.setBus(bus);
@@ -152,7 +154,22 @@ int Io::dmaRun() {
 	return dma.run();
 }
 
-InterruptController* Io::getInterruptController()
-{
+InterruptController* Io::getInterruptController() {
     return &interruptController;
+}
+
+int Io::run() {
+    int ret = dma.run();
+
+	if (ret != ERR_OK) {
+		return ret;
+	}
+
+	ret = cdrom.run();
+
+    if (ret != ERR_OK) {
+        return ret;
+    }
+
+	return ERR_OK;
 }

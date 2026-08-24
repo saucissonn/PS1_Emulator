@@ -88,7 +88,7 @@ Mem Bus::getMemoryHardware(uint32_t physicalAddr) {
     else if (0x1F000000 <= physicalAddr && physicalAddr <= 0x1F7FFFFF && (expansion1->getConnected() == 1))
 		return Mem::EXPANSION_REGION_1;
 
-    else if (0x1F800000 <= physicalAddr && physicalAddr <= 0x1F8003FF)
+    else if (0x1F800000 <= physicalAddr && physicalAddr <= 0x1F8003FF && 0 == 67) // Always false on purpose
 		return Mem::SCRATCHPAD;
 
     else if (0x1F801000 <= physicalAddr && physicalAddr <= 0x1F801FFF)
@@ -107,13 +107,13 @@ Mem Bus::getMemoryHardware(uint32_t physicalAddr) {
 		return Mem::CACHE_CONTROL;
 
     else if ((0x1FC80000 <= physicalAddr && physicalAddr <= 0xFFFDFFFF) || 0xFFFE0200 <= physicalAddr) {
-        printf("Error: getMemoryHardware, the physical address given (%8X) doesn't match any existing component\n", physicalAddr);
+        printf("Error: getMemoryHardware, the physical address given (%08X) doesn't match any existing component\n", physicalAddr);
 		busError = ERR_BUS_SECTION_NOT_FOUND;
         return Mem::INVALID_COMPONENT;
     }
 
 	else {
-        printf("Error: getMemoryHardware, the physical address given (%8X) doesn't match any connected component\n", physicalAddr);
+        printf("Error: getMemoryHardware, the physical address given (%08X) doesn't match any connected component\n", physicalAddr);
 		busError = ERR_BUS_SECTION_NOT_CONNECTED;
         return Mem::INVALID_COMPONENT;
 	}
@@ -121,7 +121,7 @@ Mem Bus::getMemoryHardware(uint32_t physicalAddr) {
 
 uint32_t Bus::read(uint32_t address) {
     if (address % 4 != 0){
-        printf("Error: read, the address %8X is not a multiple of 4\n", address);
+        printf("Error: read, the address %08X is not a multiple of 4\n", address);
         busError = ERR_READ_ADDRESS_NOT_ALIGNED;
         return ERR_READ_ADDRESS_NOT_ALIGNED;
     }
@@ -155,7 +155,7 @@ uint32_t Bus::read(uint32_t address) {
 
 int Bus::write(uint32_t address, uint32_t value) {
     if (address % 4 != 0){
-        printf("Error: write, the address %8X is not a multiple of 4\n", address);
+        printf("Error: write, the address %08X is not a multiple of 4\n", address);
         busError = ERR_WRITE_ADDRESS_NOT_ALIGNED;
         return ERR_WRITE_ADDRESS_NOT_ALIGNED;
     }
@@ -191,7 +191,7 @@ int Bus::write16(uint32_t address, uint16_t value){ // address is a multiple of 
     uint32_t temp = read(address - miniOffset) ; // multiple of 4
 
     if (busError != ERR_OK){
-        printf("Error: write16, impossible to read address %8X\n", address);
+        printf("Error: write16, impossible to read address %08X\n", address);
         return busError;
     }
 
@@ -204,7 +204,7 @@ int Bus::write16(uint32_t address, uint16_t value){ // address is a multiple of 
         temp |= value;
     }
     else {
-        printf("Error: write16, the address %8X is not a multiple of 2\n", address);
+        printf("Error: write16, the address %08X is not a multiple of 2\n", address);
         busError = ERR_WRITE_ADDRESS_NOT_ALIGNED;
         return ERR_WRITE_ADDRESS_NOT_ALIGNED;
     }

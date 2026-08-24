@@ -4,7 +4,7 @@
 
 // Parameters
 
-uint8_t Cdrom::readParameter() { // Pop the value
+uint8_t Cdrom::readParameters() { // Pop the value
     if (parameters.empty())
         return 0;
 
@@ -14,7 +14,7 @@ uint8_t Cdrom::readParameter() { // Pop the value
     return value;
 }
 
-int Cdrom::writeParameter(uint8_t value) {
+int Cdrom::writeParameter(uint8_t value) { // The order is the command and then the parameters in a FIFO
     switch (index) {
         case 0:
             parameters.push(value); // Parameter FIFO
@@ -40,7 +40,7 @@ int Cdrom::writeParameter(uint8_t value) {
     return ERR_UNEXPECTED_RESULT;
 }
 
-uint8_t Cdrom::getParameterCount(uint8_t command) {
+uint8_t Cdrom::getParameterCount(uint8_t command) { // Tell how many parameters for a command
     switch (command) {
         case 0x02: return 3; // Setloc
         case 0x03: return 1; // Play
@@ -52,4 +52,31 @@ uint8_t Cdrom::getParameterCount(uint8_t command) {
         case 0x1F: return 6; // VideoCD
         default:   return 0;
     }
+}
+
+uint8_t Cdrom::readOnlyLongCommandParameters(uint32_t index) { // Not pop the value
+	if (longCommandParameters.size() <= index) {
+		return 0;
+	}
+
+    uint8_t value = longCommandParameters[index];
+
+    return value;
+}
+
+int Cdrom::pushLongCommandParameters(uint8_t value) { // Add element like a queue
+    longCommandParameters.push_back(value);
+	countLongCommandParameters += 1;
+
+    return ERR_OK;
+}
+
+int Cdrom::clearLongCommandParameters() {
+	while (!(longCommandParameters.empty())) {
+		longCommandParameters.pop_front();
+	}
+
+	countLongCommandParameters = 0;
+
+	return ERR_OK;
 }

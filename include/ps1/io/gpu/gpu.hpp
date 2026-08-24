@@ -6,6 +6,8 @@
 #include "ps1/io/gpu/gp1.hpp"
 
 class InterruptController;
+class Bus;
+class Dma;
 
 class Gpu {
     public:
@@ -13,9 +15,14 @@ class Gpu {
         ~Gpu();
 
 		int setInterruptController(InterruptController *interruptController_);
+		int setBus(Bus *bus_);
+		int setDma(Dma *dma_);
 
         uint32_t read(uint32_t address);
         int write(uint32_t address, uint32_t value);
+
+		int dmaWriteBlock();
+		int dmaWriteLinkedList();
 
 		// Utils
 
@@ -92,6 +99,8 @@ class Gpu {
         Gp0 gp0;
         Gp1 gp1;
 		InterruptController *interruptController;
+		Bus *bus;
+		Dma *dma;
 
         uint32_t gpuread;
         uint32_t gpustat;

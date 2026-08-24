@@ -12,6 +12,39 @@ int Cdrom::raiseInterrupt(CdromInterrupt type) { // Every commands with an INT r
 	return ERR_OK;
 }
 
+int Cdrom::getStat() { // 0x01
+	response.push(status);
+	return raiseInterrupt(CdromInterrupt::INT3);
+}
+
+int Cdrom::setLoc() { // 0x02
+	targetMinute = readParameters();
+	targetSecond = readParameters();
+	targetFrame = readParameters();
+
+    response.push(status);
+    return raiseInterrupt(CdromInterrupt::INT3);
+}
+
+int Cdrom::play() { // 0x03
+	if (!(parameters.empty())) { // One optional parameter
+		uint8_t track = readParameters();
+		// TODO should use this track in parameter instead of a default track by matching the track value above with IDs in Tracks (in disc)
+		pushLongCommandParameters(track); // Set the current position at the beginning of the track
+	
+		Track *currentTrack = getCurrentTrack();
+
+	    targetMinute = currentTrack->minute;
+	    targetSecond = currentTrack->second;
+	    targetFrame = currentTrack->frame;
+	}
+
+	longCommand = 0x03;
+
+    response.push(status);
+    return raiseInterrupt(CdromInterrupt::INT3);
+}
+
 int Cdrom::decodeCommand() { // Also execute
     uint8_t count = getParameterCount(command);
 
@@ -20,12 +53,16 @@ int Cdrom::decodeCommand() { // Also execute
 
     switch (command) {
         case 0x00: return ERR_CDROM_COMMAND_NOT_FOUND; // Invalid Command ?
-        case 0x01: return ERR_CDROM_COMMAND_NOT_FOUND;
-        case 0x02: return ERR_CDROM_COMMAND_NOT_FOUND;
-        case 0x03: return ERR_CDROM_COMMAND_NOT_FOUND;
+        case 0x01: return getStat();
+        case 0x02: return setLoc();
+        case 0x03:
+			clearLongCommandParameters();
+			return play(); // Hard one
         case 0x04: return ERR_CDROM_COMMAND_NOT_FOUND;
         case 0x05: return ERR_CDROM_COMMAND_NOT_FOUND;
-        case 0x06: return ERR_CDROM_COMMAND_NOT_FOUND;
+        case 0x06:
+			clearLongCommandParameters();
+			return ERR_CDROM_COMMAND_NOT_FOUND;
         case 0x07: return ERR_CDROM_COMMAND_NOT_FOUND;
         case 0x08: return ERR_CDROM_COMMAND_NOT_FOUND;
         case 0x09: return ERR_CDROM_COMMAND_NOT_FOUND;
@@ -40,13 +77,19 @@ int Cdrom::decodeCommand() { // Also execute
         case 0x12: return ERR_CDROM_COMMAND_NOT_FOUND;
         case 0x13: return ERR_CDROM_COMMAND_NOT_FOUND;
         case 0x14: return ERR_CDROM_COMMAND_NOT_FOUND;
-        case 0x15: return ERR_CDROM_COMMAND_NOT_FOUND;
-        case 0x16: return ERR_CDROM_COMMAND_NOT_FOUND;
+        case 0x15:
+			clearLongCommandParameters();
+			return ERR_CDROM_COMMAND_NOT_FOUND;
+        case 0x16:
+			clearLongCommandParameters();
+			return ERR_CDROM_COMMAND_NOT_FOUND;
         case 0x17: return ERR_CDROM_COMMAND_NOT_FOUND;
         case 0x18: return ERR_CDROM_COMMAND_NOT_FOUND;
         case 0x19: return ERR_CDROM_COMMAND_NOT_FOUND;
         case 0x1A: return ERR_CDROM_COMMAND_NOT_FOUND;
-        case 0x1B: return ERR_CDROM_COMMAND_NOT_FOUND;
+        case 0x1B:
+			clearLongCommandParameters();
+			return ERR_CDROM_COMMAND_NOT_FOUND;
         case 0x1C: return ERR_CDROM_COMMAND_NOT_FOUND;
         case 0x1D: return ERR_CDROM_COMMAND_NOT_FOUND;
         case 0x1E: return ERR_CDROM_COMMAND_NOT_FOUND;
@@ -73,7 +116,7 @@ int Cdrom::decodeCommand() { // Also execute
     return ERR_CDROM_COMMAND_NOT_FOUND;
 }
 
-int Cdrom::writeCommand(uint8_t value) {
+int Cdrom::writeCommand(uint8_t value) { // Can also write a volume settings
 	switch (index) {
 		case 0:
 			command = value;
@@ -95,4 +138,36 @@ int Cdrom::writeCommand(uint8_t value) {
 	}
 
 	return ERR_UNEXPECTED_RESULT;
+}
+
+int Cdrom::longCommandPlay() {
+	uint32_t address = positionToAddress();
+
+	if (address > getMaxAddress()) {
+		longCommand = 0x00;
+
+	    response.push(status);
+		status &= ~(1 << 7);
+
+	    return raiseInterrupt(CdromInterrupt::INT4);
+	}
+
+	// uint8_t data = disc.read(address); // TODO send to a buffer audio CD-DA
+
+	incrementPosition();
+
+	pushReport();
+	return raiseInterrupt(CdromInterrupt::INT1);
+}
+
+int Cdrom::decodeLongCommand() {
+	switch (longCommand) {
+		case 0x03: return longCommandPlay(); // Play
+		case 0x06: return ERR_CDROM_COMMAND_NOT_FOUND; // ReadN
+		case 0x15: return ERR_CDROM_COMMAND_NOT_FOUND; // SeekL
+		case 0x16: return ERR_CDROM_COMMAND_NOT_FOUND; // SeekP
+		case 0x1B: return ERR_CDROM_COMMAND_NOT_FOUND; // ReadS
+	}
+
+	return ERR_OK; // No long command to execute
 }

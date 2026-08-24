@@ -2,6 +2,8 @@
 
 #include "utils/error.hpp"
 #include "ps1/io/interrupt_controller.hpp"
+#include "ps1/bus.hpp"
+#include "ps1/io/dma.hpp"
 
 int Gpu::setInterruptController(InterruptController *interruptController_) {
     if (!interruptController_) {
@@ -13,10 +15,33 @@ int Gpu::setInterruptController(InterruptController *interruptController_) {
     return ERR_OK;
 }
 
+int Gpu::setBus(Bus *bus_) {
+    if (!bus_) {
+        return ERR_INVALID_ARGUMENT;
+    }
+
+    bus = bus_;
+
+    return ERR_OK;
+}
+
+int Gpu::setDma(Dma *dma_) {
+    if (!dma_) {
+        return ERR_INVALID_ARGUMENT;
+    }
+
+    dma = dma_;
+
+    return ERR_OK;
+}
+
 Gpu::Gpu() :
 	gp0(this),
 	gp1(this)
 {
+	gp0.setBus(bus);
+	gp0.setDma(dma);
+
     gpuread = 0;
     gpustat = 0;
 
@@ -55,4 +80,12 @@ int Gpu::write(uint32_t address, uint32_t value) {
     }
 
 	return ERR_WRITE_SECTION_NOT_FOUND;
+}
+
+int Gpu::dmaWriteBlock() {
+	return gp0.dmaWriteBlock();
+}
+
+int Gpu::dmaWriteLinkedList() {
+	return gp0.dmaWriteLinkedList();
 }

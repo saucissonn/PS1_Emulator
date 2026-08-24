@@ -173,46 +173,37 @@ void Dma::setChannelMasterIndex() {
 
 int Dma::runManual() {
 	switch (channelMasterIndex) {
-		case 3:
-			return cdrom->dmaWrite();
-
-        default:
-            return ERR_DMA_CHANNEL_NUMBER;
+		case 3: return cdrom->dmaWrite();
 	}
 
-	return ERR_OK;
+	return ERR_DMA_CHANNEL_NUMBER;
 }
 
 int Dma::runBlock() {
 	switch (channelMasterIndex) {
-        case 0: 
-            return mdec->dmaWriteIn();
-
-		case 1: 
-			return mdec->dmaWriteOut();
-
-		default:
-			return ERR_DMA_CHANNEL_NUMBER;
+        case 0: return mdec->dmaWriteIn();
+		case 1: return mdec->dmaWriteOut();
+		case 2: return gpu->dmaWriteBlock();
 	}
 
-	return ERR_OK;
+	return ERR_DMA_CHANNEL_NUMBER;
+}
+
+int Dma::runLinkedList() {
+    switch (channelMasterIndex) {
+        case 2: return gpu->dmaWriteLinkedList();
+    }
+
+    return ERR_DMA_CHANNEL_NUMBER;
 }
 
 int Dma::decodeSyncMode() {
 	uint8_t syncmode = getChannelSyncMode(channelMasterIndex);
 
 	switch (syncmode) {
-		case 0: {
-			return runManual(); // Send n elements at once
-		}
-
-		case 1: {
-			return runBlock(); // Send n block of m elements at once
-		}
-
-		case 2: {
-			return ERR_OK; // TODO: Weird
-		}
+		case 0: return runManual(); // Send n elements at once
+		case 1: return runBlock(); // Send n block of m elements at once
+		case 2: return runLinkedList();
 	}
 
 	return ERR_DMA_CHANNEL_NUMBER;
@@ -225,6 +216,5 @@ int Dma::run() {
 		return ERR_OK;
 	}
 
-//	return ERR_INTENTIONAL_STOP;
 	return decodeSyncMode();
 }

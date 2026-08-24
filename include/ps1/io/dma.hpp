@@ -102,4 +102,5 @@ class Dma {
 
 		int runManual();
 		int runBlock();
+		int runLinkedList();
 };

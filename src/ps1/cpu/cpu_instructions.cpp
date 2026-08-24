@@ -448,7 +448,7 @@ int Cpu::SUB() {
 }
 
 int Cpu::SUBU() {
-    int64_t result = (int64_t)GPR[operand->rs] - (int64_t)GPR[operand->rt]; // TODO: why int64_t ?
+    int64_t result = (int64_t)GPR[operand->rs] - (int64_t)GPR[operand->rt];
 
     GPR[operand->rd] = (uint32_t)result;
 
@@ -609,8 +609,9 @@ int Cpu::LH(){
     switch(miniOffset){
         case 0: GPR[operand->rt] = signExtend(temp & 0xFFFF, 16); break;
         case 2: GPR[operand->rt] = signExtend(temp >> 16, 16); break;
-        // TODO: maybe add a default case for the error
+		default: return ERR_READ_ADDRESS_NOT_ALIGNED;
     }
+
     printf("%8X loaded from address %8X to register %8X\n", (int)GPR[operand->rt], address, operand->rt);
     printf("CPU instruction LH done\n");
 
@@ -695,8 +696,9 @@ int Cpu::LHU(){
     switch(miniOffset){
         case 0: GPR[operand->rt] = temp & 0xFFFF; break;
         case 2: GPR[operand->rt] = temp >> 16; break;
-        // TODO: maybe add a default case for the error
+		default: return ERR_READ_ADDRESS_NOT_ALIGNED;
     }
+
     printf("%8X loaded from address %8X to register %8X\n", GPR[operand->rt], address, operand->rt);
     printf("CPU instruction LHU done\n");
 

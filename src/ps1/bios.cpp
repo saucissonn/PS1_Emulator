@@ -32,7 +32,12 @@ int Bios::load(const char *filename) {
 	fseek(file, 0, SEEK_END); // Get the file size
 	long int size = ftell(file);
 	rewind(file);
-	// TODO: maybe add a check to see if size < biosRomSize
+
+	if (size > biosRomSize) {
+		fclose(file);
+		return ERR_OUT_OF_MEMORY;
+	}
+
 	fread(biosRom, sizeof(uint8_t), size, file);
 /*	// To debug
 	for (int i = 0; i < size && i < 1000; i++) {
