@@ -5,7 +5,7 @@
 #include "ps1/io/peripheral_io.hpp"
 #include "ps1/io/interrupt_controller.hpp"
 #include "ps1/io/dma.hpp"
-#include "ps1/io/timers.hpp"
+#include "ps1/io/timers/timers.hpp"
 #include "ps1/io/cdrom/cdrom.hpp"
 #include "ps1/io/mdec/mdec.hpp"
 #include "ps1/io/spu.hpp"
@@ -28,6 +28,7 @@ class Io {
 		int run();
 
 		InterruptController *getInterruptController();
+		Timers *getTimers();
 
 	private:
 		MemoryControl1 memoryControl1;

@@ -23,6 +23,7 @@ Ps1::Ps1() :
 
 	cpu.setBus(&bus);
 	cpu.setInterruptController(io.getInterruptController());
+	cpu.setTimers(io.getTimers());
 
 	io.setBus(&bus);
 

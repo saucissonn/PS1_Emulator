@@ -17,6 +17,8 @@ Io::Io() :
 	spu(),
 	memoryControl3()
 {
+	timers.setInterruptController(&interruptController);
+
 	cdrom.setDma(&dma);
 	cdrom.setBus(bus);
 	cdrom.setInterruptController(&interruptController);
@@ -156,6 +158,10 @@ int Io::dmaRun() {
 
 InterruptController* Io::getInterruptController() {
     return &interruptController;
+}
+
+Timers *Io::getTimers() {
+	return &timers;
 }
 
 int Io::run() {

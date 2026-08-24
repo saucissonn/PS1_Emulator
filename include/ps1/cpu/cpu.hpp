@@ -31,6 +31,7 @@ class Bus;
 class Cop0;
 class Cop2;
 class InterruptController;
+class Timers;
 
 class Cpu {
     public:
@@ -39,6 +40,7 @@ class Cpu {
 
 		int setBus(Bus *bus_);
 		int setInterruptController(InterruptController *interruptController_);
+		int setTimers(Timers *timers_);
 
         uint32_t convertAddress(uint32_t address); // From virtual to physical address
         uint32_t useCache(uint32_t address, CacheLine **cache); // Output is an instruction
@@ -72,6 +74,7 @@ class Cpu {
         Cop0 cop0;
         Cop2 cop2;
 		InterruptController *interruptController;
+		Timers *timers;
 
         uint32_t GPR[32];   // General purpose registers
         uint32_t PC;        // Program Counter (instructionPC + 4)

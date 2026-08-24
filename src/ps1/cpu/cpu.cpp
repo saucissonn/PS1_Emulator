@@ -4,6 +4,7 @@
 #include <cstdlib>
 
 #include "ps1/io/interrupt_controller.hpp"
+#include "ps1/io/timers/timers.hpp"
 #include "utils/error.hpp"
 
 int Cpu::setBus(Bus *bus_) {
@@ -25,6 +26,17 @@ int Cpu::setInterruptController(InterruptController *interruptController_) {
 
 	return ERR_OK;
 }
+
+int Cpu::setTimers(Timers *timers_) {
+    if (!timers_) {
+        return ERR_INVALID_ARGUMENT;
+    }
+
+    timers = timers_;
+
+    return ERR_OK;
+}
+
 
 CacheLine *createCacheLine() {
 	CacheLine *cacheLine = (CacheLine *)malloc(sizeof(CacheLine));
@@ -149,6 +161,8 @@ int Cpu::executeInstruction() {
 
 int Cpu::run() {
 	updateInterrupt();
+
+	timers->tickSystemClock(1); // Interrupt or instruction we just add one cycle
 
 	if (launchInterrupt()) {
 		return handleInterrupt();
