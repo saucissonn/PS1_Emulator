@@ -91,6 +91,15 @@ const char *error_string(int err)
         case ERR_DMA_READ:
             return "DMA read is not possible";
 
+		case ERR_TIMER0:
+			return "something wrong with timer 0";
+
+        case ERR_TIMER1:
+            return "something wrong with timer 1";
+
+        case ERR_TIMER2:
+            return "something wrong with timer 2";
+
         case ERR_INTENTIONAL_STOP:
             return "intentional stop";
 

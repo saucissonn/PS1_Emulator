@@ -23,7 +23,11 @@ class Timers {
 
 		int requestInterrupt(uint8_t timer);
 		int tickCounter(uint8_t timer);
-		int tickSystemClock(uint32_t cycles);
+		int tickIncrement(uint8_t timer, uint32_t ticks);
+		int tickDotClock(uint32_t cycles); // timer 0
+		int tickHBlank(); // timer 1
+		int tickSystemClock8(uint32_t cycles); // timer 2
+		int tickSystemClock(uint32_t cycles); // 3 timers
 
 		// Utils
 

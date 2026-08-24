@@ -12,12 +12,13 @@ typedef struct {
     uint8_t funct;      // Function (6 bits)
 
     // COP2 / GTE command
-    uint8_t command;    // Real GTE Command Number (6 bits)
-    uint8_t lm;         // Saturate IR1-IR3 (1 bit)
+    uint8_t opcode;		// Real GTE Command Number (6 bits)
+    uint8_t lm;			// Saturate IR1-IR3 (1 bit)
     uint8_t mvmva_tv;   // Translation Vector (2 bits)
     uint8_t mvmva_mv;   // Multiply Vector (2 bits)
     uint8_t mvmva_mm;   // Multiply Matrix (2 bits)
     uint8_t sf;         // Shift Fraction (1 bit)
+	uint8_t fakeOpcode;	// Fake GTE Command Number (5 bits)
 } Operand;
 
 Operand *operandCreate();

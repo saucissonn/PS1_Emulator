@@ -41,6 +41,16 @@ class Cop2 {
 		void setSXY2(uint32_t value);
 		void setSXYP(uint32_t value);
 
+		void setSX0(int16_t value);
+		void setSX1(int16_t value);
+		void setSX2(int16_t value);
+		void setSXP(int16_t value);
+
+		void setSY0(int16_t value);
+		void setSY1(int16_t value);
+		void setSY2(int16_t value);
+		void setSYP(int16_t value);
+
 		void setSZ0(uint16_t value);
 		void setSZ1(uint16_t value);
 		void setSZ2(uint16_t value);
@@ -87,6 +97,16 @@ class Cop2 {
 		uint32_t getSXY1();
 		uint32_t getSXY2();
 		uint32_t getSXYP();
+
+		int16_t getSX0();
+		int16_t getSX1();
+		int16_t getSX2();
+		int16_t getSXP();
+
+		int16_t getSY0();
+		int16_t getSY1();
+		int16_t getSY2();
+		int16_t getSYP();
 
 		uint16_t getSZ0();
 		uint16_t getSZ1();
@@ -225,6 +245,12 @@ class Cop2 {
 
         uint32_t GPR[32]; // General purpose registers
         Operand *operand; // Current operands
+
+		// Commands (Sorted by real command)
+
+		int NCLIP();
+		int OP();
+		int SQR();
 
 		void transfromCommand(uint32_t command);
 };

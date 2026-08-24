@@ -117,31 +117,80 @@ int Timers::tickCounter(uint8_t timer) {
 	return ERR_OK;
 }
 
-int Timers::tickSystemClock(uint32_t cycles) { // For timer 2 (Linked to the CPU)
+int Timers::tickIncrement(uint8_t timer, uint32_t ticks) {
+	for (uint32_t i = 0; i < ticks; i++) {
+		tickCounter(timer);
+	}
+
+	return ERR_OK;
+}
+
+int Timers::tickDotClock(uint32_t cycles) { // For timer 0 (linked to the GPU)
+    uint8_t source = getClockSource(0);
+
+    if (source != 1 && source != 3)
+        return ERR_TIMER0;
+
+    // NTSC
+    // Dot clock / CPU clock ratio is around 0.226411
+    timers[0].accumulatorCounter += cycles * 226411;
+
+    uint32_t ticks = timers[0].accumulatorCounter / 1000000;
+    timers[0].accumulatorCounter %= 1000000;
+
+	tickIncrement(0, ticks);
+
+    return ERR_OK;
+}
+
+int Timers::tickHBlank() { // For timer 1 (linked to the GPU)
+	uint8_t source = getClockSource(1);
+
+    if (source == 1 || source == 3) {
+		tickCounter(1);
+		printf("Timer 1: %04d\n", timers[1].counter);
+    
+		return ERR_OK;
+	}
+
+	return ERR_TIMER1;
+}
+
+int Timers::tickSystemClock8(uint32_t cycles) { // For timer 2 (Linked to the CPU)
     timers[2].accumulatorCounter += cycles;
 
     if (getClockSource(2) > 1) {
         uint32_t ticks = timers[2].accumulatorCounter / 8;
         timers[2].accumulatorCounter %= 8;
 
-        for (uint32_t i = 0; i < ticks; i++) {
-            tickCounter(2);
-        }
-    }
-    else {
-        uint32_t ticks = timers[2].accumulatorCounter;
-        timers[2].accumulatorCounter = 0;
+		tickIncrement(2, ticks);
 
-        for (uint32_t i = 0; i < ticks; i++) {
-            tickCounter(2);
-        }
+		printf("Timer 2: %04d\n", timers[2].counter);
+
+		return ERR_OK;
     }
 
-	printf("Timer 2: %04d\n", timers[2].counter);
-
-    return ERR_OK;
+    return ERR_TIMER2;
 }
 
-//timers->onHBlank();
-//timers->onVBlank();
-//timers->tickDotClock(clocks);
+int Timers::tickSystemClock(uint32_t cycles) { // For each timer
+    uint8_t source = getClockSource(0);
+    
+    if (source == 0 || source == 2) {
+		tickIncrement(0, cycles);
+	}
+
+	source = getClockSource(1);
+
+    if (source == 0 || source == 2) {
+        tickIncrement(1, cycles);
+    }
+
+    source = getClockSource(2);
+
+    if (source == 0 || source == 1) {
+        tickIncrement(2, cycles);
+    }
+
+	return ERR_OK;
+}

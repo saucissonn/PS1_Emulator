@@ -13,12 +13,13 @@ Operand *operandCreate() {
     operand->target = 0;
     operand->funct = 0;
 
-    operand->command = 0;
+    operand->opcode = 0;
     operand->lm = 0;
     operand->mvmva_tv = 0;
     operand->mvmva_mv = 0;
     operand->mvmva_mm = 0;
     operand->sf = 0;
+	operand->fakeOpcode = 0;
 
     return operand;
 }
