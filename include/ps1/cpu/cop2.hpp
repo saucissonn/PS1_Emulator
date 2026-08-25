@@ -4,6 +4,12 @@
 
 #include "ps1/cpu/operand.hpp"
 
+typedef struct { // No alpha
+	uint8_t r;
+    uint8_t g;
+    uint8_t b;
+} RGBColor;
+
 class Cpu;
 
 class Cop2 {
@@ -245,6 +251,11 @@ class Cop2 {
 
         uint32_t GPR[32]; // General purpose registers
         Operand *operand; // Current operands
+		RGBColor *RGBColors[3]; // Color FIFO
+
+		int initRGBColors();
+		int destroyRGBColors();
+		int writeRGBColors(uint8_t r, uint8_t g, uint8_t b);
 
 		// Commands (Sorted by real command)
 

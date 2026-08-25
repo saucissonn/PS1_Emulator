@@ -25,6 +25,8 @@ int Cop2::NCLIP() { // Real command 0x06, fake command 0x14
 		getSX2() * (getSY0() - getSY1())
 	);
 
+	printf("COP2 command NCLIP done\n");
+
 	return ERR_OK;
 }
 
@@ -47,6 +49,8 @@ int Cop2::OP() { // Real command 0x0C, fake command 0x17
     setIR2(mac2);
     setIR3(mac3);
 
+	printf("COP2 command OP done\n");
+
 	return ERR_OK;
 }
 
@@ -65,9 +69,11 @@ int Cop2::SQR() { // Real command 0x28, fake command 0x0A
     setMAC2(mac2);
     setMAC3(mac3);
 
-    setIR1(std::min(mac1, (int64_t)0x7FFF));
+    setIR1(std::min(mac1, (int64_t)0x7FFF)); // Saturation (mac is positive here so we just clip the max value)
     setIR2(std::min(mac2, (int64_t)0x7FFF));
     setIR3(std::min(mac3, (int64_t)0x7FFF));
+
+	printf("COP2 command SQR done\n");
 
     return ERR_OK;
 }
