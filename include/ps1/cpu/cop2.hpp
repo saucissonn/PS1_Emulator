@@ -260,6 +260,10 @@ class Cop2 {
 
 		// Commands Utils
 
+		int32_t saturateIR(int64_t value, uint8_t index, bool lm);
+		void checkMAC(int64_t value, uint8_t index);
+
+		int applyLightMatrix(uint8_t sf);
 		int applyColorMatrix(uint8_t sf);
 		int modulateColor();
 		int interpolateColor();
@@ -267,12 +271,17 @@ class Cop2 {
 		int pushColorFifo();
 		int interpolateMac(uint8_t sf);
 
+		int32_t getValueTV(uint8_t index);
+        int32_t getValueMV(uint8_t index, uint8_t IR);
+        int32_t getValueMM(uint8_t y, uint8_t x);
+
 		// Commands (Sorted by real command)
 
 		int NCLIP();
 		int OP();
 		int DPCS();
 		int INTPL();
+		int MVMVA();
 		int NCDS();
 		int CDP();
 		int NCDT();
