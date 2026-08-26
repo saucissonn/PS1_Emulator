@@ -11,6 +11,7 @@ int Cop2::initRGBColors() {
 		RGBColors[i]->r = 0x00;
         RGBColors[i]->g = 0x00;
         RGBColors[i]->b = 0x00;
+		RGBColors[i]->code = 0x00;
 	}
 
 	return ERR_OK;
@@ -24,7 +25,7 @@ int Cop2::destroyRGBColors() {
 	return ERR_OK;
 }
 
-int Cop2::writeRGBColors(uint8_t r, uint8_t g, uint8_t b) {
+int Cop2::writeRGBColors(uint8_t r, uint8_t g, uint8_t b, uint8_t code) {
 	for (int i = 0; i < 2; i++) {
 		RGBColors[i] = RGBColors[i + 1];
 	}
@@ -32,6 +33,7 @@ int Cop2::writeRGBColors(uint8_t r, uint8_t g, uint8_t b) {
 	RGBColors[2]->r = r;
     RGBColors[2]->g = g;
     RGBColors[2]->b = b;
+	RGBColors[2]->code = code;
 
 	return ERR_OK;
 }

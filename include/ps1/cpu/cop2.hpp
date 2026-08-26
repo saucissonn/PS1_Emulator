@@ -8,6 +8,7 @@ typedef struct { // No alpha
 	uint8_t r;
     uint8_t g;
     uint8_t b;
+	uint8_t code;
 } RGBColor;
 
 class Cpu;
@@ -255,13 +256,36 @@ class Cop2 {
 
 		int initRGBColors();
 		int destroyRGBColors();
-		int writeRGBColors(uint8_t r, uint8_t g, uint8_t b);
+		int writeRGBColors(uint8_t r, uint8_t g, uint8_t b, uint8_t code);
+
+		// Commands Utils
+
+		int applyColorMatrix(uint8_t sf);
+		int modulateColor();
+		int interpolateColor();
+		int shiftMac(uint8_t sf);
+		int pushColorFifo();
+		int interpolateMac(uint8_t sf);
 
 		// Commands (Sorted by real command)
 
 		int NCLIP();
 		int OP();
+		int DPCS();
+		int INTPL();
+		int NCDS();
+		int CDP();
+		int NCDT();
+		int NCCS();
+		int CC();
+		int NCS();
+		int NCT();
 		int SQR();
+		int DCPL();
+		int DPCT();
+		int GPF();
+		int GPL();
+		int NCCT();
 
 		void transfromCommand(uint32_t command);
 };
