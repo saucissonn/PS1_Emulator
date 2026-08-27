@@ -17,13 +17,27 @@ void Cop2::transfromCommand(uint32_t command) {
 
 // Commands (Sorted by real command)
 
+int Cop2::RTPS() { // Real command 0x01, fake command 0x01
+	// Step 1
+//	int64_t V0X = (int64_t)getV0X();
+//	int64_t V1X = (int64_t)getV1X();
+//	int64_t V2X = (int64_t)getV2X();
+
+    printf("COP2 command RTPS done\n");
+
+    return ERR_OK;
+}
+
 int Cop2::NCLIP() { // Real command 0x06, fake command 0x14
 	// Factorized with less operations so it's faster
-	setMAC0(
-		getSX0() * (getSY1() - getSY2()) +
-		getSX1() * (getSY2() - getSY0()) +
-		getSX2() * (getSY0() - getSY1())
-	);
+	int64_t MAC0 =
+		(int64_t)getSX0() * (getSY1() - getSY2()) +
+		(int64_t)getSX1() * (getSY2() - getSY0()) +
+		(int64_t)getSX2() * (getSY0() - getSY1());
+
+	checkMAC0(MAC0);
+
+	setMAC0((int32_t)MAC0);
 
 	printf("COP2 command NCLIP done\n");
 
@@ -480,6 +494,34 @@ int Cop2::DPCT() { // Real command 0x2A, fake command 0x08
     return ERR_OK;
 }
 
+int Cop2::AVSZ3() { // Real command 0x2D, fake command 0x15
+    // Step 1
+	int64_t MAC0 = (int64_t)(getZSF3() * (getSZ1() + getSZ2() + getSZ3()));
+	checkMAC0(MAC0);
+	setMAC0((int32_t)MAC0);
+
+	// Step 2
+	setOTZ(saturateOTZ(MAC0 / 0x1000));
+
+    printf("COP2 command AVSZ3 done\n");
+
+    return ERR_OK;
+}
+
+int Cop2::AVSZ4() { // Real command 0x2E, fake command 0x16
+    // Step 1
+    int64_t MAC0 = (int64_t)(getZSF4() * (getSZ0() + getSZ1() + getSZ2() + getSZ3()));
+    checkMAC0(MAC0);
+    setMAC0((int32_t)MAC0);
+
+    // Step 2
+    setOTZ(saturateOTZ(MAC0 / 0x1000));
+
+    printf("COP2 command AVSZ4 done\n");
+
+    return ERR_OK;
+}
+
 int Cop2::GPF() { // Real command 0x3D, fake command 0x19
     uint8_t sf = operand->sf * 12; // Already multiplied by 12
 	
@@ -578,8 +620,8 @@ int Cop2::decodeCommand(uint32_t command) { // From a command find and execute i
         case 0x28: return SQR();
         case 0x29: return DCPL();
         case 0x2A: return DPCT();
-        case 0x2D: return ERR_COP2_COMMAND_NOT_FOUND;
-        case 0x2E: return ERR_COP2_COMMAND_NOT_FOUND;
+        case 0x2D: return AVSZ3();
+        case 0x2E: return AVSZ4();
         case 0x30: return ERR_COP2_COMMAND_NOT_FOUND;
         case 0x3D: return GPF();
         case 0x3E: return GPL();

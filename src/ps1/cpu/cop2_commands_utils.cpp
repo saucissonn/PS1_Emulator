@@ -23,6 +23,94 @@ int32_t Cop2::saturateIR(int64_t value, uint8_t index, bool lm) {
     return (int32_t)value;
 }
 
+int32_t Cop2::saturateIR0(int64_t value) {
+    const int32_t IR0_MAX = 0x1000;
+    const int32_t IR0_MIN = 0;
+
+    if (value > IR0_MAX) {
+        uint32_t flag = getFLAG();
+        flag |= 1u << 12;
+        setFLAG(flag);
+        return IR0_MAX;
+    }
+
+    if (value < IR0_MIN) {
+        uint32_t flag = getFLAG();
+        flag |= 1u << 12;
+        setFLAG(flag);
+        return IR0_MIN;
+    }
+
+    return (int32_t)(value);
+}
+
+uint16_t Cop2::saturateSZ(int64_t value) {
+    const int64_t SZ_MAX = 0xFFFF;
+    const int64_t SZ_MIN = 0;
+
+    if (value > SZ_MAX) {
+        uint32_t flag = getFLAG();
+        flag |= 1u << 18;
+        setFLAG(flag);
+        return SZ_MAX;
+    }
+
+    if (value < SZ_MIN) {
+        uint32_t flag = getFLAG();
+        flag |= 1u << 18;
+        setFLAG(flag);
+        return SZ_MIN;
+    }
+
+    return (uint16_t)(value);
+}
+
+uint16_t Cop2::saturateOTZ(int64_t value) {
+    return saturateSZ(value);
+}
+
+int32_t Cop2::saturateSX(int64_t value) {
+    const int32_t SX_MAX = 0x3FF;
+    const int32_t SX_MIN = -0x400;
+
+    if (value > SX_MAX) {
+        uint32_t flag = getFLAG();
+        flag |= 1u << 14;
+        setFLAG(flag);
+        return SX_MAX;
+    }
+
+    if (value < SX_MIN) {
+        uint32_t flag = getFLAG();
+        flag |= 1u << 14;
+        setFLAG(flag);
+        return SX_MIN;
+    }
+
+    return (int32_t)(value);
+}
+
+int32_t Cop2::saturateSY(int64_t value) {
+    const int32_t SY_MAX = 0x3FF;
+    const int32_t SY_MIN = -0x400;
+
+    if (value > SY_MAX) {
+        uint32_t flag = getFLAG();
+        flag |= 1u << 13;
+        setFLAG(flag);
+        return SY_MAX;
+    }
+
+    if (value < SY_MIN) {
+        uint32_t flag = getFLAG();
+        flag |= 1u << 13;
+        setFLAG(flag);
+        return SY_MIN;
+    }
+
+    return (int32_t)(value);
+}
+
 void Cop2::checkMAC(int64_t value, uint8_t index) {
     int64_t MAC_MAX = 0x7FFFFFFFFFFLL;
     int64_t MAC_MIN = -0x80000000000LL;
@@ -34,6 +122,19 @@ void Cop2::checkMAC(int64_t value, uint8_t index) {
     }
     else if (value < MAC_MIN) {
         flag |= (1u << (28 - index)); // 27, 26, 25
+    }
+
+    setFLAG(flag);
+}
+
+void Cop2::checkMAC0(int64_t value) {
+    uint32_t flag = getFLAG();
+
+    if (value > INT32_MAX) {
+        flag |= (1u << 16);
+    }
+    else if (value < INT32_MIN) {
+        flag |= (1u << 15);
     }
 
     setFLAG(flag);
@@ -465,8 +566,7 @@ int32_t Cop2::getValueMM(uint8_t y, uint8_t x) {
                 default: return 0;
             }
 
-        }
-		
+        }		
 
         default: return 0;
     }

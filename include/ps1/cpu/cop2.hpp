@@ -261,7 +261,13 @@ class Cop2 {
 		// Commands Utils
 
 		int32_t saturateIR(int64_t value, uint8_t index, bool lm);
+		int32_t saturateIR0(int64_t value);
+		uint16_t saturateSZ(int64_t value);
+		uint16_t saturateOTZ(int64_t value);
+		int32_t saturateSX(int64_t value);
+        int32_t saturateSY(int64_t value);
 		void checkMAC(int64_t value, uint8_t index);
+		void checkMAC0(int64_t value);
 
 		int applyLightMatrix(uint8_t sf);
 		int applyColorMatrix(uint8_t sf);
@@ -277,6 +283,7 @@ class Cop2 {
 
 		// Commands (Sorted by real command)
 
+		int RTPS();
 		int NCLIP();
 		int OP();
 		int DPCS();
@@ -292,6 +299,8 @@ class Cop2 {
 		int SQR();
 		int DCPL();
 		int DPCT();
+		int AVSZ3();
+		int AVSZ4();
 		int GPF();
 		int GPL();
 		int NCCT();
