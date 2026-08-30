@@ -49,7 +49,7 @@ int Ps1::run() {
 	while (1) {
 		uint64_t count = cpu.getInstructionCounter();
 
-		if (count > 82000) {
+		if (count > 81000) {
 			cpu.cpuStatePrint();
 
 			return ERR_OK;

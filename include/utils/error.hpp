@@ -33,6 +33,7 @@ typedef enum {
 	ERR_TIMER0,
     ERR_TIMER1,
     ERR_TIMER2,
+	ERR_NOT_IMPLEMENTED,
 	ERR_INTENTIONAL_STOP
 } Error;
 

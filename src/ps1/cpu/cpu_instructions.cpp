@@ -761,6 +761,8 @@ int Cpu::BGEZ(){
     int32_t offset = signExtend(operand->immediate, 16);
 	int32_t target = offset << 2;
 
+	nextPC = instructionPC + 8; // default
+
 	if ((int)GPR[operand->rs] >= 0)
 		nextPC = instructionPC + 4 + target;
 
@@ -775,6 +777,8 @@ int Cpu::BLTZ(){
     int32_t offset = signExtend(operand->immediate, 16);
 	int32_t target = offset << 2;
 
+	nextPC = instructionPC + 8; // default
+
 	if ((int)GPR[operand->rs] < 0)
 		nextPC = instructionPC + 4 + target;
 
@@ -785,10 +789,12 @@ int Cpu::BLTZ(){
     return ERR_OK;
 }
 int Cpu::SWL(){
+    printf("not supported\n");
     return ERR_OK;
 }
 
 int Cpu::SWR(){
+    printf("not supported\n");
     return ERR_OK;
 }
 
@@ -803,6 +809,7 @@ int Cpu::LWC1(){
 }
 
 int Cpu::LWC2(){
+    printf("not supported\n");
     return ERR_OK;
 }
 
@@ -822,6 +829,7 @@ int Cpu::SWC1(){
 }
 
 int Cpu::SWC2(){
+    printf("not supported\n");
     return ERR_OK;
 }
 

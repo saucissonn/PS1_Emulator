@@ -172,7 +172,7 @@ int Bus::write(uint32_t address, uint32_t value) {
         case Mem::EXPANSION_REGION_2:	return expansion2->write(address, value);
         case Mem::EXPANSION_REGION_3:	return expansion3->write(address, value);
         case Mem::BIOS_ROM:				return ERR_WRITE_NOT_ALLOWED;
-        case Mem::CACHE_CONTROL:		return io->write(address, value);
+        case Mem::CACHE_CONTROL:		return ERR_NOT_IMPLEMENTED; // io->write(address, value);
 
         default:
             if (busError == ERR_BUS_SECTION_NOT_FOUND) { // Convert general error to spesific error

@@ -102,42 +102,52 @@ uint32_t Io::read(uint32_t address) {
 
 int Io::write(uint32_t address, uint32_t value) {	
 	if (0x1F801000 <= address && address <= 0x1F801020) {
+        return ERR_NOT_IMPLEMENTED;
 		return memoryControl1.write(address, value);
 	}
 
 	if (0x1F801040 <= address && address <= 0x1F80105E) {
+        return ERR_NOT_IMPLEMENTED;
 		return peripheralIO.write(address, value);
 	}
 
 	if (address == 0x1F801060) {
+        return ERR_NOT_IMPLEMENTED;
 		return memoryControl2.write(address, value);
 	}
 
     if (0x1F801070 <= address && address <= 0x1F801074) {
+        return ERR_NOT_IMPLEMENTED;
         return interruptController.write(address, value);
 	}
 
 	if (0x1F801080 <= address && address <= 0x1F8010FC) {
+        return ERR_NOT_IMPLEMENTED;
 		return dma.write(address, value);
 	}
 
 	if (0x1F801100 <= address && address <= 0x1F801128) {
+        return ERR_NOT_IMPLEMENTED;
 		return timers.write(address, value);
 	}
 
 	if (0x1F801810 <= address && address <= 0x1F801814) {
+        return ERR_NOT_IMPLEMENTED;
 		return gpu.write(address, value);
 	}
 
 	if (0x1F801820 <= address && address <= 0x1F801824) {
+        return ERR_NOT_IMPLEMENTED;
 		return mdec.write(address, value);
 	}
 
 	if (0x1F801C00 <= address && address <= 0x1F801FFF) {
+        return ERR_NOT_IMPLEMENTED;
 		return spu.write(address, value);
 	}
 
     if (0xFFFE0000 <= address && address <= 0xFFFE01FF) {
+		return ERR_NOT_IMPLEMENTED;
         return memoryControl3.write(address, value);
     }
 
@@ -146,6 +156,7 @@ int Io::write(uint32_t address, uint32_t value) {
 
 int Io::write8Only(uint32_t address, uint8_t value) {
     if (0x1F801800 <= address && address <= 0x1F801803) {
+		return ERR_NOT_IMPLEMENTED;
         return cdrom.write(address, value);
     }
 
