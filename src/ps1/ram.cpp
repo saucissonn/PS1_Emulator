@@ -35,6 +35,8 @@ uint32_t Ram::read(uint32_t address) {
 int Ram::write(uint32_t address, uint32_t value) {
     address &= 0x001FFFFF;
 
+	printf("Local RAM address: %08X, value: %08X\n", address, value);
+
     ram[address] = (uint8_t)(value); // Little endian + 32 bits to 8 bits
     ram[address + 1] = (uint8_t)(value >> 8);
     ram[address + 2] = (uint8_t)(value >> 16);

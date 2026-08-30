@@ -27,10 +27,14 @@ int Cpu::raiseException(Exception exception) { // Some instructions can call exc
     //     // make a function setCauseRegisterCE(coprocessor id)
     // }
 
-    if (cop0.getStatusRegisterBEV() == 0)
+    if (cop0.getStatusRegisterBEV() == 0) {
         nextPC = 0x80000080; // normal exception vector
-    else
+	}
+    else {
         nextPC = 0xBFC00180; // bios exception vector
+	}
+
+	printf("exception handled\n");
 
     return ERR_OK;
 }

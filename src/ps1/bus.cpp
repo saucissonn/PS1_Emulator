@@ -131,13 +131,13 @@ uint32_t Bus::read(uint32_t address) {
     Mem section = getMemoryHardware(physicalAddress);
 
     switch (section) {
-        case Mem::MAIN_RAM:				return ram->read(address);
-        case Mem::EXPANSION_REGION_1:	return expansion1->read(address);
+        case Mem::MAIN_RAM:				return ram->read(address & 0x1FFFFFFF);
+        case Mem::EXPANSION_REGION_1:	return expansion1->read(address & 0x1FFFFFFF);
         case Mem::SCRATCHPAD:			return 0;
-        case Mem::IO_PORTS:				return io->read(address);
-        case Mem::EXPANSION_REGION_2:	return expansion2->read(address);
-        case Mem::EXPANSION_REGION_3:	return expansion3->read(address);
-        case Mem::BIOS_ROM:				return bios->read(address);
+        case Mem::IO_PORTS:				return io->read(address & 0x1FFFFFFF);
+        case Mem::EXPANSION_REGION_2:	return expansion2->read(address & 0x1FFFFFFF);
+        case Mem::EXPANSION_REGION_3:	return expansion3->read(address & 0x1FFFFFFF);
+        case Mem::BIOS_ROM:				return bios->read(address & 0x1FFFFFFF);
         case Mem::CACHE_CONTROL:		return io->read(address);
 
 		default:

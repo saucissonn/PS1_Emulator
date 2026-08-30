@@ -100,6 +100,8 @@ Cpu::Cpu() :
 	DCache = createCache(DCacheSize);
 	ICache = createCache(ICacheSize);
 
+	cpuStateCreate();
+
 	return;
 }
 
@@ -108,6 +110,8 @@ Cpu::~Cpu() {
 	destroyCache(ICache, ICacheSize);
 
 	free(operand);
+
+	cpuStateDestroy();
 
     return;
 }
@@ -132,7 +136,7 @@ uint32_t Cpu::convertAddress(uint32_t virtualAddr) {
 }
 
 int Cpu::executeInstruction() {
-	prevPC = instructionPC;
+    prevPC = instructionPC;
     instructionPC = PC;
 
     uint32_t instruction = fetchPC();
@@ -147,7 +151,7 @@ int Cpu::executeInstruction() {
         inDelaySlot = false;
     }
     else if (inDelaySlot) {
-        PC = PC + 4;
+        PC = instructionPC + 4;
     }
     else {
         PC = nextPC;
