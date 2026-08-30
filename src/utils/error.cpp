@@ -100,6 +100,9 @@ const char *error_string(int err)
         case ERR_TIMER2:
             return "something wrong with timer 2";
 
+		case ERR_NOT_IMPLEMENTED:
+			return "not implemented yet";
+
         case ERR_INTENTIONAL_STOP:
             return "intentional stop";
 

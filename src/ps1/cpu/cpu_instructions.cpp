@@ -34,7 +34,7 @@ int Cpu::ADD() {
 
 	GPR[operand->rd] = (uint32_t)result;
 
-	printf("Value: %8X\n", GPR[operand->rd]);
+	printf("Value: %08X\n", GPR[operand->rd]);
 	printf("CPU instruction ADD done\n");
 
 	return ERR_OK;
@@ -50,7 +50,7 @@ int Cpu::ADDI() {
 
     GPR[operand->rt] = (uint32_t)result;
 
-    printf("Value: %8X\n", GPR[operand->rt]);
+    printf("Value: %08X\n", GPR[operand->rt]);
     printf("CPU instruction ADDI done\n");
 
     return ERR_OK;
@@ -61,7 +61,7 @@ int Cpu::ADDIU() {
 
     GPR[operand->rt] = (uint32_t)result;
 
-    printf("Value: %8X\n", GPR[operand->rt]);
+    printf("Value: %08X\n", GPR[operand->rt]);
     printf("CPU instruction ADDIU done\n");
 
     return ERR_OK;
@@ -72,7 +72,7 @@ int Cpu::ADDU() {
 
     GPR[operand->rd] = (uint32_t)result;
 
-	printf("Value: %8X\n", GPR[operand->rd]);
+	printf("Value: %08X\n", GPR[operand->rd]);
     printf("CPU instruction ADDU done\n");
 
     return ERR_OK;
@@ -81,7 +81,7 @@ int Cpu::ADDU() {
 int Cpu::AND() {
     GPR[operand->rd] = GPR[operand->rs] & GPR[operand->rt];
 
-    printf("Value: %8X\n", GPR[operand->rd]);
+    printf("Value: %08X\n", GPR[operand->rd]);
     printf("CPU instruction AND done\n");
 
     return ERR_OK;
@@ -90,7 +90,7 @@ int Cpu::AND() {
 int Cpu::ANDI() {
     GPR[operand->rt] = (uint32_t)operand->immediate & GPR[operand->rs];
 
-    printf("Value: %8X\n", GPR[operand->rt]);
+    printf("Value: %08X\n", GPR[operand->rt]);
     printf("CPU instruction ANDI done\n");
 
     return ERR_OK;
@@ -100,8 +100,10 @@ int Cpu::BEQ() {
     int32_t offset = signExtend(operand->immediate, 16);
     int32_t target = offset << 2;
 
+	nextPC = instructionPC + 8; // default
+
     if (GPR[operand->rs] == GPR[operand->rt])
-        nextPC = PC + 4 + target;
+        nextPC = instructionPC + 4 + target;
 
     inDelaySlot = 1;
 
@@ -114,13 +116,13 @@ int Cpu::BNE() {
     int32_t offset = signExtend(operand->immediate, 16);
     int32_t target = offset << 2;
 
+	nextPC = instructionPC + 8; // default
 
-    printf("BNE: rs=$%d = %08X, rt=$%d = %08X\n",
-           operand->rs, GPR[operand->rs],
-           operand->rt, GPR[operand->rt]);
+    printf("BNE: rs=$%d = %08X, rt=$%d = %08X\n", operand->rs, GPR[operand->rs], operand->rt, GPR[operand->rt]);
 
-    if (GPR[operand->rs] != GPR[operand->rt])
-        nextPC = PC + 4 + target;
+	if (GPR[operand->rs] != GPR[operand->rt]) {
+	    nextPC = instructionPC + 4 + target;
+	}
 
     inDelaySlot = 1;
 
@@ -139,7 +141,7 @@ int Cpu::DIV(){
     LO = (int32_t)GPR[operand->rs] / (int32_t)GPR[operand->rt];
     HI = (int32_t)GPR[operand->rs] % (int32_t)GPR[operand->rt];
 
-	printf("HI value: %8X, LO value: %8X\n", HI, LO);
+	printf("HI value: %08X, LO value: %08X\n", HI, LO);
     printf("CPU instruction DIV done\n");
 
     return ERR_OK;
@@ -149,7 +151,7 @@ int Cpu::DIVU() {
     LO = GPR[operand->rs] / GPR[operand->rt];
     HI = GPR[operand->rs] % GPR[operand->rt];
 
-    printf("HI value: %8X, LO value: %8X\n", HI, LO);
+    printf("HI value: %08X, LO value: %08X\n", HI, LO);
     printf("CPU instruction DIVU done\n");
 
     return ERR_OK;
@@ -162,7 +164,7 @@ int Cpu::J() {
     nextPC = tempPC | target;
     inDelaySlot = 1;
 
-    printf("Jump to address: %8X\n", nextPC);
+    printf("Jump to address: %08X\n", nextPC);
     printf("CPU instruction J done\n");
 
     return ERR_OK;
@@ -172,12 +174,12 @@ int Cpu::JAL() {
     uint32_t target = operand->target << 2;
     uint32_t tempPC = instructionPC & 0xF0000000;
 
-    GPR[31] = instructionPC + 8;
+    GPR[31] = instructionPC + 4;
 
     nextPC = tempPC | target;
     inDelaySlot = 1;
 
-    printf("Jump to address: %8X\n", nextPC);
+    printf("Jump to address: %08X\n", nextPC);
     printf("CPU instruction JAL done\n");
 
     return ERR_OK;
@@ -187,17 +189,18 @@ int Cpu::JALR() {
     uint32_t target = GPR[operand->rs];
 
     if (target & 0x3) {
+		printf("Target missaligned on address: %08X\n", target);
         cop0.setBadVaddr(target);
         raiseException(Exception::LoadAddressError);
         return ERR_OK;
     }
 
-    GPR[operand->rd] = instructionPC + 8;
+    GPR[operand->rd] = instructionPC + 4;
 
     nextPC = target;
     inDelaySlot = 1;
 
-    printf("Jump to address: %8X\n", nextPC);
+    printf("Jump to address: %08X\n", nextPC);
     printf("CPU instruction JALR done\n");
 
     return ERR_OK;
@@ -215,7 +218,7 @@ int Cpu::JR() {
     nextPC = target;
     inDelaySlot = 1;
 
-    printf("Jump to address: %8X\n", nextPC);
+    printf("Jump to address: %08X\n", nextPC);
     printf("CPU instruction JR done\n");
 
     return ERR_OK;
@@ -224,7 +227,7 @@ int Cpu::JR() {
 int Cpu::LUI() {
 	GPR[operand->rt] = (uint32_t)(operand->immediate << 16);
 
-	printf("Value: %8X\n", GPR[operand->rt]);
+	printf("Value: %08X\n", GPR[operand->rt]);
     printf("CPU instruction LUI done\n");
 
 	return ERR_OK;
@@ -233,7 +236,7 @@ int Cpu::LUI() {
 int Cpu::MFHI() {
     GPR[operand->rd] = HI;
 
-    printf("GPR[%d] value: %8X\n", operand->rd, GPR[operand->rd]);
+    printf("GPR[%d] value: %08X\n", operand->rd, GPR[operand->rd]);
     printf("CPU instruction MFHI done\n");
 
     return ERR_OK;
@@ -242,7 +245,7 @@ int Cpu::MFHI() {
 int Cpu::MTHI() {
     HI = GPR[operand->rs];
 
-    printf("HI value: %8X\n", HI);
+    printf("HI value: %08X\n", HI);
     printf("CPU instruction MTHI done\n");
 
     return ERR_OK;
@@ -251,7 +254,7 @@ int Cpu::MTHI() {
 int Cpu::MFLO() {
     GPR[operand->rd] = LO;
 
-    printf("GPR[%d] value: %8X\n", operand->rd, GPR[operand->rd]);
+    printf("GPR[%d] value: %08X\n", operand->rd, GPR[operand->rd]);
     printf("CPU instruction MFLO done\n");
 
     return ERR_OK;
@@ -260,7 +263,7 @@ int Cpu::MFLO() {
 int Cpu::MTLO() {
     LO = GPR[operand->rs];
 
-    printf("LO value: %8X\n", LO);
+    printf("LO value: %08X\n", LO);
     printf("CPU instruction MTLO done\n");
 
     return ERR_OK;
@@ -272,7 +275,7 @@ int Cpu::MULT() {
     LO = (uint32_t)res;
     HI = (uint32_t)(res >> 32);
 
-    printf("HI value: %8X, LO value: %8X\n", HI, LO );
+    printf("HI value: %08X, LO value: %08X\n", HI, LO );
     printf("CPU instruction MULT done\n");
     return ERR_OK;
 }
@@ -283,7 +286,7 @@ int Cpu::MULTU() {
     LO = (uint32_t)res;
     HI = (uint32_t)(res >> 32);
 
-    printf("HI value: %8X, LO value: %8X\n", HI, LO );
+    printf("HI value: %08X, LO value: %08X\n", HI, LO );
     printf("CPU instruction MULTU done\n");
 
     return ERR_OK;
@@ -298,7 +301,7 @@ int Cpu::NOP() {
 int Cpu::NOR() {
     GPR[operand->rd] = ~(GPR[operand->rs] | GPR[operand->rt]);
 
-    printf("Value: %8X\n", GPR[operand->rd]);
+    printf("Value: %08X\n", GPR[operand->rd]);
     printf("CPU instruction NOR done\n");
 
     return ERR_OK;
@@ -307,7 +310,7 @@ int Cpu::NOR() {
 int Cpu::OR() {
     GPR[operand->rd] = GPR[operand->rs] | GPR[operand->rt];
 
-    printf("Value: %8X\n", GPR[operand->rd]);
+    printf("Value: %08X\n", GPR[operand->rd]);
     printf("CPU instruction OR done\n");
 
     return ERR_OK;
@@ -316,7 +319,7 @@ int Cpu::OR() {
 int Cpu::ORI() {
     GPR[operand->rt] = (uint32_t)operand->immediate | GPR[operand->rs];
 
-    printf("Value: %8X\n", GPR[operand->rt]);
+    printf("Value: %08X\n", GPR[operand->rt]);
     printf("CPU instruction ORI done\n");
 
 	return ERR_OK;
@@ -330,7 +333,7 @@ int Cpu::SLT() {
         GPR[operand->rd] = 0;
     }
 
-    printf("Value: %8X\n", GPR[operand->rd]);
+    printf("Value: %08X\n", GPR[operand->rd]);
     printf("CPU instruction SLT done\n");
 
     return ERR_OK;
@@ -344,7 +347,7 @@ int Cpu::SLTI() {
         GPR[operand->rt] = 0;
 	}
 
-    printf("Value: %8X\n", GPR[operand->rt]);
+    printf("Value: %08X\n", GPR[operand->rt]);
     printf("CPU instruction SLTI done\n");
 
     return ERR_OK;
@@ -360,7 +363,7 @@ int Cpu::SLTIU() {
         GPR[operand->rt] = 0;
     }
 
-    printf("Value: %8X\n", GPR[operand->rt]);
+    printf("Value: %08X\n", GPR[operand->rt]);
     printf("CPU instruction SLTIU done\n");
 
     return ERR_OK;
@@ -374,7 +377,7 @@ int Cpu::SLTU() {
         GPR[operand->rd] = 0;
     }
 
-    printf("Value: %8X\n", GPR[operand->rd]);
+    printf("Value: %08X\n", GPR[operand->rd]);
     printf("CPU instruction SLTU done\n");
 
     return ERR_OK;
@@ -383,7 +386,7 @@ int Cpu::SLTU() {
 int Cpu::SLL() {
     GPR[operand->rd] = (uint32_t)(GPR[operand->rt] << operand->shamt);
 
-    printf("Value: %8X\n", GPR[operand->rd]);
+    printf("Value: %08X\n", GPR[operand->rd]);
     printf("CPU instruction SLL done\n");
 
     return ERR_OK;
@@ -392,7 +395,7 @@ int Cpu::SLL() {
 int Cpu::SLLV() {
     GPR[operand->rd] = (uint32_t)(GPR[operand->rt] << (GPR[operand->rs] & 0x1F));
 
-    printf("Value: %8X\n", GPR[operand->rd]);
+    printf("Value: %08X\n", GPR[operand->rd]);
     printf("CPU instruction SLLV done\n");
 
     return ERR_OK;
@@ -403,7 +406,7 @@ int Cpu::SRA() {
 
     GPR[operand->rd] = (uint32_t)(value >> operand->shamt);
 
-    printf("Value: %8X\n", GPR[operand->rd]);
+    printf("Value: %08X\n", GPR[operand->rd]);
     printf("CPU instruction SRA done\n");
 
     return ERR_OK;
@@ -415,7 +418,7 @@ int Cpu::SRAV() {
 
     GPR[operand->rd] = (uint32_t)(value >> shift);
 
-    printf("Value: %8X\n", GPR[operand->rd]);
+    printf("Value: %08X\n", GPR[operand->rd]);
     printf("CPU instruction SRAV done\n");
 
     return ERR_OK;
@@ -424,7 +427,7 @@ int Cpu::SRAV() {
 int Cpu::SRL() {
     GPR[operand->rd] = (uint32_t)(GPR[operand->rt] >> operand->shamt);
 
-    printf("Value: %8X\n", GPR[operand->rd]);
+    printf("Value: %08X\n", GPR[operand->rd]);
     printf("CPU instruction SRL done\n");
 
     return ERR_OK;
@@ -433,7 +436,7 @@ int Cpu::SRL() {
 int Cpu::SRLV() {
     GPR[operand->rd] = (uint32_t)(GPR[operand->rt] >> (GPR[operand->rs] & 0x1F));
 
-    printf("Value: %8X\n", GPR[operand->rd]);
+    printf("Value: %08X\n", GPR[operand->rd]);
     printf("CPU instruction SRLV done\n");
 
     return ERR_OK;
@@ -442,7 +445,7 @@ int Cpu::SRLV() {
 int Cpu::SUB() {
     GPR[operand->rd] = (int)GPR[operand->rs] - (int)GPR[operand->rt];
 
-    printf("GPR[%d] value : %8X\n", operand->rd, GPR[operand->rd]);
+    printf("GPR[%d] value : %08X\n", operand->rd, GPR[operand->rd]);
     printf("CPU instruction SUB done\n");
     return ERR_OK;
 }
@@ -452,7 +455,7 @@ int Cpu::SUBU() {
 
     GPR[operand->rd] = (uint32_t)result;
 
-    printf("Value: %8X\n", GPR[operand->rd]);
+    printf("Value: %08X\n", GPR[operand->rd]);
     printf("CPU instruction SUBU done\n");
 
     return ERR_OK;
@@ -475,7 +478,7 @@ int Cpu::SW() {
         return handleErrorOnRW(error, address);
     }
 
-	printf("Address: %8X\n", address);
+	printf("Address: %08X\n", address);
     printf("CPU instruction SW done\n");
 
     return ERR_OK;
@@ -490,7 +493,7 @@ int Cpu::SYSCALL() {
 int Cpu::XOR() {
     GPR[operand->rd] = GPR[operand->rs] ^ GPR[operand->rt];
 
-    printf("Value: %8X\n", GPR[operand->rd]);
+    printf("Value: %08X\n", GPR[operand->rd]);
     printf("CPU instruction XOR done\n");
 
     return ERR_OK;
@@ -499,7 +502,7 @@ int Cpu::XOR() {
 int Cpu::XORI() {
     GPR[operand->rt] = (uint32_t)operand->immediate ^ GPR[operand->rs];
 
-    printf("Value: %8X\n", GPR[operand->rt]);
+    printf("Value: %08X\n", GPR[operand->rt]);
     printf("CPU instruction XORI done\n");
 
     return ERR_OK;
@@ -509,8 +512,10 @@ int Cpu::BLEZ(){
     int32_t offset = signExtend(operand->immediate, 16);
 	int32_t target = offset << 2;
 
+	nextPC = instructionPC + 8; // default
+
 	if ((int)GPR[operand->rs] <= 0)
-		nextPC = PC + target;
+		nextPC = instructionPC + 4 + target;
 
 	inDelaySlot = 1;
 
@@ -523,8 +528,10 @@ int Cpu::BGTZ(){
     int32_t offset = signExtend(operand->immediate, 16);
 	int32_t target = offset << 2;
 
+	nextPC = instructionPC + 8; // default
+
 	if ((int)GPR[operand->rs] > 0)
-		nextPC = PC + target;
+		nextPC = instructionPC + 4 + target;
 
 	inDelaySlot = 1;
 
@@ -537,9 +544,11 @@ int Cpu::BLTZAL(){
     int32_t offset = signExtend(operand->immediate, 16);
 	int32_t target = offset << 2;
 
+	nextPC = instructionPC + 8; // default
+
+	GPR[31] = instructionPC + 4;
 	if ((int)GPR[operand->rs] < 0)
-		nextPC = PC + target;
-	GPR[31] = nextPC;
+		nextPC = instructionPC + 4 + target;
 
 	inDelaySlot = 1;
 
@@ -552,9 +561,11 @@ int Cpu::BGEZAL(){
     int32_t offset = signExtend(operand->immediate, 16);
 	int32_t target = offset << 2;
 
+	nextPC = instructionPC + 8; // default
+
+	GPR[31] = instructionPC + 4;
 	if ((int)GPR[operand->rs] >= 0)
-		nextPC = PC + target;
-	GPR[31] = nextPC;
+		nextPC = instructionPC + 4 + target;
 
 	inDelaySlot = 1;
 
@@ -582,7 +593,7 @@ int Cpu::LB(){
         case 3: GPR[operand->rt] = signExtend((temp >> 24) & 0xFF, 8); break;
     }
 
-    printf("%8X loaded from address %8X to register %8X\n", GPR[operand->rt], address, operand->rt);
+    printf("%08X loaded from address %08X to register %08X\n", GPR[operand->rt], address, operand->rt);
     printf("CPU instruction LB done\n");
 
     return ERR_OK;
@@ -611,7 +622,7 @@ int Cpu::LH(){
 		default: return ERR_READ_ADDRESS_NOT_ALIGNED;
     }
 
-    printf("%8X loaded from address %8X to register %8X\n", (int)GPR[operand->rt], address, operand->rt);
+    printf("%08X loaded from address %08X to register %08X\n", (int)GPR[operand->rt], address, operand->rt);
     printf("CPU instruction LH done\n");
 
     return ERR_OK;
@@ -703,7 +714,7 @@ int Cpu::LW(){
 
 	GPR[operand->rt] = value;
 
-	printf("%8X loaded from address %8X to register %8X\n", GPR[operand->rt], address, operand->rt);
+	printf("%08X loaded from address %08X to register %08X\n", GPR[operand->rt], address, operand->rt);
     printf("CPU instruction LW done\n");
 
 	return ERR_OK;
@@ -728,7 +739,7 @@ int Cpu::LBU(){
         case 3: GPR[operand->rt] = (temp >> 24) & 0xFF; break;
     }
 
-    printf("%8X loaded from address %8X to register %8X\n", GPR[operand->rt], address, operand->rt);
+    printf("%08X loaded from address %08X to register %08X\n", GPR[operand->rt], address, operand->rt);
     printf("CPU instruction LBU done\n");
 
     return ERR_OK;
@@ -758,7 +769,7 @@ int Cpu::LHU(){
 		default: return ERR_READ_ADDRESS_NOT_ALIGNED;
     }
 
-    printf("%8X loaded from address %8X to register %8X\n", GPR[operand->rt], address, operand->rt);
+    printf("%08X loaded from address %08X to register %08X\n", GPR[operand->rt], address, operand->rt);
     printf("CPU instruction LHU done\n");
 
     return ERR_OK;
@@ -775,7 +786,7 @@ int Cpu::SB() {
 		return handleErrorOnRW(error, address);
 	}
 
-    printf("%8X written to %8X\n", GPR[operand->rt] & 0xFF, address);
+    printf("%08X written to %08X\n", GPR[operand->rt] & 0xFF, address);
 
     printf("CPU instruction SB done\n");
 
@@ -799,7 +810,7 @@ int Cpu::SH(){
         return handleErrorOnRW(error, address);
     }
 
-    printf("%8X written to %8X\n", GPR[operand->rt] & 0xFFFF, address);
+    printf("%08X written to %08X\n", GPR[operand->rt] & 0xFFFF, address);
     printf("CPU instruction SH done\n");
 
     return ERR_OK;
@@ -809,8 +820,10 @@ int Cpu::BGEZ(){
     int32_t offset = signExtend(operand->immediate, 16);
 	int32_t target = offset << 2;
 
+	nextPC = instructionPC + 8; // default
+
 	if ((int)GPR[operand->rs] >= 0)
-		nextPC = PC + target;
+		nextPC = instructionPC + 4 + target;
 
 	inDelaySlot = 1;
 
@@ -823,8 +836,10 @@ int Cpu::BLTZ(){
     int32_t offset = signExtend(operand->immediate, 16);
 	int32_t target = offset << 2;
 
+	nextPC = instructionPC + 8; // default
+
 	if ((int)GPR[operand->rs] < 0)
-		nextPC = PC + target;
+		nextPC = instructionPC + 4 + target;
 
 	inDelaySlot = 1;
 
@@ -906,6 +921,7 @@ int Cpu::LWC1(){
 }
 
 int Cpu::LWC2(){
+    printf("not supported\n");
     return ERR_OK;
 }
 
@@ -925,6 +941,7 @@ int Cpu::SWC1(){
 }
 
 int Cpu::SWC2(){
+    printf("not supported\n");
     return ERR_OK;
 }
 
@@ -967,12 +984,15 @@ void Cpu::transfromJType(uint32_t instruction) { // Put R-Type instruction into 
 
 int Cpu::decodeInstruction(uint32_t instruction) { // From an instruction find and execute it among instruction functions
 printf("PC=%08X nextPC=%08X prevPC=%08X delay=%d\n", PC, nextPC, prevPC, inDelaySlot);
-	printf("Instruction: %8X\n", instruction);
+	printf("Instruction: %08X\n", instruction);
 	uint8_t opcode = instruction >> 26; // 6 bits
+
+	cpuStateUpdate(instruction);
 
 	printf("Opcode: %2X\n", opcode);
 
 	transfromIType(instruction); // most of the instructions are Itype
+
 	switch (opcode) {
 		case 0x00: { // R-Type
 			uint8_t funct = instruction & 0x3F; // 6 bits
@@ -1050,7 +1070,7 @@ printf("PC=%08X nextPC=%08X prevPC=%08X delay=%d\n", PC, nextPC, prevPC, inDelay
 		case 0x0F: return LUI();
 		case 0x06: return BLEZ();
 		case 0x07: return BGTZ();
-//		case 0x20: return LB();
+		case 0x20: return LB();
 //		case 0x21: return LH();
 //		case 0x22: return LWL();
 		case 0x23: return LW();
@@ -1059,7 +1079,7 @@ printf("PC=%08X nextPC=%08X prevPC=%08X delay=%d\n", PC, nextPC, prevPC, inDelay
 //		case 0x26: return LWR();
 		case 0x28: return SB();
 		case 0x29: return SH();
-		case 0x2A: return SWL();
+//		case 0x2A: return SWL();
 		case 0x2B: return SW();
 //		case 0x2E: return SWR();
 //		case 0x30: return LWC0();

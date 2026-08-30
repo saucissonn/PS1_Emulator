@@ -27,6 +27,13 @@ enum class Exception
     ArithmeticOverflow = 12,
 };
 
+typedef struct { // Update at each modification
+	char *instructionName;
+	uint64_t step; // instructionCounter where the modification occured
+	uint32_t oldValue;
+	uint32_t value;
+} RegisterState;
+
 class Bus;
 class Cop0;
 class Cop2;
@@ -68,6 +75,18 @@ class Cpu {
 
 		uint64_t getInstructionCounter();
 		uint32_t getInstructionPC();
+
+		// Debugging
+
+		RegisterState **registerState;
+
+		int cpuStateCreate();
+		void cpuStateDestroy();		
+		void cpuStateUpdate(uint32_t instruction);
+		void printRegisterState(int index);
+		void cpuStatePrint();
+		const char *instructionToChar(uint32_t instruction);
+		
 
 	private:
 		Bus *bus;

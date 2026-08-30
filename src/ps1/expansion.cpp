@@ -1,4 +1,6 @@
 #include "ps1/expansion.hpp"
+
+#include <stdio.h>
 #include <algorithm>
 
 #include "utils/error.hpp"
@@ -19,6 +21,8 @@ ExpansionRegion1::~ExpansionRegion1() {
 uint32_t ExpansionRegion1::read(uint32_t address) {
     if (0x1F000000 <= address && address <= 0x1F07FFFF) {
         address -= 0x1F000000;
+
+		printf("Local expansion region1 address: %08X\n", address);
 
 		uint32_t result = (uint32_t)data[address];
 		result |= (uint32_t)data[address + 1] << 8;

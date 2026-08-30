@@ -13,6 +13,9 @@ $(TARGET): $(OBJ)
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
+run:
+	./program > run.log 2>&1
+
 clean:
 	rm -f $(OBJ) $(TARGET)
 
