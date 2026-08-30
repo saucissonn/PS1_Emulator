@@ -103,7 +103,7 @@ Mem Bus::getMemoryHardware(uint32_t physicalAddr) {
     else if (0x1FC00000 <= physicalAddr && physicalAddr <= 0x1FC7FFFF)
 		return Mem::BIOS_ROM;
 
-    else if (0xFFFE0000 <= physicalAddr && physicalAddr <= 0xFFFE01FF) 
+    else if (0xFFFE0000 <= physicalAddr && physicalAddr <= 0xFFFE01FF)
 		return Mem::CACHE_CONTROL;
 
     else if ((0x1FC80000 <= physicalAddr && physicalAddr <= 0xFFFDFFFF) || 0xFFFE0200 <= physicalAddr) {
@@ -196,12 +196,12 @@ int Bus::write16(uint32_t address, uint16_t value){ // address is a multiple of 
     }
 
     if (miniOffset == 0){
-        temp &= 0x0000FFFF;
-        temp |= value << 16;
-    }
-    else if (miniOffset == 2){
         temp &= 0xFFFF0000;
         temp |= value;
+    }
+    else if (miniOffset == 2){
+        temp &= 0x0000FFFF;
+        temp |= value << 16;
     }
     else {
         printf("Error: write16, the address %08X is not a multiple of 2\n", address);
@@ -240,20 +240,20 @@ int Bus::write8(uint32_t address, uint8_t value) { // Address is any number
 
     switch(miniOffset) {
         case 0 :
-            temp &= 0x00FFFFFF;
-            temp |= value << 24;
+            temp &= 0xFFFFFF00;
+            temp |= value;
             break;
         case 1 :
-            temp &= 0xFF00FFFF;
-            temp |= value << 16;
-            break;
-        case 2 :
             temp &= 0xFFFF00FF;
             temp |= value << 8;
             break;
+        case 2 :
+            temp &= 0xFF00FFFF;
+            temp |= value << 16;
+            break;
         case 3 :
-            temp &= 0xFFFFFF00;
-            temp |= value;
+            temp &= 0x00FFFFFF;
+            temp |= value << 24;
             break;
     }
 
