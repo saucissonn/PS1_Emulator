@@ -459,7 +459,7 @@ int Cpu::SUBU() {
 }
 
 int Cpu::SW() {
-    int32_t address = signExtend(operand->immediate, 16) + GPR[operand->rs];
+    int32_t address = signExtend(operand->immediate, 16) + GPR[operand->rs]; // multiple of 4
 
     if (address & 3) {
         cop0.setBadVaddr(address);
@@ -471,7 +471,7 @@ int Cpu::SW() {
 
     int error = bus->getBusError();
 
-    if (error != ERR_OK) { 
+    if (error != ERR_OK) {
         return handleErrorOnRW(error, address);
     }
 
@@ -565,12 +565,12 @@ int Cpu::BGEZAL(){
 
 int Cpu::LB(){
     uint32_t address = GPR[operand->rs] + signExtend(operand->immediate, 16); // any number
-    int miniOffset = address % 4;
+    int miniOffset = address & 3;
     uint32_t temp = bus->read(address - miniOffset); // multiple of 4
 
     int error = bus->getBusError();
 
-	if (error != ERR_OK) { 
+	if (error != ERR_OK) {
         return handleErrorOnRW(error, address);
     }
 
@@ -596,16 +596,15 @@ int Cpu::LH(){
         return raiseException(Exception::LoadAddressError);
     }
 
-    int miniOffset = address % 4;
+    int miniOffset = address & 3;
     uint32_t temp = bus->read(address - miniOffset) ; // multiple of 4
 
     int error = bus->getBusError();
 
-    if (error != ERR_OK) { 
+    if (error != ERR_OK) {
         return handleErrorOnRW(error, address);
     }
 
-    // reversed because of little endian
     switch(miniOffset){
         case 0: GPR[operand->rt] = signExtend(temp & 0xFFFF, 16); break;
         case 2: GPR[operand->rt] = signExtend(temp >> 16, 16); break;
@@ -619,10 +618,70 @@ int Cpu::LH(){
 }
 
 int Cpu::LWL(){
+    uint32_t address = GPR[operand->rs] + signExtend(operand->immediate, 16); // any number
+    int miniOffset = address & 3;
+    uint32_t temp = bus->read(address - miniOffset); // multiple of 4
+
+    int error = bus->getBusError();
+
+	if (error != ERR_OK) {
+        return handleErrorOnRW(error, address);
+    }
+
+    switch (miniOffset){
+        case 0:
+            GPR[operand->rt] = temp;
+            break;
+        case 1:
+            GPR[operand->rt] &= 0x000000FF;
+            GPR[operand->rt] |= temp << 8;
+            break;
+        case 2:
+            GPR[operand->rt] &= 0x0000FFFF;
+            GPR[operand->rt] |= temp << 16;
+            break;
+        case 3:
+            GPR[operand->rt] &= 0x00FFFFFF;
+            GPR[operand->rt] |= temp << 24;
+            break;
+    }
+
+    printf("CPU instruction LWL done\n");
+
     return ERR_OK;
 }
 
 int Cpu::LWR(){
+    uint32_t address = GPR[operand->rs] + signExtend(operand->immediate, 16); // any number
+    int miniOffset = address & 3;
+    uint32_t temp = bus->read(address - miniOffset); // multiple of 4
+
+    int error = bus->getBusError();
+
+	if (error != ERR_OK) {
+        return handleErrorOnRW(error, address);
+    }
+
+    switch (miniOffset){
+        case 0:
+            GPR[operand->rt] = temp;
+            break;
+        case 1:
+            GPR[operand->rt] &= 0xFF000000;
+            GPR[operand->rt] |= temp & 0x00FFFFFF;
+            break;
+        case 2:
+            GPR[operand->rt] &= 0xFFFF0000;
+            GPR[operand->rt] |= temp & 0x0000FFFF;
+            break;
+        case 3:
+            GPR[operand->rt] &= 0xFFFFFF00;
+            GPR[operand->rt] |= temp & 0x000000FF;
+            break;
+    }
+
+    printf("CPU instruction LWR done\n");
+
     return ERR_OK;
 }
 
@@ -638,7 +697,7 @@ int Cpu::LW(){
 
     int error = bus->getBusError();
 
-    if (error != ERR_OK) { 
+    if (error != ERR_OK) {
         return handleErrorOnRW(error, address);
     }
 
@@ -652,12 +711,12 @@ int Cpu::LW(){
 
 int Cpu::LBU(){
     uint32_t address = GPR[operand->rs] + signExtend(operand->immediate, 16); // any number
-    int miniOffset = address % 4;
+    int miniOffset = address & 3;
     uint32_t temp = bus->read(address - miniOffset); // multiple of 4
 
     int error = bus->getBusError();
 
-    if (error != ERR_OK) { 
+    if (error != ERR_OK) {
         return handleErrorOnRW(error, address);
     }
 
@@ -683,12 +742,12 @@ int Cpu::LHU(){
         return raiseException(Exception::LoadAddressError);
     }
 
-    int miniOffset = address % 4;
+    int miniOffset = address & 3;
     uint32_t temp = bus->read(address - miniOffset) ; // multiple of 4
 
     int error = bus->getBusError();
 
-    if (error != ERR_OK) { 
+    if (error != ERR_OK) {
         return handleErrorOnRW(error, address);
     }
 
@@ -726,7 +785,7 @@ int Cpu::SB() {
 int Cpu::SH(){
     uint32_t address = GPR[operand->rs] + signExtend(operand->immediate, 16); // multiple of 2
 
-    if (address % 2 != 0){
+    if (address & 1 != 0){
         bus->setBusError(ERR_OK);
         cop0.setBadVaddr(address);
         return raiseException(Exception::StoreAddressError);
@@ -736,7 +795,7 @@ int Cpu::SH(){
 
     int error = bus->getBusError();
 
-    if (error != ERR_OK) { 
+    if (error != ERR_OK) {
         return handleErrorOnRW(error, address);
     }
 
@@ -773,11 +832,66 @@ int Cpu::BLTZ(){
 
     return ERR_OK;
 }
+
 int Cpu::SWL(){
+    uint32_t address = GPR[operand->rs] + signExtend(operand->immediate, 16); // any number
+    int minioffset = address & 3;
+    switch (minioffset){
+        case 0:
+            bus->write8(address, GPR[operand->rt] >> 24);
+            break;
+        case 1:
+            bus->write16(address - 1, GPR[operand->rt] >> 16);
+            break;
+        case 2:
+            bus->write8(address, GPR[operand->rt] >> 24);
+            bus->write8(address - 1, GPR[operand->rt] >> 16);
+            bus->write8(address - 2, GPR[operand->rt] >> 8);
+            break;
+        case 3:
+            bus->write(address - 3, GPR[operand->rt]);
+            break;
+    }
+
+    int error = bus->getBusError();
+
+    if (error != ERR_OK) {
+        return handleErrorOnRW(error, address);
+    }
+
+    printf("CPU instruction SWL done\n");
+
     return ERR_OK;
 }
 
 int Cpu::SWR(){
+    uint32_t address = GPR[operand->rs] + signExtend(operand->immediate, 16); // any number
+    int minioffset = address & 3;
+    switch (minioffset){
+        case 0:
+            bus->write(address, GPR[operand->rt]);
+            break;
+        case 1:
+            bus->write8(address, GPR[operand->rt]);
+            bus->write8(address + 1, GPR[operand->rt] >> 8);
+            bus->write8(address + 2, GPR[operand->rt] >> 16);
+            break;
+        case 2:
+            bus->write16(address, GPR[operand->rt]);
+            break;
+        case 3:
+            bus->write8(address, GPR[operand->rt]);
+            break;
+    }
+
+    int error = bus->getBusError();
+
+    if (error != ERR_OK) {
+        return handleErrorOnRW(error, address);
+    }
+
+    printf("CPU instruction SWR done\n");
+
     return ERR_OK;
 }
 
