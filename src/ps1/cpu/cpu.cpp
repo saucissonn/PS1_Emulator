@@ -37,6 +37,9 @@ int Cpu::setTimers(Timers *timers_) {
     return ERR_OK;
 }
 
+Cop0 *Cpu::getCop0() {
+	return &cop0;
+}
 
 CacheLine *createCacheLine() {
 	CacheLine *cacheLine = (CacheLine *)malloc(sizeof(CacheLine));

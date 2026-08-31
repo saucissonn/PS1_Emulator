@@ -1,7 +1,9 @@
 #pragma once
 
 #include "ps1/io/gpu/gpu.hpp"
-#include "ps1/io/memory_control.hpp"
+#include "ps1/io/memory_control/memory_control1.hpp"
+#include "ps1/io/memory_control/memory_control2.hpp"
+#include "ps1/io/memory_control/memory_control3.hpp"
 #include "ps1/io/peripheral_io.hpp"
 #include "ps1/io/interrupt_controller.hpp"
 #include "ps1/io/dma.hpp"
@@ -28,6 +30,7 @@ class Io {
 		int run();
 
 		InterruptController *getInterruptController();
+		MemoryControl3* getMemoryControl3();
 		Timers *getTimers();
 
 	private:

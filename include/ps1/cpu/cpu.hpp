@@ -49,6 +49,8 @@ class Cpu {
 		int setInterruptController(InterruptController *interruptController_);
 		int setTimers(Timers *timers_);
 
+		Cop0 *getCop0();
+
         uint32_t convertAddress(uint32_t address); // From virtual to physical address
         uint32_t useCache(uint32_t address, CacheLine **cache); // Output is an instruction
 

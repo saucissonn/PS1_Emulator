@@ -82,29 +82,39 @@ Bus::~Bus() {
 Mem Bus::getMemoryHardware(uint32_t physicalAddr) {
 	//printf("physical address: %08X\n", physicalAddr);
 
-    if (physicalAddr <= 0x001FFFFF)
+    if (physicalAddr <= 0x007FFFFF) {
 		return Mem::MAIN_RAM;
+	}
 
-    else if (0x1F000000 <= physicalAddr && physicalAddr <= 0x1F7FFFFF && (expansion1->getConnected() == 1))
+    else if (0x1F000000 <= physicalAddr && physicalAddr <= 0x1F7FFFFF && (expansion1->getConnected() == 1)) {
 		return Mem::EXPANSION_REGION_1;
+	}
 
-    else if (0x1F800000 <= physicalAddr && physicalAddr <= 0x1F8003FF && 0 == 67) // Always false on purpose
+    else if (0x1F800000 <= physicalAddr && physicalAddr <= 0x1F8003FF) {
+		busError = ERR_NOT_IMPLEMENTED;
 		return Mem::SCRATCHPAD;
+	}
 
-    else if (0x1F801000 <= physicalAddr && physicalAddr <= 0x1F801FFF)
+    else if (0x1F801000 <= physicalAddr && physicalAddr <= 0x1F801FFF) {
 		return Mem::IO_PORTS;
+	}
 
-    else if (0x1F802000 <= physicalAddr && physicalAddr <= 0x1F803FFF && (expansion2->getConnected() == 1))
+    else if (0x1F802000 <= physicalAddr && physicalAddr <= 0x1F803FFF && (expansion2->getConnected() == 1)) {
 		return Mem::EXPANSION_REGION_2;
+	}
 
-    else if (0x1FA00000 <= physicalAddr && physicalAddr <= 0x1FBFFFFF && (expansion3->getConnected() == 1))
+    else if (0x1FA00000 <= physicalAddr && physicalAddr <= 0x1FBFFFFF && (expansion3->getConnected() == 1)) {
 		return Mem::EXPANSION_REGION_3;
+	}
 
-    else if (0x1FC00000 <= physicalAddr && physicalAddr <= 0x1FC7FFFF)
+    else if (0x1FC00000 <= physicalAddr && physicalAddr <= 0x1FC7FFFF) {
 		return Mem::BIOS_ROM;
+	}
 
-    else if (0xFFFE0000 <= physicalAddr && physicalAddr <= 0xFFFE01FF)
+    else if (0xFFFE0000 <= physicalAddr && physicalAddr <= 0xFFFE01FF) {
+        // busError = ERR_NOT_IMPLEMENTED;
 		return Mem::CACHE_CONTROL;
+	}
 
     else if ((0x1FC80000 <= physicalAddr && physicalAddr <= 0xFFFDFFFF) || 0xFFFE0200 <= physicalAddr) {
         printf("Error: getMemoryHardware, the physical address given (%08X) doesn't match any existing component\n", physicalAddr);
@@ -131,13 +141,13 @@ uint32_t Bus::read(uint32_t address) {
     Mem section = getMemoryHardware(physicalAddress);
 
     switch (section) {
-        case Mem::MAIN_RAM:				return ram->read(address & 0x1FFFFFFF);
-        case Mem::EXPANSION_REGION_1:	return expansion1->read(address & 0x1FFFFFFF);
-        case Mem::SCRATCHPAD:			return 0;
-        case Mem::IO_PORTS:				return io->read(address & 0x1FFFFFFF);
-        case Mem::EXPANSION_REGION_2:	return expansion2->read(address & 0x1FFFFFFF);
-        case Mem::EXPANSION_REGION_3:	return expansion3->read(address & 0x1FFFFFFF);
-        case Mem::BIOS_ROM:				return bios->read(address & 0x1FFFFFFF);
+        case Mem::MAIN_RAM:				return ram->read(address);
+        case Mem::EXPANSION_REGION_1:	return expansion1->read(address);
+        case Mem::SCRATCHPAD:			return ram->read(address);
+        case Mem::IO_PORTS:				return io->read(address);
+        case Mem::EXPANSION_REGION_2:	return expansion2->read(address);
+        case Mem::EXPANSION_REGION_3:	return expansion3->read(address);
+        case Mem::BIOS_ROM:				return bios->read(address);
         case Mem::CACHE_CONTROL:		return io->read(address);
 
 		default:
@@ -167,12 +177,12 @@ int Bus::write(uint32_t address, uint32_t value) {
     switch (section) {
         case Mem::MAIN_RAM:				return ram->write(address, value);
         case Mem::EXPANSION_REGION_1:	return expansion1->write(address, value);
-        case Mem::SCRATCHPAD:			return ERR_WRITE_SECTION_NOT_FOUND;
+        case Mem::SCRATCHPAD:			return ram->write(address, value);
         case Mem::IO_PORTS:				return io->write(address, value);
         case Mem::EXPANSION_REGION_2:	return expansion2->write(address, value);
         case Mem::EXPANSION_REGION_3:	return expansion3->write(address, value);
         case Mem::BIOS_ROM:				return ERR_WRITE_NOT_ALLOWED;
-        case Mem::CACHE_CONTROL:		return ERR_NOT_IMPLEMENTED; // io->write(address, value);
+        case Mem::CACHE_CONTROL:		return io->write(address, value);
 
         default:
             if (busError == ERR_BUS_SECTION_NOT_FOUND) { // Convert general error to spesific error
@@ -266,4 +276,17 @@ int Bus::getBusError() {
 
 void Bus::setBusError(int value) {
 	busError = value;
+}
+
+uint8_t Bus::getSegment(uint32_t address) {
+    if (address < 0x80000000)
+        return KUSEG;
+
+    if (address < 0xA0000000)
+        return KSEG0;
+
+    if (address < 0xC0000000)
+        return KSEG1;
+
+    return KSEG2;
 }

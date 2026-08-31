@@ -41,15 +41,25 @@ int Cpu::raiseException(Exception exception) { // Some instructions can call exc
 
 bool Cpu::errorRaiseException(int error) {
 	switch (error) {
-		case ERR_WRITE_SECTION_NOT_CONNECTED: return false;
-		case ERR_READ_SECTION_NOT_CONNECTED: return false;
-		case ERR_BUS_SECTION_NOT_CONNECTED: return false;
+		case ERR_WRITE_SECTION_NOT_CONNECTED: 
+			bus->setBusError(ERR_OK);
+			return false;
+		case ERR_READ_SECTION_NOT_CONNECTED:
+			bus->setBusError(ERR_OK);
+			return false;
+		case ERR_BUS_SECTION_NOT_CONNECTED:
+			bus->setBusError(ERR_OK);
+			return false;
 	}
 	return true;
 }
 
 int Cpu::handleErrorOnRW(int error, uint32_t address) {
     if (error != ERR_OK) { 
+		if (error == ERR_NOT_IMPLEMENTED) {
+			return ERR_NOT_IMPLEMENTED;
+		}
+
         bus->setBusError(ERR_OK);
 
         if (errorRaiseException(error)) {

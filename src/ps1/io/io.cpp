@@ -102,7 +102,6 @@ uint32_t Io::read(uint32_t address) {
 
 int Io::write(uint32_t address, uint32_t value) {	
 	if (0x1F801000 <= address && address <= 0x1F801020) {
-        return ERR_NOT_IMPLEMENTED;
 		return memoryControl1.write(address, value);
 	}
 
@@ -112,7 +111,6 @@ int Io::write(uint32_t address, uint32_t value) {
 	}
 
 	if (address == 0x1F801060) {
-        return ERR_NOT_IMPLEMENTED;
 		return memoryControl2.write(address, value);
 	}
 
@@ -147,8 +145,7 @@ int Io::write(uint32_t address, uint32_t value) {
 	}
 
     if (0xFFFE0000 <= address && address <= 0xFFFE01FF) {
-		return ERR_NOT_IMPLEMENTED;
-        return memoryControl3.write(address, value);
+		return memoryControl3.write(address, value);
     }
 
 	return ERR_WRITE_SECTION_NOT_FOUND;
@@ -169,6 +166,10 @@ int Io::dmaRun() {
 
 InterruptController* Io::getInterruptController() {
     return &interruptController;
+}
+
+MemoryControl3* Io::getMemoryControl3() {
+    return &memoryControl3;
 }
 
 Timers *Io::getTimers() {

@@ -470,15 +470,19 @@ int Cpu::SW() {
         return ERR_OK;
     }
 
-	bus->write(address, GPR[operand->rt]);
+	int error = bus->write(address, GPR[operand->rt]);
 
-    int error = bus->getBusError();
-
-    if (error != ERR_OK) {
+    if (errorRaiseException(error)) {
         return handleErrorOnRW(error, address);
     }
 
-	printf("Address: %08X\n", address);
+    error = bus->getBusError();
+
+    if (errorRaiseException(error)) {
+        return handleErrorOnRW(error, address);
+    }
+
+	printf("Address: %08X, value: %08X\n", address, GPR[operand->rt]);
     printf("CPU instruction SW done\n");
 
     return ERR_OK;
@@ -581,7 +585,7 @@ int Cpu::LB(){
 
     int error = bus->getBusError();
 
-	if (error != ERR_OK) {
+	if (errorRaiseException(error)) {
         return handleErrorOnRW(error, address);
     }
 
@@ -612,7 +616,7 @@ int Cpu::LH(){
 
     int error = bus->getBusError();
 
-    if (error != ERR_OK) {
+    if (errorRaiseException(error)) {
         return handleErrorOnRW(error, address);
     }
 
@@ -635,7 +639,7 @@ int Cpu::LWL(){
 
     int error = bus->getBusError();
 
-	if (error != ERR_OK) {
+	if (errorRaiseException(error)) {
         return handleErrorOnRW(error, address);
     }
 
@@ -669,7 +673,7 @@ int Cpu::LWR(){
 
     int error = bus->getBusError();
 
-	if (error != ERR_OK) {
+	if (errorRaiseException(error)) {
         return handleErrorOnRW(error, address);
     }
 
@@ -708,9 +712,13 @@ int Cpu::LW(){
 
     int error = bus->getBusError();
 
-    if (error != ERR_OK) {
+    if (errorRaiseException(error)) {
         return handleErrorOnRW(error, address);
     }
+
+	if (error != ERR_OK) {
+		value = 0xFFFFFFFF;
+	}
 
 	GPR[operand->rt] = value;
 
@@ -727,7 +735,7 @@ int Cpu::LBU(){
 
     int error = bus->getBusError();
 
-    if (error != ERR_OK) {
+    if (errorRaiseException(error)) {
         return handleErrorOnRW(error, address);
     }
 
@@ -758,7 +766,7 @@ int Cpu::LHU(){
 
     int error = bus->getBusError();
 
-    if (error != ERR_OK) {
+    if (errorRaiseException(error)) {
         return handleErrorOnRW(error, address);
     }
 
@@ -782,7 +790,7 @@ int Cpu::SB() {
 
     int error = bus->getBusError();
 
-    if (error != ERR_OK) {
+    if (errorRaiseException(error)) {
 		return handleErrorOnRW(error, address);
 	}
 
@@ -796,7 +804,7 @@ int Cpu::SB() {
 int Cpu::SH(){
     uint32_t address = GPR[operand->rs] + signExtend(operand->immediate, 16); // multiple of 2
 
-    if (address & 1 != 0){
+    if (address & (1 != 0)){
         bus->setBusError(ERR_OK);
         cop0.setBadVaddr(address);
         return raiseException(Exception::StoreAddressError);
@@ -806,7 +814,7 @@ int Cpu::SH(){
 
     int error = bus->getBusError();
 
-    if (error != ERR_OK) {
+    if (errorRaiseException(error)) {
         return handleErrorOnRW(error, address);
     }
 
@@ -870,7 +878,7 @@ int Cpu::SWL(){
 
     int error = bus->getBusError();
 
-    if (error != ERR_OK) {
+    if (errorRaiseException(error)) {
         return handleErrorOnRW(error, address);
     }
 
@@ -901,7 +909,7 @@ int Cpu::SWR(){
 
     int error = bus->getBusError();
 
-    if (error != ERR_OK) {
+    if (errorRaiseException(error)) {
         return handleErrorOnRW(error, address);
     }
 

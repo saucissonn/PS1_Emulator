@@ -8,9 +8,9 @@
 #include "ps1/io/io.hpp"
 #include "ps1/expansion.hpp"
 
-enum class Mem // the physical memory zone in the cpu
+enum class Mem // The physical memory zone in the cpu
 {
-    MAIN_RAM,
+    MAIN_RAM = 0,
     EXPANSION_REGION_1,
     SCRATCHPAD,
     IO_PORTS,
@@ -20,6 +20,13 @@ enum class Mem // the physical memory zone in the cpu
     CACHE_CONTROL,
     INVALID_COMPONENT
 };
+
+typedef enum {// The memory segments
+	KUSEG = 0,
+	KSEG0,
+	KSEG1,
+	KSEG2
+} Segment;
 
 class Cpu;
 class Expansion;
@@ -46,6 +53,8 @@ class Bus {
 
 		int getBusError();
 		void setBusError(int value);
+
+		uint8_t getSegment(uint32_t address);
 
 	private:
 		Cpu *cpu;

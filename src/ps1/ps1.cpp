@@ -27,6 +27,9 @@ Ps1::Ps1() :
 
 	io.setBus(&bus);
 
+	ram.setMemoryControl3(io.getMemoryControl3());
+	ram.setBus(&bus);
+
 	// Link everything to the bus
 	bus.setCpu(&cpu);
 	bus.setBios(&bios);
